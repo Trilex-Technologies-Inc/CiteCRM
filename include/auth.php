@@ -13,10 +13,15 @@ class Auth {
 
   function Auth($db, $redirect, $hashKey, $md5 = true)
   {
-	$this->db			= $db;
+    $this->db       = $db;
     $this->redirect = $redirect;
     $this->hashKey  = $hashKey;
     $this->md5      = $md5;
+
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+    
     $this->session  = &new Session();
     $this->login();
   }
@@ -44,12 +49,23 @@ class Auth {
     }
 
     // Escape the variables for the query
-    $login 		= mysql_real_escape_string($_POST[USER_LOGIN_VAR]);
-    $password 	= mysql_real_escape_string($password);
+    $login     = mysql_real_escape_string($_POST[USER_LOGIN_VAR]);
+    $password  = mysql_real_escape_string($password);
   
     // Query to count number of users with this combination
-    $sql = "SELECT COUNT(*) AS num_users FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN=".$this->db->qstr($login) ." AND EMPLOYEE_PASSWD=".$this->db->qstr($password);
-	 $result = $this->db->Execute($sql);
+    $sql = "SELECT COUNT(*) AS num_users FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN='".$login."' AND EMPLOYEE_PASSWD='".$password."'";
+    
+    $result = $this->db->Execute($sql);
+    
+    // Check if query was successful
+    if (!$result) {
+        // Log the database error
+        error_log("Database query failed: " . $this->db->ErrorMsg());
+        $this->writeLog('Database Error', $login);
+        $this->force_page('login.php?error_msg=System Error. Please try again.');
+        exit;
+    }
+    
     $row = $result->FetchRow();
 
     // If there isn't is exactly one entry, redirect
@@ -58,29 +74,38 @@ class Auth {
       $this->force_page('login.php?error_msg=Login Failed');
     // Else is a valid user; set the session variables
     } else {
-		/* grab their login ID for tracking purposes */
-		$sql = "SELECT EMPLOYEE_ID  FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN='$login'";
-		$result = $this->db->Execute($sql);
-    	$row = $result->FetchRow();
-		
-		if (!isset($row['EMPLOYEE_ID'])) { /* We did not get a login ID */
-			$this->writeLog('Failed Login ID For ',$login);
-      	$this->force_page('login.php?error_msg=Login Failed');
-		} else {
-			$login_id = $row['EMPLOYEE_ID'];
-		}
-	
-      $this->storeAuth($login, $password, $compnay, $login_id);
+        /* grab their login ID for tracking purposes */
+        $sql = "SELECT EMPLOYEE_ID FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN='".$login."'";
+        $result = $this->db->Execute($sql);
+        
+        // Check if second query was successful
+        if (!$result) {
+            error_log("Second database query failed: " . $this->db->ErrorMsg());
+            $this->writeLog('Database Error on ID fetch', $login);
+            $this->force_page('login.php?error_msg=System Error. Please try again.');
+            exit;
+        }
+        
+        $row = $result->FetchRow();
+        
+        if (!isset($row['EMPLOYEE_ID'])) { /* We did not get a login ID */
+            $this->writeLog('Failed Login ID For ',$login);
+            $this->force_page('login.php?error_msg=Login Failed');
+        } else {
+            $login_id = $row['EMPLOYEE_ID'];
+        }
+    
+      $this->storeAuth($login, $password, $login_id);
     }
   }
   
 
-  function storeAuth($login, $password, $compnay, $login_id)
+  function storeAuth($login, $password, $login_id)
   {
     $this->session->set(USER_LOGIN_VAR, $login);
     $this->session->set(USER_PASSW_VAR, $password);
-	$this->session->set('login_id', $login_id);
-	
+    $this->session->set('login_id', $login_id);
+    
     // Create a session variable to use to confirm sessions
     $hashKey = md5($this->hashKey . $login . $password);
     $this->session->set('login_hash', $hashKey);
@@ -143,22 +168,22 @@ class Auth {
   }
 
   
-	function force_page($page) {
-			echo("
-				<script type=\"text/javascript\">
-					<!--
-					window.location = \"$page\"
-					//-->
-				</script>");
-	}
+    function force_page($page) {
+            echo("
+                <script type=\"text/javascript\">
+                    <!--
+                    window.location = \"$page\"
+                    //-->
+                </script>");
+    }
 }
 
 function force_page($module, $cur_page) {
     echo("
-		<script type=\"text/javascript\">
-			<!--
-			window.location = \"index.php?page=$module:$cur_page\"
-			//-->
-		</script>");
+        <script type=\"text/javascript\">
+            <!--
+            window.location = \"index.php?page=$module:$cur_page\"
+            //-->
+        </script>");
 }
 ?>

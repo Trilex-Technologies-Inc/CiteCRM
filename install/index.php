@@ -89,52 +89,63 @@ echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http:/
 		}
 		
 
+###################################
+# Create Database (Skip if exists) #
 ##################################
-# Create Database						#
+    // Try to select the database to check if it exists
+    if (!$db->SelectDB($_POST['db_name'])) {
+        // Database doesn't exist, create it
+        $q = "CREATE DATABASE ".$_POST['db_name'];
+        if(!$rs = $db->Execute($q)) {
+            echo("<tr>\n
+                    <td>Create Database ". $_POST['db_name'] ." </td>\n
+                    <td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg(). " </td>\n
+                </tr>\n");
+            die;
+        } else {
+            echo("<tr>\n
+                        <td>Create Database ".$_POST['db_name']."</td>\n
+                        <td><font color=\"green\"><b>CREATED</b></font></td>\n
+                    </tr>\n");
+        }
+    } else {
+        echo("<tr>\n
+                    <td>Create Database ".$_POST['db_name']."</td>\n
+                    <td><font color=\"blue\"><b>SKIPPED - Already exists</b></font></td>\n
+                </tr>\n");
+    }
+    
 ##################################
-		$q = "CREATE DATABASE ".$_POST['db_name'];
-		if(!$rs = $db->Execute($q)) {
-			echo("<tr>\n
-					<td>Create Database ". $_POST['db_name'] ." </td>\n
-					<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg(). " </td>\n
-				</tr>\n");
-			die;
-		} else {
-			echo("<tr>\n
-						<td>Create Database ".$_POST['db_name']."</td>\n
-						<td><font color=\"green\"><b>OK</b></font></td>\n
-					</tr>\n");
-		}
-		
+# Verify CRM User Can Connect     #
 ##################################
-# grant default admin privilages	#
+    // First close the root connection
+    $db->close();
+    
+    // Try to connect with the CRM user credentials
+    $crm_db = &ADONewConnection('mysql');
+    if($crm_db->Connect($_POST['db_host'], $_POST['crm_db_user'], $_POST['crm_db_password'], $_POST['db_name'])) {
+        echo("<tr>\n
+                <td>Verify CRM Database User</td>\n
+                <td><font color=\"green\"><b>OK - User can connect</b></font></td>\n
+            </tr>\n");
+        $crm_db->close();
+    } else {
+        echo("<tr>\n
+                <td>Verify CRM Database User</td>\n
+                <td><font color=\"orange\"><b>WARNING:</b></font> User '".$_POST['crm_db_user']."' cannot connect. Tables will be created with root user.</td>\n
+            </tr>\n");
+    }
+    
+    // Reconnect with root for table creation
+    $db = &ADONewConnection('mysql');
+    $db->Connect($_POST['db_host'], $_POST['db_user'], $_POST['db_password']);
+    $db->SelectDB($_POST['db_name']);
+    
 ##################################
-		$q = "GRANT ALL PRIVILEGES ON ".$_POST['db_name'].".* TO '".$_POST['crm_db_user']."'@'".$_POST['db_host']."' IDENTIFIED BY '".$_POST['crm_db_password']."'";
-		
-		if(!$rs = $db->Execute($q)) {
-			echo("<tr>\n
-						<td>Grant Privilages On DB</td>\n
-						<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg()."</td>\n
-					</tr>\n");
-		} else {
-			echo("<tr>\n
-						<td>Granting Privilages for: ".$login."</td>\n
-						<td><font color=\"green\"><b>OK</b></font></td>\n
-					</tr>\n");
-		}
+# Continue with table creation... #
+##################################
 
-##################################
-# Create New Conection				#
-##################################
-		$db->close();
-		include("../conf.php");
 
-		if( $db->errorMsg() != '' ) {
-			echo "There Was an error conecting to the database: ".$db->errorMsg();
-			die;
-		}
-
-	$prefix = $_POST['db_prefix'];
 @define('PRFX', $prefix);
 ##################################
 # Build Tables							#
@@ -964,7 +975,8 @@ function check_write ($file) {
 #####################################
 #		Set Path					#
 #####################################
-function set_path($_POST) 
+function set_path($post_data)
+
 {
 	
 	$install_date = date("M d Y h:i:s A" ,time());

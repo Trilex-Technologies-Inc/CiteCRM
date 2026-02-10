@@ -58,7 +58,9 @@ global $smarty;
 	// Figure out the total number of pages. Always round up using ceil()
 	$total_pages = ceil($total_results["Num"] / $max_results); 
 	$smarty->assign('total_pages', $total_pages);
-	
+	$prev = 0;
+    $next = 0;
+    
 	// Assign the first page
 	if($page_no > 1) {
     	$prev = ($page_no - 1);	 
@@ -124,7 +126,9 @@ global $smarty;
 	// Figure out the total number of pages. Always round up using ceil()
 	$total_pages = ceil($total_results["Num"] / $max_results); 
 	$smarty->assign('total_pages', $total_pages);
-	
+	 $prev = 0;
+    $next = 0;
+    
 	// Assign the first page
 	if($page_no > 1) {
     	$prev = ($page_no - 1);	 
