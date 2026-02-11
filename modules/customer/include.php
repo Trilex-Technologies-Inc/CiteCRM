@@ -291,6 +291,7 @@ function update_customer($db,$VAR) {
 			CUSTOMER_LAST_NAME		= ". $db->qstr( $VAR["lastName"]		).",
 			DISCOUNT 					= ". $db->qstr( $VAR['discount']		)."
 			WHERE CUSTOMER_ID		= ". $db->qstr( $VAR['customer_id']	);
+
 			
 	if(!$result = $db->Execute($sql)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');

@@ -65,7 +65,7 @@ $q = "SELECT COUNT(*) as Num FROM ".PRFX."ORDERS WHERE STATUS=".$db->qstr($statu
     	$next = ($page_no + 1); 
 	}
 	
-	$smarty->assign('name', $name);
+	$smarty->assign('name', isset($name) ? $name : '');
 	$smarty->assign('page_no', $page_no);
 	$smarty->assign("previous", $prev);	
 	$smarty->assign("next", $next);

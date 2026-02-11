@@ -1,151 +1,176 @@
-<!-- New Employee tpl -->
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td >
-		
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-		    		{include file="core/tool_bar.tpl"}
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
-{if $error_msg != ""}
-	{include file="core/error.tpl"}
-{/if}
+<div class="container my-4">
 
-{include file="employees/new.js"}
+    <!-- Toolbar -->
+    <div class="mb-3">
+        {include file="core/tool_bar.tpl"}
+    </div>
 
-<table width="100%" border="0" cellpadding="20" cellspacing="5">
-	<tr>
-		<td><!-- Begin Page -->
-			<table width="700" cellpadding="5" cellspacing="0" border="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;{$translate_employee_add_new_employee}</td>
-					<td class="menuhead2" width="20%" align="right" valign="middle">
-							<img src="images/icons/16x16/help.gif" border="0" 
-							onMouseOver="ddrivetip('<b>Customer Details</b><hr><p>No help</p>')" 
-							onMouseOut="hideddrivetip()">
-					</td>
-				</tr><tr>
-					<td class="olotd5" colspan="2">
-					{literal}
-					<form  action="index.php?page=employee:new" method="POST" name="new_employee" id="new_employee" onsubmit="try { var myValidator = validate_new_employee; } catch(e) { return true; } return myValidator(this);">	
-					{/literal}
-						<table class="menutable" width="100%" border="0" cellpadding="0" cellspacing="0" >
-							<tr>
-								<td class="menutd">	
-									<input type="hidden" name="page" value="employees:new">
-									
-									<table width="100%" cellpadding="2" cellspacing="2" border="0" class="menutd2">
-										<tr>
-											<td>
-													<table width="100%" cellpadding="5" cellspacing="0" border="0" class="olotable">
-														<tr>
-															<td colspan="2" align="left">
-																<table>
-																<tbody align="left">
-																	<tr>
-																		<td><span style="color: #ff0000">*</span>
-																			<strong>{$translate_employee_display_name}</strong></td>
-																		<td colspan="3"><input size="60" name="displayName" type="text" class="olotd5" /></td>
-																	</tr><tr>
-																		<td><span style="color: #ff0000">*</span>
-																			<strong>{$translate_employee_first_name}</strong></td>
-																		<td><input name="firstName" type="text" class="olotd5"/></td>
-																		<td><span style="color: #ff0000">*</span>
-																			<strong>{$translate_employee_last_name}</strong></td>
-																		<td><input name="lastName" type="text" class="olotd5"/></td>
-																	</tr><tr>
-																		<td><span style="color: #ff0000">*</span>
-																			<strong>{$translate_employee_password}</strong></td>
-																		<td><input name="password" type="password" class="olotd5"/></td>
-																		<td><span style="color: #ff0000">*</span>
-																			<strong>{$translate_employee_password_confirm}</strong></td>
-																		<td><input  name="confirmPass" type="password" class="olotd5"/></td>
-																	</tr>	
-																</tbody>
-																</table>
-															</td>
-														</tr><tr class="row2">
-															<td class="menuhead" colspan="2">&nbsp;{$translate_employee_phone_numbers}</td>
-														</tr><tr>
-															<td colspan="2">
-																<table>
-																	<tr>
-																		<td><span style="color: #ff0000">*</span>
-																			<strong>{$translate_employee_home_phone_number}</strong></td>
-																		<td><input name="homePhone" type="text" class="olotd5" /></td>
-																	</tr><tr>
-																		<td>
-																			<strong>{$translate_employee_work_phone_number}</strong></td>
-																		<td><input name="workPhone" type="text" class="olotd5"/></td>
-																	</tr><tr>
-																		<td>
-																			<strong>{$translate_employee_mobile_phone_number}</strong></td>
-																		<td><input name="mobilePhone" type="text" class="olotd5"/></td>
-																	</tr>
-																</table>
-															</td>
-														</tr><tr class="row2">
-															<td class="menuhead" colspan="2">&nbsp;{$translate_employee_address}</td>
-														</tr><tr>
-																<td colspan="2">
-																	<table>
-																	<tbody align="left">
-																		<tr>
-																			<td><span style="color: #ff0000">*</span>
-																				<strong>{$translate_employee_address}</strong></td>
-																			<td colspan="3"><input size="54" name="address" type="text" class="olotd5"/></td>
-																		</tr><tr>
-																			<td><span style="color: #ff0000">*</span>
-																				<strong>{$translate_employee_city}</strong></td>
-																			<td><input name="city" type="text" class="olotd5" value="{$company_city}"/></td>
-																			<td><span style="color: #ff0000">*</span>
-																				<strong>{$translate_employee_state}</strong></td>
-																			<td><input name="state" type="text" class="olotd5" value="{$company_state}"/></td>
-																		</tr><tr>
-																			<td><span style="color: #ff0000">*</span>
-																				<strong>{$translate_employee_zip}</strong></td>						<td colspan="2"><input name="zip" type="text" class="olotd5" value="{$company_zip}"/></td>
-																		</tr>
-																	</tbody>
-																	</table>	
-																</td>
-															</tr><tr>
-																<td><span style="color: #ff0000">*</span>
-																	<strong>{$translate_employee_employee_type}</strong>
-																	<select class="olotd5" name="type" >
-																		<option value="1">{$translate_employee_manager}</option>
-																		<option value="2">{$translate_employee_supervisor}</option>
-																		<option value="3">{$translate_employee_technician}</option>
-																	</select>
-																</td>
-															</tr><tr>
-																<td>
-																	<span style="color: #ff0000">*</span>
-																	<strong>{$translate_employee_email_address}</strong><input name="email" type="text" class="olotd5"/></td>
-																<td></td>
-															</tr><tr>
-																<td colspan="2"><input name="submit" value="{$translate_employee_submit}" type="submit" class="olotd5"/></td>
-															</tr>
-														</table>
-														
-														
-												</td>
-											</td>
-										</table>
-										</form>
-										
-										
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				</table>
-			</td>
-		</tr>
-	</table>
+    {if $error_msg != ""}
+        <div class="alert alert-danger">
+            {include file="core/error.tpl"}
+        </div>
+    {/if}
 
+    {include file="employees/new.js"}
+
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{$translate_employee_add_new_employee}</h5>
+            <span class="text-muted small">Help</span>
+        </div>
+
+        <div class="card-body">
+
+        {literal}
+        <form action="index.php?page=employee:new"
+              method="POST"
+              name="new_employee"
+              id="new_employee"
+              onsubmit="try { var myValidator = validate_new_employee; } catch(e) { return true; } return myValidator(this);">
+        {/literal}
+
+            <input type="hidden" name="page" value="employees:new">
+
+            <!-- Basic Info -->
+            <div class="row mb-4">
+                <div class="col-12 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_display_name}
+                    </label>
+                    <input type="text" name="displayName" class="form-control">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_first_name}
+                    </label>
+                    <input type="text" name="firstName" class="form-control">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_last_name}
+                    </label>
+                    <input type="text" name="lastName" class="form-control">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_password}
+                    </label>
+                    <input type="password" name="password" class="form-control">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_password_confirm}
+                    </label>
+                    <input type="password" name="confirmPass" class="form-control">
+                </div>
+            </div>
+
+            <!-- Phone Numbers -->
+            <h6 class="border-bottom pb-2 mb-3">{$translate_employee_phone_numbers}</h6>
+
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_home_phone_number}
+                    </label>
+                    <input type="text" name="homePhone" class="form-control">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">
+                        {$translate_employee_work_phone_number}
+                    </label>
+                    <input type="text" name="workPhone" class="form-control">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">
+                        {$translate_employee_mobile_phone_number}
+                    </label>
+                    <input type="text" name="mobilePhone" class="form-control">
+                </div>
+            </div>
+
+            <!-- Address -->
+            <h6 class="border-bottom pb-2 mb-3">{$translate_employee_address}</h6>
+
+            <div class="row mb-4">
+                <div class="col-12 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_address}
+                    </label>
+                    <input type="text" name="address" class="form-control">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_city}
+                    </label>
+                    <input type="text" name="city" class="form-control" value="{$company_city}">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_state}
+                    </label>
+                    <input type="text" name="state" class="form-control" value="{$company_state}">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_zip}
+                    </label>
+                    <input type="text" name="zip" class="form-control" value="{$company_zip}">
+                </div>
+            </div>
+
+            <!-- Type & Email -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_employee_type}
+                    </label>
+                    <select name="type" class="form-select">
+                        <option value="1">{$translate_employee_manager}</option>
+                        <option value="2">{$translate_employee_supervisor}</option>
+                        <option value="3">{$translate_employee_technician}</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        {$translate_employee_email_address}
+                    </label>
+                    <input type="email" name="email" class="form-control">
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="text-end">
+                <button type="submit" name="submit" class="btn btn-primary px-4">
+                    {$translate_employee_submit}
+                </button>
+            </div>
+
+        </form>
+
+        </div>
+    </div>
+
+</div>

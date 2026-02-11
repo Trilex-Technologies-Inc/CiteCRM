@@ -14,11 +14,12 @@ if(!xml2php("workorder")) {
 }
 require_once ("include.php");
 
-$submit      = $VAR['submit'];
+
 $customer_id = $VAR['customer_id'];
 
 
 if (isset($VAR['submit'])) {
+        $submit      = $VAR['submit'];
 		if (!insert_new_workorder($db,$VAR)) {
 			$smarty->display('workorder'.SEP.'new.tpl');
 		} 

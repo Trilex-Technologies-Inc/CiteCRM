@@ -90,7 +90,7 @@ global $smarty;
 	}
 
 
-	$smarty->assign('name', $name);
+	$smarty->assign('name', isset($name) ? $name : '');
 	$smarty->assign('page_no', $page_no);
 	$smarty->assign("previous", $prev);	
 	$smarty->assign("next", $next);

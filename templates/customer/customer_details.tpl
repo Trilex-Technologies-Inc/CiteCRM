@@ -3,282 +3,395 @@
 {literal}
 <script type="text/javascript">
 function confirmSubmit(){
-	<!--
-	var answer = confirm ("Are you Sure you want to delete customer {/literal}{$customer_details[i].CUSTOMER_DISPLAY_NAME}{literal}? This will remove all work order history and invoices. You might want to just set customer to Inactive.")
-	if (answer)
-		window.location="?page=customer:delete&customer_id={/literal}{$customer_details[i].CUSTOMER_ID}{literal}"	
-	}
+    <!--
+    var answer = confirm ("Are you Sure you want to delete customer {/literal}{$customer_details[i].CUSTOMER_DISPLAY_NAME}{literal}? This will remove all work order history and invoices. You might want to just set customer to Inactive.")
+    if (answer)
+        window.location="?page=customer:delete&customer_id={/literal}{$customer_details[i].CUSTOMER_ID}{literal}"    
+    }
 // -->
 </script>
 {/literal}
 
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td >
-		
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-		    		{include file="core/tool_bar.tpl"}
-					
-				</tr>
-			</table>
-			
-		</td>
-	</tr>
-</table>
-	{if $error_msg != ""}
-		{include file="core/error.tpl"}
-	{/if}
-	{if $msg !=""}
-		{include file="core/msg.tpl"}
-	{/if}
-<table width="100%" border="0" cellpadding="20" cellspacing="5">
-	<tr>
-		<td>
+<!-- Toolbar -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        {include file="core/tool_bar.tpl"}
+    </div>
+</div>
 
-			<table width="700" cellpadding="4" cellspacing="0" border="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;{$translate_customer_details} {$customer_details[i].CUSTOMER_DISPLAY_NAME}</td>
-					<td class="menuhead2" width="20%" align="right" valign="middle">
-							<a href="http://www.citecrm.com/docs/#Customers" target="new"><img src="images/icons/16x16/help.gif" border="0"></a>
-					</td>
-				</tr><tr>
-					<td class="menutd2" colspan="2">
-						<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
-							<tr>
-								<td class="menutd">
-									{if $error_msg != ""}
-										<br>
-										{include file="core/error.tpl"}
-										<br>
-									{/if}
-									<!-- Content -->								
-						<table class="olotable" border="0" cellpadding="5" cellspacing="5" width="100%" summary="Customer Contact">
-							<tr>
-								<td class="olohead" colspan="4">
-									<table width="100%" cellpadding="0" cellspacing="0" border="0">
-										<tr>
-											<td class="menuhead2">&nbsp;{$translate_customer_contact}</td>
-									</table>
-								</td>
-							</tr><tr>
-								<td class="menutd"><b>{$translate_customer_contact_2}</b></td>
-								<td class="menutd"> {$customer_details[i].CUSTOMER_FIRST_NAME} {$customer_details[i].CUSTOMER_LAST_NAME}</td>
-								<td class="menutd"><b>{$translate_email}</b></td>
-								<td class="menutd"> {$customer_details[i].CUSTOMER_EMAIL}</td>
-							</tr><tr class="row2">
-								<td class="menutd" colspan="4">&nbsp;</td>
-							</tr><tr>
-								<td class="menutd"><b>{$translate_customer_address}</b></td>
-								<td class="menutd"></td>
-								<td class="menutd"><b>{$translate_customer_home}</b></td>
-								<td class="menutd">{$customer_details[i].CUSTOMER_PHONE}</td>
-							</tr><tr>								
-								<td class="menutd">{$customer_details[i].CUSTOMER_DISPLAY_NAME}</td>
-								<td class="menutd">{$customer_details[i].CUSTOMER_ADDRESS}</td>			
-								<td class="menutd"><b>{$translate_customer_work}</b></td>
-								<td class="menutd">{$customer_details[i].CUSTOMER_WORK_PHONE}</td>
-							</tr><tr>
-								<td class="menutd">{$customer_details[i].CUSTOMER_CITY}</td>
-								<td class="menutd">{$customer_details[i].CUSTOMER_STATE} {$customer_details[i].CUSTOMER_ZIP}</td>
-								<td class="menutd"><b>{$translate_customer_mobile}</b></td>
-								<td class="menutd">{$customer_details[i].CUSTOMER_MOBILE_PHONE}</td>
-							</tr><tr class="row2">
-								<td class="menutd" colspan="4">&nbsp;</td>
-							</tr><tr>
-								<td class="menutd"><b>{$translate_customer_type}</b></td>
-								<td class="menutd">
-												{if $customer_details[i].CUSTOMER_TYPE ==1}
-													{$translate_customer_type_1}
-												{/if}
-												{if $customer_details[i].CUSTOMER_TYPE ==2}
-													{$translate_customer_type_2}
-												{/if}
-												{if $customer_details[i].CUSTOMER_TYPE ==3}
-													{$translate_customer_type_3}
-												{/if}
-												{if $customer_details[i].CUSTOMER_TYPE ==4}
-													{$translate_customer_type_4}
-												{/if}
-								</td>
-								<td class="menutd"><b>{$translate_customer_discount}</b></td>
-								<td class="menutd">{$customer_details[i].DISCOUNT}%</td>
-							</tr><tr>
-								</tr><tr class="row2">
-								<td class="menutd" colspan="4">&nbsp;</td>
-							</tr><tr>
-								<td class="menutd"><b>{$translate_customer_created}</b></td>
-								<td class="menutd">{$customer_details[i].CREATE_DATE|date_format:"%m-%d-%Y"}</td>
-								<td class="menutd"><b>{$translate_customer_last}</b></td>
-								<td class="menutd">{$customer_details[i].LAST_ACTIVE|date_format:"%m-%d-%Y"}</td>
-							</tr>
-						</table>
-							{assign var="customer_id" value=$customer_details[i].CUSTOMER_ID}
-							{assign var="customer_name" value=$customer_details[i].CUSTOMER_DISPLAY_NAME}
-							{/section}	
-						<p>&nbsp;</p>							
-						
-						<table class="olotable" width="100%" border="0" cellpadding="4" cellspacing="0">
-							<tr>
-								<td class="olohead">Memo</td>
-							</tr>	
-							{section name=m loop=$memo}
-							<tr>	
-								<td class="olotd4">
+{if $error_msg != ""}
+    <div class="alert alert-danger">
+        {include file="core/error.tpl"}
+    </div>
+{/if}
+{if $msg !=""}
+    <div class="alert alert-success">
+        {include file="core/msg.tpl"}
+    </div>
+{/if}
 
-									<table width="100%">
-										<tr>
-											<td><b>Date</b> {$memo[m].DATE|date_format:"%m-%d-%Y"}</td>
-											<td align="right"><a href="?page=customer:memo&action=delete&note_id={$memo[m].ID}&customer_name={$customer_name}&customer_id={$customer_id}">Delete</a></td>
-										</tr>
-											<td colspan="2">{$memo[m].NOTE}</td>
-										</tr>
-									</table>
+<!-- Main Content Container -->
+<div class="container-fluid p-3">
+    <!-- Customer Details Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{$translate_customer_details} {$customer_details[i].CUSTOMER_DISPLAY_NAME}</h5>
+            <a href="http://www.citecrm.com/docs/#Customers" target="new">
+                <img src="images/icons/16x16/help.gif" border="0" alt="Help">
+            </a>
+        </div>
+        
+        <div class="card-body">
+            <!-- Customer Contact Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">{$translate_customer_contact}</h6>
+                </div>
+                <div class="card-body">
+                    <!-- Contact Name & Email -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong>{$translate_customer_contact_2}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            {$customer_details[i].CUSTOMER_FIRST_NAME} {$customer_details[i].CUSTOMER_LAST_NAME}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>{$translate_email}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            {$customer_details[i].CUSTOMER_EMAIL}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <!-- Address & Phone Section -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong>{$translate_customer_address}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            {$customer_details[i].CUSTOMER_DISPLAY_NAME}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>{$translate_customer_home}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            {$customer_details[i].CUSTOMER_PHONE}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {$customer_details[i].CUSTOMER_ADDRESS}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>{$translate_customer_work}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            {$customer_details[i].CUSTOMER_WORK_PHONE}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {$customer_details[i].CUSTOMER_CITY}, {$customer_details[i].CUSTOMER_STATE} {$customer_details[i].CUSTOMER_ZIP}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>{$translate_customer_mobile}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            {$customer_details[i].CUSTOMER_MOBILE_PHONE}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <!-- Customer Type & Discount -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong>{$translate_customer_type}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            {if $customer_details[i].CUSTOMER_TYPE ==1}
+                                {$translate_customer_type_1}
+                            {/if}
+                            {if $customer_details[i].CUSTOMER_TYPE ==2}
+                                {$translate_customer_type_2}
+                            {/if}
+                            {if $customer_details[i].CUSTOMER_TYPE ==3}
+                                {$translate_customer_type_3}
+                            {/if}
+                            {if $customer_details[i].CUSTOMER_TYPE ==4}
+                                {$translate_customer_type_4}
+                            {/if}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>{$translate_customer_discount}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            {$customer_details[i].DISCOUNT}%
+                        </div>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <!-- Created & Last Active -->
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>{$translate_customer_created}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            {$customer_details[i].CREATE_DATE|date_format:"%m-%d-%Y"}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>{$translate_customer_last}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            {$customer_details[i].LAST_ACTIVE|date_format:"%m-%d-%Y"}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {assign var="customer_id" value=$customer_details[i].CUSTOMER_ID}
+            {assign var="customer_name" value=$customer_details[i].CUSTOMER_DISPLAY_NAME}
+{/section}
 
-								</td>
-							</tr>
-							{/section}
-							<tr>
-								<td class="olotd4"><a href="?page=customer:memo&customer_id={$customer_id}&page_title=New Memo&customer_name={$customer_name}">New Memo</a></td>
-							</tr>
-						</table>
-						<p>&nbsp;</p>
-						<b>{$translate_customer_open_work_orders}</b>
-						<table class="olotable" width="100%" border="0" cellpadding="4" cellspacing="0">
-							<tr>
-								<td class="olohead">{$translate_customer_wo_id}</td>
-								<td class="olohead">{$translate_customer_date_open}</td>
-								<td class="olohead">{$translate_customer}</td>
-								<td class="olohead">{$translate_customer_scope}</td>
-								<td class="olohead">{$translate_customer_status}</td>
-								<td class="olohead">{$translate_customer_tech}</td>
-								<td class="olohead">{$translate_customer_action}</td>
-							</tr>
-							{section name=a loop=$open_work_orders}
-							<tr onmouseover="this.className='row2'" onmouseout="this.className='row1'" onDblClick="window.location='?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&page_title={$translate_customer_work_order_id} {$open_work_orders[a].WORK_ORDER_ID},';" class="row1">
-								<td class="olotd4"><a href="?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&page_title={$translate_customer_work_order_id} {$open_work_orders[a].WORK_ORDER_ID}">{$open_work_orders[a].WORK_ORDER_ID}</a></td>
-								<td class="olotd4">{$open_work_orders[a].WORK_ORDER_OPEN_DATE|date_format:"%m-%d-%Y"}</td>
-								<td class="olotd4">{section name=i loop=$customer_details}{$customer_details[i].CUSTOMER_DISPLAY_NAME}{/section}</td>
-								<td class="olotd4">{$open_work_orders[a].WORK_ORDER_SCOPE}</td>
-								<td class="olotd4">{$open_work_orders[a].CONFIG_WORK_ORDER_STATUS}</a>
-								</td>
-								<td class="olotd4">
-									{if $open_work_orders[a].EMPLOYEE_ID != ''}
-									<img src="images/icons/16x16/view+.gif" border="0" onMouseOver="ddrivetip('<center><b>{$translate_contact}</b></center><hr><b>{$translate_work} </b>{$open_work_orders[a].EMPLOYEE_WORK_PHONE}<br><b>{$translate_mobile} </b>{$open_work_orders[a].EMPLOYEE_MOBILE_PHONE}<br><b>{$translate_home} </b>{$open_work_orders[a].EMPLOYEE_HOME_PHONE}')" onMouseOut="hideddrivetip()"> 
-										<a class="link1" href="?page=employees:employee_details&employee_id={$open_work_orders[a].EMPLOYEE_ID}&page_title={$open_work_orders[a].EMPLOYEE_DISPLAY_NAME}">{$open_work_orders[a].EMPLOYEE_DISPLAY_NAME}</a>
-									{ else }
-										Not Assigned
-									{/if}
-								</td>
-								<td class="olotd4" align="center">
-									<a href="?page=workorder:print&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&escape=1" target="new"><img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()"></a>
-									<a href="?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}"><img src="images/icons/16x16/viewmag.gif"  border="0" onMouseOver="ddrivetip('{$translate_customer_view_wo}')" onMouseOut="hideddrivetip()"></a>
-									
-								</td>
-							</tr>
-							{/section}
-						</table>	
-						<p>&nbsp;</p>
-						<b>{$translate_customer_gift_cert}</b>
-						<table class="olotable" width="100%" border="0" cellpadding="3" cellspacing="0">
-							<tr>
-								<td class="olohead">{$translate_customer_id}</td>
-								<td class="olohead">{$translate_customer_created}</td>
-								<td class="olohead">{$translate_customer_expire}</td>
-								<td class="olohead">{$translate_customer_amount}</td>
-								<td class="olohead">{$translate_customer_active}</td>
-								<td class="olohead">{$translate_customer_redeemed}</td>
-								<td class="olohead">{$translate_customer_invoice}</td>
-								<td class="olohead">{$translate_customer_action}</td>
-							</tr>{section name=g loop=$gift}
-							<tr onmouseover="this.className='row2'" onmouseout="this.className='row1'">
-								<td class="olotd4">{$gift[g].GIFT_ID}</td>
-								<td class="olotd4">{$gift[g].DATE_CREATE|date_format:"%m/%d/%Y"}</td>
-								<td class="olotd4">{$gift[g].EXPIRE|date_format:"%m/%d/%Y"}</td>
-								<td class="olotd4">${$gift[g].AMOUNT}</td>
-								<td class="olotd4">{if $gift[g].ACTIVE == 1} Yes {else} No{/if}</td>
-								<td class="olotd4">{if $gift[g].DATE_REDEMED == 0}None {else} {$gift[g].DATE_REDEMED|date_format:"%m/%d/%Y"}{/if}</td>
-								<td class="olotd4">{if $gift[g].INVOICE_ID == 0}None{else} <a href="">{$gift[g].INVOICE_ID}</a>{/if}</td>
-								<td class="olotd4">
-									{if $gift[g].ACTIVE == 1}
-									<a href="?page=billing:new_gift&gift_id={$gift[g].GIFT_ID}&customer_id={$gift[g].CUSTOMER_ID}&action=print&submit=1&escape=1" target="new" ><img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()"></a>&nbsp;<a href="?page=billing:new_gift&gift_id={$gift[g].GIFT_ID}&customer_id={$gift[g].CUSTOMER_ID}&action=delete&submit=1"><img src="images/icons/16x16/stop.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_delete}')" onMouseOut="hideddrivetip()"></a>
-									{else}
-										Not Active
-									{/if}
-								</td>
-							</tr>
-						{/section}
-						</table>
-								
-						<p>&nbsp;</p>
-						<b>{$translate_customer_unpaid_invoice}</b>
-						<table class="olotable" width="100%" border="0" cellpadding="3" cellspacing="0">
-							<tr>
-								<td class="olohead">{$translate_customer_inv_id}</td>
-								<td class="olohead">{$translate_customer_wo_id}</td>
-								<td class="olohead">{$translate_customer_date}</td>
-								<td class="olohead">{$translate_customer_amount}</td>
-								<td class="olohead">{$translate_customer_paid}</td>
-								<td class="olohead">{$translate_customer_balance}</td>
-								<td class="olohead">{$translate_customer_date_paid}</td>
-								<td class="olohead">{$translate_customer_employee}</td>
-								<td class="olohead">{$translate_customer_action}</td>
-							</tr>
-							{section name=w loop=$unpaid_invoices}
-							<tr onmouseover="this.className='row2'" onmouseout="this.className='row1'" onDblClick="window.location='?page=invoice:new&wo_id={$unpaid_invoices[w].WORKORDER_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}&page_title={$translate_customer_invoice}'">
-								<td class="olotd4"><a href="?page=invoice:new&wo_id={$unpaid_invoices[w].WORKORDER_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}&page_title={$translate_customer_invoice}">{$unpaid_invoices[w].INVOICE_ID}</a></td>
-								<td class="olotd4"><a href="?page=workorder:view&wo_id={$unpaid_invoices[w].WORKORDER_ID}&page_title={$translate_customer_work_order_id} {$unpaid_invoices[w].WORKORDER_ID}">{$unpaid_invoices[w].WORKORDER_ID}</a></td>
-								<td class="olotd4">{$unpaid_invoices[w].INVOICE_DATE|date_format:"%m-%d-%y"}</td>
-								<td class="olotd4">${$unpaid_invoices[w].INVOICE_AMOUNT|string_format:"%.2f"}</td>
-								<td class="olotd4">${$unpaid_invoices[w].PAID_AMOUNT|string_format:"%.2f"}</td>
-								<td class="olotd4">${$unpaid_invoices[w].BALLANCE|string_format:"%.2f"}</td>	
-								<td class="olotd4">{$unpaid_invoices[w].PAID_DATE|date_format:"%m-%d-%y"}</td>
-								<td class="olotd4">{$unpaid_invoices[w].EMPLOYEE_DISPLAY_NAME}</td>	
-								<td class="olotd4" align="center">
-									<a href="?page=invoice:print&invoice_id={$unpaid_invoices[w].INVOICE_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}&escape=1" target="new" ><img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()"></a>
-									<a href="?page=workorder:view&wo_id={$unpaid_invoices[w].WORK_ORDER_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}"><img src="images/icons/16x16/viewmag.gif"  border="0" onMouseOver="ddrivetip('{$translate_customer_view}')" onMouseOut="hideddrivetip()"></a>
-								</td>
-							</tr>
-							{/section}
-						</table>
-						
-						<p>&nbsp;</p>
-						<b>{$translate_customer_paid_invoice}</b>
-						<table class="olotable" width="100%" border="0" cellpadding="3" cellspacing="0" >
-							<tr>
-								<td class="olohead">{$translate_customer_inv_id}</td>
-								<td class="olohead">{$translate_customer_wo_id}</td>
-								<td class="olohead">{$translate_customer_date}</td>
-								<td class="olohead">{$translate_customer_amount}</td>
-								<td class="olohead">{$translate_customer_paid}</td>
-								<td class="olohead">{$translate_customer_balance}</td>
-								<td class="olohead">{$translate_customer_paid}</td>
-								<td class="olohead">{$translate_customer_employee}</td>
-								<td class="olohead">{$translate_customer_action}</td>
-							</tr>
-							{section name=w loop=$paid_invoices}
-							<tr onmouseover="this.className='row2'" onmouseout="this.className='row1'" onDblClick="window.location='?page=invoice:view&customer_id={$paid_invoices[w].CUSTOMER_ID}&invoice_id={$paid_invoices[w].INVOICE_ID}&page_title={$translate_customer_invoice}'">
-								<td class="olotd4"><a href="?page=invoice:view&customer_id={$paid_invoices[w].CUSTOMER_ID}&invoice_id={$paid_invoices[w].INVOICE_ID}&page_title={$translate_customer_invoice}">{$paid_invoices[w].INVOICE_ID}</a></td>
-								<td class="olotd4"><a href="?page=workorder:view&wo_id={$paid_invoices[w].WORKORDER_ID}&page_title={$translate_customer_work_order_id} {$paid_invoices[w].WORKORDER_ID}">{$paid_invoices[w].WORKORDER_ID}</a></td>
-								<td class="olotd4">{$paid_invoices[w].INVOICE_DATE|date_format:"%m-%d-%y"}</td>
-								<td class="olotd4">${$paid_invoices[w].INVOICE_AMOUNT|string_format:"%.2f"}</td>
-								<td class="olotd4">${$paid_invoices[w].PAID_AMOUNT|string_format:"%.2f"}</td>
-								<td class="olotd4">${$paid_invoices[w].BALLANCE|string_format:"%.2f"}</td>
-								<td class="olotd4">{$paid_invoices[w].PAID_DATE|date_format:"%m-%d-%y"}</td>
-								<td class="olotd4">{$paid_invoices[w].EMPLOYEE_DISPLAY_NAME}</td>
-								<td class="olotd4" align="center">
-									<a href="?page=invoice:print&invoice_id={$paid_invoices[w].INVOICE_ID}&customer_id={$paid_invoices[w].CUSTOMER_ID}&escape=1" target="new" ><img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()"></a>
-									<a href="?page=invoice:view&customer_id={$paid_invoices[w].CUSTOMER_ID}&invoice_id={$paid_invoices[w].INVOICE_ID}&page_title={$translate_customer_invoice}"><img src="images/icons/16x16/viewmag.gif"  border="0" onMouseOver="ddrivetip('{$translate_customer_view}')" onMouseOut="hideddrivetip()"></a>
-								</td>
-							</tr>
-						{/section}
-						</table>
-																																																						                        </table>
-					</td>
-				</tr>
-			</table>
-			
-		</td>
-	</tr>
-</table>
-
+            <!-- Memos Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Memo</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {section name=m loop=$memo}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong>Date</strong> {$memo[m].DATE|date_format:"%m-%d-%Y"}
+                                <a href="?page=customer:memo&action=delete&note_id={$memo[m].ID}&customer_name={$customer_name}&customer_id={$customer_id}" class="text-danger">
+                                    Delete
+                                </a>
+                            </div>
+                            <div class="mt-2">
+                                {$memo[m].NOTE}
+                            </div>
+                        </div>
+                        {/section}
+                        <div class="list-group-item">
+                            <a href="?page=customer:memo&customer_id={$customer_id}&page_title=New Memo&customer_name={$customer_name}" class="btn btn-primary btn-sm">
+                                New Memo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Open Work Orders Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">{$translate_customer_open_work_orders}</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover mb-0">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th>{$translate_customer_wo_id}</th>
+                                    <th>{$translate_customer_date_open}</th>
+                                    <th>{$translate_customer}</th>
+                                    <th>{$translate_customer_scope}</th>
+                                    <th>{$translate_customer_status}</th>
+                                    <th>{$translate_customer_tech}</th>
+                                    <th>{$translate_customer_action}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {section name=a loop=$open_work_orders}
+                                <tr ondblclick="window.location='?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&page_title={$translate_customer_work_order_id} {$open_work_orders[a].WORK_ORDER_ID}';" style="cursor: pointer;">
+                                    <td>
+                                        <a href="?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&page_title={$translate_customer_work_order_id} {$open_work_orders[a].WORK_ORDER_ID}">
+                                            {$open_work_orders[a].WORK_ORDER_ID}
+                                        </a>
+                                    </td>
+                                    <td>{$open_work_orders[a].WORK_ORDER_OPEN_DATE|date_format:"%m-%d-%Y"}</td>
+                                    <td>{section name=i loop=$customer_details}{$customer_details[i].CUSTOMER_DISPLAY_NAME}{/section}</td>
+                                    <td>{$open_work_orders[a].WORK_ORDER_SCOPE}</td>
+                                    <td>{$open_work_orders[a].CONFIG_WORK_ORDER_STATUS}</td>
+                                    <td>
+                                        {if $open_work_orders[a].EMPLOYEE_ID != ''}
+                                            <img src="images/icons/16x16/view+.gif" border="0" class="me-1" 
+                                                onMouseOver="ddrivetip('<center><b>{$translate_contact}</b></center><hr><b>{$translate_work} </b>{$open_work_orders[a].EMPLOYEE_WORK_PHONE}<br><b>{$translate_mobile} </b>{$open_work_orders[a].EMPLOYEE_MOBILE_PHONE}<br><b>{$translate_home} </b>{$open_work_orders[a].EMPLOYEE_HOME_PHONE}')" 
+                                                onMouseOut="hideddrivetip()">
+                                            <a href="?page=employees:employee_details&employee_id={$open_work_orders[a].EMPLOYEE_ID}&page_title={$open_work_orders[a].EMPLOYEE_DISPLAY_NAME}" class="text-primary">
+                                                {$open_work_orders[a].EMPLOYEE_DISPLAY_NAME}
+                                            </a>
+                                        {else}
+                                            Not Assigned
+                                        {/if}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="?page=workorder:print&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
+                                            <img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()" alt="Print">
+                                        </a>
+                                        <a href="?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}" class="text-decoration-none">
+                                            <img src="images/icons/16x16/viewmag.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_view_wo}')" onMouseOut="hideddrivetip()" alt="View">
+                                        </a>
+                                    </td>
+                                </tr>
+                                {/section}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gift Certificates Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">{$translate_customer_gift_cert}</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover mb-0">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th>{$translate_customer_id}</th>
+                                    <th>{$translate_customer_created}</th>
+                                    <th>{$translate_customer_expire}</th>
+                                    <th>{$translate_customer_amount}</th>
+                                    <th>{$translate_customer_active}</th>
+                                    <th>{$translate_customer_redeemed}</th>
+                                    <th>{$translate_customer_invoice}</th>
+                                    <th>{$translate_customer_action}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {section name=g loop=$gift}
+                                <tr>
+                                    <td>{$gift[g].GIFT_ID}</td>
+                                    <td>{$gift[g].DATE_CREATE|date_format:"%m/%d/%Y"}</td>
+                                    <td>{$gift[g].EXPIRE|date_format:"%m/%d/%Y"}</td>
+                                    <td>${$gift[g].AMOUNT}</td>
+                                    <td>{if $gift[g].ACTIVE == 1} Yes {else} No{/if}</td>
+                                    <td>{if $gift[g].DATE_REDEMED == 0}None {else} {$gift[g].DATE_REDEMED|date_format:"%m/%d/%Y"}{/if}</td>
+                                    <td>{if $gift[g].INVOICE_ID == 0}None{else} <a href="">{$gift[g].INVOICE_ID}</a>{/if}</td>
+                                    <td class="text-center">
+                                        {if $gift[g].ACTIVE == 1}
+                                            <a href="?page=billing:new_gift&gift_id={$gift[g].GIFT_ID}&customer_id={$gift[g].CUSTOMER_ID}&action=print&submit=1&escape=1" target="new" class="text-decoration-none me-2">
+                                                <img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()" alt="Print">
+                                            </a>
+                                            <a href="?page=billing:new_gift&gift_id={$gift[g].GIFT_ID}&customer_id={$gift[g].CUSTOMER_ID}&action=delete&submit=1" class="text-decoration-none">
+                                                <img src="images/icons/16x16/stop.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_delete}')" onMouseOut="hideddrivetip()" alt="Delete">
+                                            </a>
+                                        {else}
+                                            Not Active
+                                        {/if}
+                                    </td>
+                                </tr>
+                                {/section}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Unpaid Invoices Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0">{$translate_customer_unpaid_invoice}</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover mb-0">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th>{$translate_customer_inv_id}</th>
+                                    <th>{$translate_customer_wo_id}</th>
+                                    <th>{$translate_customer_date}</th>
+                                    <th>{$translate_customer_amount}</th>
+                                    <th>{$translate_customer_paid}</th>
+                                    <th>{$translate_customer_balance}</th>
+                                    <th>{$translate_customer_date_paid}</th>
+                                    <th>{$translate_customer_employee}</th>
+                                    <th>{$translate_customer_action}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {section name=w loop=$unpaid_invoices}
+                                <tr ondblclick="window.location='?page=invoice:new&wo_id={$unpaid_invoices[w].WORKORDER_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}&page_title={$translate_customer_invoice}';" style="cursor: pointer;">
+                                    <td><a href="?page=invoice:new&wo_id={$unpaid_invoices[w].WORKORDER_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}&page_title={$translate_customer_invoice}">{$unpaid_invoices[w].INVOICE_ID}</a></td>
+                                    <td><a href="?page=workorder:view&wo_id={$unpaid_invoices[w].WORKORDER_ID}&page_title={$translate_customer_work_order_id} {$unpaid_invoices[w].WORKORDER_ID}">{$unpaid_invoices[w].WORKORDER_ID}</a></td>
+                                    <td>{$unpaid_invoices[w].INVOICE_DATE|date_format:"%m-%d-%y"}</td>
+                                    <td>${$unpaid_invoices[w].INVOICE_AMOUNT|string_format:"%.2f"}</td>
+                                    <td>${$unpaid_invoices[w].PAID_AMOUNT|string_format:"%.2f"}</td>
+                                    <td>${$unpaid_invoices[w].BALLANCE|string_format:"%.2f"}</td>
+                                    <td>{$unpaid_invoices[w].PAID_DATE|date_format:"%m-%d-%y"}</td>
+                                    <td>{$unpaid_invoices[w].EMPLOYEE_DISPLAY_NAME}</td>
+                                    <td class="text-center">
+                                        <a href="?page=invoice:print&invoice_id={$unpaid_invoices[w].INVOICE_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
+                                            <img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()" alt="Print">
+                                        </a>
+                                        <a href="?page=workorder:view&wo_id={$unpaid_invoices[w].WORK_ORDER_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}" class="text-decoration-none">
+                                            <img src="images/icons/16x16/viewmag.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_view}')" onMouseOut="hideddrivetip()" alt="View">
+                                        </a>
+                                    </td>
+                                </tr>
+                                {/section}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Paid Invoices Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">{$translate_customer_paid_invoice}</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover mb-0">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th>{$translate_customer_inv_id}</th>
+                                    <th>{$translate_customer_wo_id}</th>
+                                    <th>{$translate_customer_date}</th>
+                                    <th>{$translate_customer_amount}</th>
+                                    <th>{$translate_customer_paid}</th>
+                                    <th>{$translate_customer_balance}</th>
+                                    <th>{$translate_customer_paid}</th>
+                                    <th>{$translate_customer_employee}</th>
+                                    <th>{$translate_customer_action}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {section name=w loop=$paid_invoices}
+                                <tr ondblclick="window.location='?page=invoice:view&customer_id={$paid_invoices[w].CUSTOMER_ID}&invoice_id={$paid_invoices[w].INVOICE_ID}&page_title={$translate_customer_invoice}';" style="cursor: pointer;">
+                                    <td><a href="?page=invoice:view&customer_id={$paid_invoices[w].CUSTOMER_ID}&invoice_id={$paid_invoices[w].INVOICE_ID}&page_title={$translate_customer_invoice}">{$paid_invoices[w].INVOICE_ID}</a></td>
+                                    <td><a href="?page=workorder:view&wo_id={$paid_invoices[w].WORKORDER_ID}&page_title={$translate_customer_work_order_id} {$paid_invoices[w].WORKORDER_ID}">{$paid_invoices[w].WORKORDER_ID}</a></td>
+                                    <td>{$paid_invoices[w].INVOICE_DATE|date_format:"%m-%d-%y"}</td>
+                                    <td>${$paid_invoices[w].INVOICE_AMOUNT|string_format:"%.2f"}</td>
+                                    <td>${$paid_invoices[w].PAID_AMOUNT|string_format:"%.2f"}</td>
+                                    <td>${$paid_invoices[w].BALLANCE|string_format:"%.2f"}</td>
+                                    <td>{$paid_invoices[w].PAID_DATE|date_format:"%m-%d-%y"}</td>
+                                    <td>{$paid_invoices[w].EMPLOYEE_DISPLAY_NAME}</td>
+                                    <td class="text-center">
+                                        <a href="?page=invoice:print&invoice_id={$paid_invoices[w].INVOICE_ID}&customer_id={$paid_invoices[w].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
+                                            <img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()" alt="Print">
+                                        </a>
+                                        <a href="?page=invoice:view&customer_id={$paid_invoices[w].CUSTOMER_ID}&invoice_id={$paid_invoices[w].INVOICE_ID}&page_title={$translate_customer_invoice}" class="text-decoration-none">
+                                            <img src="images/icons/16x16/viewmag.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_view}')" onMouseOut="hideddrivetip()" alt="View">
+                                        </a>
+                                    </td>
+                                </tr>
+                                {/section}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

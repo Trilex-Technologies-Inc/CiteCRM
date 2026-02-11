@@ -61,82 +61,129 @@ if (_qfMsg != '') {
 //]]>
 </script>
 {/literal}
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-    <tr>
-		<td >
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-				{include file="core/tool_bar.tpl"}
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
-{if $error_msg != ""}
-	{include file="core/error.tpl"}
-{/if}
-<table width="700" border="0" cellpadding="20" cellspacing="5">
-	<tr>
-		<td>
-			<table width="100%" cellpadding="4" cellspacing="0" border="0">
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;{$translate_billing_new_gift} {$customer_name}</td>
-					<td class="menuhead2" width="20%" align="right" valign="middle"></td>
-				</tr><tr>
-					<td class="olotd5" colspan="2">
-					<!-- Content Begin -->
-						<table width="100%" cellpadding="4" cellspacing="0" border="0" class="olotable">
-							<tr>
-								<td class="olotd4">
-										{$translate_billing_gift_note_3} {$customer_name} {$translate_billing_gift_note_4}
-										{literal}
-										<form method="POST"  action="index.php?page=billing:new_gift" name="gift" id="gift" onsubmit="try { var myValidator = validate_gift; } catch(e) { return true; } return myValidator(this);">
-								{/literal}
-										<table>
-											<tr>
-												<td><b>{$translate_billing_customer_name}</b></td>
-												<td>{$customer_name}</td>
-											</tr><tr>
-												<td><b>{$translate_billing_exp}</b></td>
-												<td>
-													<input class="olotd5" size="10" name="expire" type="text" id="due_date" value="" class="olotd4"/>
-													<input type="button" id="trigger_due_date" value="+">
-													{literal}
-														<script type="text/javascript">
-														Calendar.setup(
-														{
-															inputField  : "due_date",
-															ifFormat    : "%m/%d/%Y",
-															button      : "trigger_due_date"
-														}
-														);
-														</script>
-													{/literal}
-												</td>
-											</tr><tr>
-												<td><b>{$translate_billing_amount}</b></td>
-												<td>$<input type="text" name="amount" class="olotd5" size="6" ></td>
-											</tr><tr>
-												<td colspan="2"><b>{$translate_billing_memo}</b></td>
-											</tr><tr>
-												<td colspan="2"><textarea class="olotd5" rows="15" cols="70" mce_editable="true" name="memo"></textarea></td>
-											</tr><tr>
-												<td colspan="2">
-													<input type="hidden" name="customer_id" value="{$customer_id}"
-													<input type="hidden" name="action" value="add">
-													<input type="submit" name="submit" value="Submit"></td>
-											</tr>
-										</table>
-										</form>
-										<br>
-									<a href="?page=customer:customer_details&customer_id={$customer_id}&page_title={$customer_name}">{$translate_billing_cancel}</a>
-								</td>
-							</tr>
-						</table>
-					<!-- Content End -->
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <table class="table-borderless m-0">
+            <tr>
+                {include file="core/tool_bar.tpl"}
+            </tr>
+        </table>
+    </div>
+
+    {if $error_msg != ""}
+        <div class="mb-3">
+            {include file="core/error.tpl"}
+        </div>
+    {/if}
+
+    <div class="container" style="max-width: 700px;">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold">&nbsp;{$translate_billing_new_gift} {$customer_name}</span>
+            </div>
+
+            <div class="card-body">
+                <p class="mb-4">
+                    {$translate_billing_gift_note_3} {$customer_name} {$translate_billing_gift_note_4}
+                </p>
+
+                {literal}
+                <form method="POST"
+                      action="index.php?page=billing:new_gift"
+                      name="gift"
+                      id="gift"
+                      onsubmit="try { var myValidator = validate_gift; } catch(e) { return true; } return myValidator(this);">
+                {/literal}
+
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 col-form-label fw-bold">
+                            {$translate_billing_customer_name}
+                        </label>
+                        <div class="col-sm-8 d-flex align-items-center">
+                            {$customer_name}
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label for="due_date" class="col-sm-4 col-form-label fw-bold">
+                            {$translate_billing_exp}
+                        </label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    name="expire"
+                                    id="due_date"
+                                    size="10"
+                                    class="form-control olotd5"
+                                    value=""
+                                />
+                                <button type="button"
+                                        id="trigger_due_date"
+                                        class="btn btn-outline-secondary">
+                                    +
+                                </button>
+                            </div>
+                            {literal}
+                            <script type="text/javascript">
+                                Calendar.setup(
+                                {
+                                    inputField  : "due_date",
+                                    ifFormat    : "%m/%d/%Y",
+                                    button      : "trigger_due_date"
+                                }
+                                );
+                            </script>
+                            {/literal}
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 col-form-label fw-bold">
+                            {$translate_billing_amount}
+                        </label>
+                        <div class="col-sm-8">
+                            <div class="input-group" style="max-width: 200px;">
+                                <span class="input-group-text">$</span>
+                                <input type="text"
+                                       name="amount"
+                                       class="form-control olotd5"
+                                       size="6">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-2 fw-bold">
+                        {$translate_billing_memo}
+                    </div>
+                    <div class="mb-3">
+                        <textarea
+                            class="form-control olotd5"
+                            rows="15"
+                            cols="70"
+                            mce_editable="true"
+                            name="memo"></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <input type="hidden" name="customer_id" value="{$customer_id}">
+                            <input type="hidden" name="action" value="add">
+                        </div>
+                        <div>
+                            <input type="submit" name="submit" value="Submit" class="btn btn-primary">
+                            <a href="?page=customer:customer_details&customer_id={$customer_id}&page_title={$customer_name}"
+                               class="btn btn-link">
+                                {$translate_billing_cancel}
+                            </a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,41 +1,76 @@
-<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-	<title>{$page_title}</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-	<link href="css/default.css" rel="stylesheet" type="text/css">
+    <meta charset="utf-8">
+    <title>{$page_title}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    >
+
+    <!-- App theme overrides -->
+    <link href="css/default.css" rel="stylesheet" type="text/css">
 </head>
-<body>
+<body class="bg-light">
 
 <a name="top"></a>
 <div id="dhtmltooltip"></div>
-<SCRIPT SRC="js/dhtml.js"></SCRIPT>	
+<script src="js/dhtml.js"></script>
 
-<table width="100%"  border="0" cellspacing="0" cellpadding="0">
-	<tr>
-		<td><img src="images/cite_crm.jpg" alt="" width="490" height="114"></td>
-	</tr>
-</table>
-			
-<table width="100%"  border="0" cellspacing="0" cellpadding="2">
-	<tr>
-		<td colspan="3" background="images/index03.gif"><img src="images/index03.gif" alt="" width="100%" height="40"></td>
-	</tr><tr>
-		<td>&nbsp;{$translate_core_loged_in} <a href="?page=employees:employee_details&employee_id={$login_id}">{$login}</a></td>
-		<td align="right"><a href="index.php?action=logout" alt="Log Off">{$translate_core_log_off}</a></td>
-	</tr>
-</table>
+<!-- Top brand bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="index.php">
+            <img src="images/cite_crm.jpg" alt="Cite CRM" class="me-2 logo-image">
+            <span>Cite CRM</span>
+        </a>
 
-<table width="100%"   border="0" cellspacing="0" cellpadding="0">
-	<tr width="220" >
-		<td background="images/index14.gif" valign="center"  valign="middle" height="31">
-					<span class="text4">&nbsp;&#187; {$translate_core_schedule}</span></td>
-		<td background="images/index14.gif" alt="" width="100%" height="31">
-				<span class="text4 ">&nbsp;&#187; {$page_title}</span>
-		</td>
-	</tr><tr>
-		<td width="220" class="left_window" valign="top">
-		
-		
-		
-		
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar"
+                aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="topNavbar">
+            <ul class="navbar-nav mb-2 mb-lg-0 align-items-lg-center">
+                <li class="nav-item me-2 text-white small d-none d-lg-block">
+                    {$translate_core_loged_in}
+                    <a class="link-light fw-semibold"
+                       href="?page=employees:employee_details&employee_id={$login_id}">
+                        {$login}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-light btn-sm"
+                       href="index.php?action=logout">
+                        {$translate_core_log_off}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Page header -->
+<header class="bg-white border-bottom shadow-sm">
+    <div class="container-fluid py-2">
+        <div class="row align-items-center g-2">
+            <div class="col-md-4">
+                <div class="small text-muted text-uppercase fw-semibold">
+                    {$translate_core_schedule}
+                </div>
+            </div>
+            <div class="col-md-8 text-md-end">
+                <h1 class="h5 mb-0 page-title-text">
+                    {$page_title}
+                </h1>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main layout -->
+<div class="container-fluid my-3">
+    <div class="row g-3">
