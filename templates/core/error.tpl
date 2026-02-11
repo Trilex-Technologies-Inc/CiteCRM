@@ -11,21 +11,10 @@
 			</td>
 		</tr>
 	</table>
-																								
 {/if}
 
-<table width="700" border="0" cellpadding="4" cellspacing="4">
-	<tr>
-		<td>
-			<table class="olotablered" width="100%" border="0" cellpadding="5" cellspacing="5">
-				<tr>
-					<td valign="middle">
-						<span class="error_font">{$type}</span> {$error_msg}
-						<br>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
+<div class="alert alert-danger" role="alert">
+	<strong>{$type}</strong>
+	{$error_msg}
+</div>
 

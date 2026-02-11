@@ -22,7 +22,8 @@ if(check_lock_file() ) {
 ###############################
 #		Switch 						#
 ###############################
-$mode = $_POST['mode'];
+$mode = isset($_POST['mode']) ? $_POST['mode'] : '';
+
 switch ($mode){
 
 ############################
@@ -146,7 +147,7 @@ echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http:/
 ##################################
 
 
-@define('PRFX', $prefix);
+@define('PRFX', $_POST['db_prefix']);
 ##################################
 # Build Tables							#
 ##################################
@@ -215,7 +216,7 @@ echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http:/
 ##################################
 # Completed								#
 ##################################
-if($error_flag == true) {
+if( isset($error_flag) and $error_flag == true) {
 	/* error can not complete the install */
 	echo("<tr>\n
 				<td colspan=\"2\">There where errors durring the install. Your CRM is not enabled and needs to be reinstalled. Please remove the Database
@@ -847,7 +848,7 @@ echo ("
 															<table>
 																<tr>
 																	<td>");
-																	if(is_array($errors)) {
+																	if(isset($errors) and is_array($errors)) {
 																	echo("Set up can not continue until the following errors are fixed:<br>");
 																		foreach($errors as $key=>$val) {
 																			echo("<font color=\"red\">Error $key: ");

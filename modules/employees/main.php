@@ -15,7 +15,8 @@ if(!xml2php("employees")) {
 		$page_no = $VAR['page_no'];
 	}	
 	
-	$employee_search_result = display_employee_search($db, $VAR['name'], $page_no);
+	$name = isset($VAR['name']) ? $VAR['name'] : '';
+	$employee_search_result = display_employee_search($db, $name, $page_no);
 	
 	$smarty->assign('alpha', $alpha);
 	$smarty->assign('employee_search_result' ,$employee_search_result );

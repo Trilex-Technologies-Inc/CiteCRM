@@ -1,22 +1,25 @@
-						<!-- Begin footer.tpl -->	
-</td>
-</tr>
-</table>
-<table width="100%"  border="0" cellspacing="0" cellpadding="0">
-	<tr>
-		<td height="51" align="center" background="images/index41.gif"></td>
-	</tr><tr>
-		<td height="48" align="center" background="images/index42.gif">Copyright 2005 &copy; Cite CRM <a href="http://www.citecrm.com" target="new">www.citecrm.com</a>
-					All rights reserved.</td>
-	</tr><tr>
-		<td>&nbsp;</td>
-	</tr>
-</table>
+<!-- Begin footer.tpl -->
+</main>
+    </div><!-- /.row -->
+</div><!-- /.container-fluid -->
 
+<footer class="border-top bg-white text-muted small py-3 mt-3">
+    <div class="container-fluid text-center">
+        <div>
+            &copy; 2005&nbsp;-&nbsp;{php}echo date('Y');{/php}
+            Cite CRM
+            <a href="http://www.citecrm.com" target="new">www.citecrm.com</a>
+        </div>
+        <div>
+            All rights reserved.
+        </div>
+    </div>
+</footer>
 
-		</td>
-	</tr>
-</table>
-	
+<!-- Bootstrap Bundle JS (with Popper) -->
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
 </body>
 </html>

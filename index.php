@@ -28,7 +28,7 @@ if(!is_file('lock') ) {
 $VAR = array_merge($_GET, $_POST);
 $page_title = isset($VAR['page_title']) ? $VAR['page_title'] : 'Home'; // FIXED: Check if set
 
-$auth = &new Auth($db, 'login.php', 'secret');
+$auth = new Auth($db, 'login.php', 'secret');
 require(INCLUDE_URL.SEP.'acl.php');
 
 require('modules/core/translate.php');
@@ -188,17 +188,20 @@ function getIP() {
 
 
 $logtime = time();
-$q = 'INSERT into '.PRFX.'tracker SET
-   date						='. $db->qstr( $logtime						).',
-   ip							='. $db->qstr( getIP()						).',
-   uagent						='. $db->qstr( isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''	).', // FIXED: Use $_SERVER
-   full_page					='. $db->qstr( $the_page						).',
-   module					='. $db->qstr( $module						).',
-   page						='. $db->qstr( $page							).',
-   referer					='. $db->qstr( isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''	); // FIXED: Use $_SERVER
+$uagent  = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-   if(!$rs = $db->Execute($q)) {
-      echo 'Error inserting tracker :'. $db->ErrorMsg();
-   }
+$q  = 'INSERT INTO '.PRFX.'tracker SET ';
+$q .= 'date      = '.$db->qstr($logtime).', ';
+$q .= 'ip        = '.$db->qstr(getIP()).', ';
+$q .= 'uagent    = '.$db->qstr($uagent).', ';
+$q .= 'full_page = '.$db->qstr($the_page).', ';
+$q .= 'module    = '.$db->qstr($module).', ';
+$q .= 'page      = '.$db->qstr($page).', ';
+$q .= 'referer   = '.$db->qstr($referer);
+
+if(!$rs = $db->Execute($q)) {
+   echo 'Error inserting tracker :'. $db->ErrorMsg();
+}
  
 ?>
