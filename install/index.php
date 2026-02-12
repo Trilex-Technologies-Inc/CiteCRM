@@ -147,7 +147,7 @@ echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http:/
 ##################################
 
 
-@define('PRFX', $prefix);
+@define('PRFX', $_POST['db_prefix']);
 ##################################
 # Build Tables							#
 ##################################
