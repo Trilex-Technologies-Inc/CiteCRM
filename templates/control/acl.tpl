@@ -1,85 +1,94 @@
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td >
-		
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-		    		{include file="core/admin_tool_bar.tpl"}
-				</tr>
-			</table>
-			
-		</td>
-	</tr>
-</table>
-<table width="100%" border="0" cellpadding="20" cellspacing="5">
-	<tr>
-		<td>
+<div class="container my-4">
 
-			<table width="700" cellpadding="4" cellspacing="0" border="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;Welcome to your Online Office</td>
-					<td class="menuhead2" width="20%" align="right" valign="middle">
-						<img src="images/icons/16x16/help.gif" border="0"
-						onMouseOver="ddrivetip('<b>Help Menu</b><hr><p></p>')" 
-						onMouseOut="hideddrivetip()">
-					</td>
-				</tr><tr>
-					<td class="menutd2" colspan="2">
-						<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
+	<!-- Admin Toolbar -->
+	<div class="mb-3">
+		{include file="core/admin_tool_bar.tpl"}
+	</div>
+
+	<div class="card shadow-sm">
+		<div class="card-header d-flex justify-content-between align-items-center">
+			<h5 class="mb-0">Welcome to your Online Office</h5>
+
+			<img src="images/icons/16x16/help.gif"
+				 class="ms-2"
+				 style="cursor:pointer;"
+				 onMouseOver="ddrivetip('<b>Help Menu</b><hr><p></p>')"
+				 onMouseOut="hideddrivetip()">
+		</div>
+
+		<div class="card-body">
+
+			{if $error_msg != ""}
+				<div class="alert alert-danger">
+					{include file="core/error.tpl"}
+				</div>
+			{/if}
+
+			{if $msg !=""}
+				<div class="alert alert-success">
+					{include file="core/msg.tpl"}
+				</div>
+			{/if}
+
+			<form method="post" action="?page=control:acl">
+
+				<div class="table-responsive">
+					<table class="table table-bordered table-hover align-middle">
+						<thead class="table-light">
+						<tr>
+							<th>Module : Page</th>
+							<th class="text-center">Manager</th>
+							<th class="text-center">Supervisor</th>
+							<th class="text-center">Technician</th>
+						</tr>
+						</thead>
+						<tbody>
+
+						{section name=q loop=$acl}
 							<tr>
-								<td class="menutd">
-									{if $error_msg != ""}
-										<br>
-										{include file="core/error.tpl"}
-										<br>
-									{/if}
-									{if $msg !=""}
-										{include file="core/msg.tpl"}
-									{/if}
-										<form method="post" action="?page=control:acl">
-											<table class="olotable" cellpadding="5" cellspacing="0" border="0">
-												<tr >
-													<td class="olohead">Module:Page</td>
-													<td class="olohead">Manager</td>
-													<td class="olohead">Supervisor</td>
-													<td class="olohead">Technician</td>
-												</tr>
-												{section name=q loop=$acl}
-												<tr onmouseover="this.className='row2'" onmouseout="this.className='row1'" class="row1">
-													<td class="olotd4"><b>{$acl[q].page}<b></td>
-													<td class="olotd4">
-														<select name="{$acl[q].page}[Manager]">
-															<option value="1" {if $acl[q].Manager == '1'}selected{/if}>Yes</option>
-															<option value="0" {if $acl[q].Manager == '0'}selected{/if}>No</option>
-														</select>
-													</td>
-													<td class="olotd4">
-														<select name="{$acl[q].page}[Supervisor]">
-															<option value="1" {if $acl[q].Supervisor == '1'}selected{/if}>Yes</option>
-															<option value="0" {if $acl[q].Supervisor == '0'}selected{/if}>No</option>
-														</select> 
-													</td>
-													<td class="olotd4">
-														<select name="{$acl[q].page}[Technician]">
-															<option value="1" {if $acl[q].Technician == '1'}selected{/if}>Yes</option>
-															<option value="0" {if $acl[q].Technician == '0'}selected{/if}>No</option>
-														</select> 
-													</td>
-												
-												</tr>
-												{/section}
-											</table>
-											<input type="submit" name="submit" value="Submit">
-										</form>
-									<!-- Content -->
+								<td><strong>{$acl[q].page}</strong></td>
+
+								<td class="text-center">
+									<select name="{$acl[q].page}[Manager]"
+											class="form-select form-select-sm">
+										<option value="1" {if $acl[q].Manager == '1'}selected{/if}>Yes</option>
+										<option value="0" {if $acl[q].Manager == '0'}selected{/if}>No</option>
+									</select>
+								</td>
+
+								<td class="text-center">
+									<select name="{$acl[q].page}[Supervisor]"
+											class="form-select form-select-sm">
+										<option value="1" {if $acl[q].Supervisor == '1'}selected{/if}>Yes</option>
+										<option value="0" {if $acl[q].Supervisor == '0'}selected{/if}>No</option>
+									</select>
+								</td>
+
+								<td class="text-center">
+									<select name="{$acl[q].page}[Technician]"
+											class="form-select form-select-sm">
+										<option value="1" {if $acl[q].Technician == '1'}selected{/if}>Yes</option>
+										<option value="0" {if $acl[q].Technician == '0'}selected{/if}>No</option>
+									</select>
 								</td>
 							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
+						{/section}
 
-				
+						</tbody>
+					</table>
+				</div>
+
+				<div class="mt-3">
+					<input type="submit"
+						   name="submit"
+						   value="Save Permissions"
+						   class="btn btn-primary">
+
+				</div>
+
+			</form>
+
+		</div>
+	</div>
+
+</div>

@@ -1,15 +1,8 @@
-<!-- Admin main --><!-- template name -->
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-    <tr>
-		<td >
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-				{include file="core/admin_tool_bar.tpl"}
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
+<div class="container my-4">
+
+<div class="mb-3">
+	{include file="core/admin_tool_bar.tpl"}
+</div>
 
 <div class="card shadow-sm mb-3">
 	<div class="card-header">
@@ -26,4 +19,5 @@
 			Select an option from the Drop Down Menu.
 		</p>
 	</div>
+</div>
 </div>

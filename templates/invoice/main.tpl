@@ -1,36 +1,28 @@
-<!-- Invoice main.tpl -->
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td >
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-					{include file="core/tool_bar.tpl"}
-			
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
-{if $error_msg != ""}
-	{include file="core/error.tpl"}
-{/if}
-<table width="100%" border="0" cellpadding="20" cellspacing="0">
-	<tr>
-		<td class="olotd">
-		
-			<table width="100%" cellpadding="5" cellspacing="0" border="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;Open Work Order: #{$single_workorder_array[i].WORK_ORDER_ID}
-					<td class="menuhead2" width="20%" align="right" valign="middle">
-						<img src="images/icons/16x16/help.gif" border="0"
-						onMouseOver="ddrivetip('<b>Invoice</b><hr><p></p>')" onMouseOut="hideddrivetip()"></td>
-					</td>
-				</tr><tr>
-					<td class="olotd5" colspan="2">
-					</td>
-				</tr>
-			</table>
-			
-		</td>
-	</tr>
-</table>
+<div class="container my-4">
+
+	<!-- Toolbar -->
+	<div class="mb-3">
+		{include file="core/tool_bar.tpl"}
+	</div>
+
+	<!-- Error Message -->
+	{if $error_msg != ""}
+		<div class="alert alert-danger">
+			{include file="core/error.tpl"}
+		</div>
+	{/if}
+
+	<!-- Work Order Card -->
+	<div class="card shadow-sm">
+		<div class="card-header d-flex justify-content-between align-items-center">
+			<h5 class="mb-0">Open Work Order: #{$single_workorder_array[i].WORK_ORDER_ID}</h5>
+			<img src="images/icons/16x16/help.gif" alt="Help"
+				 onMouseOver="ddrivetip('<b>Invoice</b><hr><p></p>')"
+				 onMouseOut="hideddrivetip()">
+		</div>
+		<div class="card-body">
+			<!-- Content area (was empty in original) -->
+		</div>
+	</div>
+
+</div>

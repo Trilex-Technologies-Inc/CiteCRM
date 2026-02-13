@@ -1,84 +1,89 @@
-<!-- edit rates -->
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td >
-		
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-		    		{include file="core/admin_tool_bar.tpl"}
-				</tr>
-			</table>
-			
-		</td>
-	</tr>
-</table>
-<table width="100%" border="0" cellpadding="20" cellspacing="5">
-	<tr>
-		<td>
-			<table width="700" cellpadding="4" cellspacing="0" border="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;Edit Billing Rates</td>
-				</tr><tr>
-					<td class="menutd2">
-						<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
+<div class="container my-4">
+
+	<!-- Admin Toolbar -->
+	<div class="mb-3">
+		{include file="core/admin_tool_bar.tpl"}
+	</div>
+
+	<div class="row justify-content-center">
+		<div class="col-lg-12">
+
+			<div class="card shadow-sm">
+				<div class="card-header">
+					<h5 class="mb-0">Edit Billing Rates</h5>
+				</div>
+
+				<div class="card-body">
+
+					<p>Labor Rates are Per Hour.</p>
+
+					<!-- Existing Rates Table -->
+					<div class="table-responsive mb-4">
+						<table class="table table-bordered table-hover align-middle">
+							<thead class="table-light">
 							<tr>
-								<td class="menutd">
-									<table width="100%" celpadding="5" cellspacing="5">
-										<tr>
-											<td>
-												Labor Rates are Per Hour.
-												<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
-													<tr>
-														<td class="olohead">ID</td>
-														<td class="olohead">Display</td>
-														<td class="olohead">Amount</td>
-														<td class="olohead">Active</td>
-														<td class="olohead">Action</td>
-													</tr>
-													{section name=q loop=$rate}
-													<form method="POST" action="?page=control:edit_rate">
-													<tr onmouseover="this.className='row2'" onmouseout="this.className='row1'" class="row1">
-														<td class="olotd4" nowrap>{$rate[q].LABOR_RATE_ID}</td>
-														<td class="olotd4" nowrap><input class="olotd5" type="text" name="display" value="{$rate[q].LOABOR_RATE_NAME}" size="50"></td>
-														<td class="olotd4" nowrap>$<input class="olotd5" type="text" name="amount" value="{$rate[q].LABOR_RATE_AMOUT}" size="6"></td>
-														<td class="olotd4" nowrap><select class="olotd5" name="active">
-																<option value="0" {if $rate[q].LABOR_RATE_ACTIVE == 0} selected{/if}>No</option>
-																<option value="1" {if $rate[q].LABOR_RATE_ACTIVE == 1} selected{/if}>Yes</option>
-															</select>
-														</td>
-														<td class="olotd4" nowrap>
-															<input type="hidden" name="id" value="{$rate[q].LABOR_RATE_ID}">
-															<input type="submit" name="submit" value="Edit">&nbsp;
-															<input type="submit" name="submit" value="Delete">
-														</td>
-													</tr>
-													</form>
-													{/section}
-												</table>
-												<br>
-												<b>Add New<br>
-												<form method="POST" action="?page=control:edit_rate">
-												<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
-													<tr>
-														<td class="olohead">Display</td>
-														<td class="olohead">Amount</td>
-													</tr><tr>
-														<td class="olotd4"><input class="olotd5" type="text" name="display" size="60"></td>
-														<td class="olotd4">$<input class="olotd5" type="text" name="amount" size="6"></td>
-													<tr>
-														<td class="olotd4" colspan="2"><input type="submit" name="submit" value="New"></td>
-													</tr>
-												</table>
-												</form>
-											</td>
-										</tr>
-									</table>
-								</td>
+								<th>ID</th>
+								<th>Display</th>
+								<th>Amount</th>
+								<th>Active</th>
+								<th>Action</th>
 							</tr>
+							</thead>
+							<tbody>
+							{section name=q loop=$rate}
+								<form method="POST" action="?page=control:edit_rate">
+									<tr>
+										<td>{$rate[q].LABOR_RATE_ID}</td>
+										<td>
+											<input type="text" class="form-control form-control-sm" name="display" value="{$rate[q].LOABOR_RATE_NAME}">
+										</td>
+										<td>
+											$<input type="text" class="form-control form-control-sm d-inline w-auto" name="amount" value="{$rate[q].LABOR_RATE_AMOUT}">
+										</td>
+										<td>
+											<select class="form-select form-select-sm" name="active">
+												<option value="0" {if $rate[q].LABOR_RATE_ACTIVE == 0} selected{/if}>No</option>
+												<option value="1" {if $rate[q].LABOR_RATE_ACTIVE == 1} selected{/if}>Yes</option>
+											</select>
+										</td>
+										<td>
+											<input type="hidden" name="id" value="{$rate[q].LABOR_RATE_ID}">
+											<button type="submit" name="submit" value="Edit" class="btn btn-sm btn-primary mb-1">Edit</button>
+											<button type="submit" name="submit" value="Delete" class="btn btn-sm btn-danger mb-1">Delete</button>
+										</td>
+									</tr>
+								</form>
+							{/section}
+							</tbody>
 						</table>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
+					</div>
+
+					<!-- Add New Rate -->
+					<div class="card border-secondary mb-3">
+						<div class="card-header">
+							<h6 class="mb-0">Add New Rate</h6>
+						</div>
+						<div class="card-body">
+							<form method="POST" action="?page=control:edit_rate">
+								<div class="row mb-2">
+									<div class="col">
+										<label class="form-label">Display</label>
+										<input type="text" class="form-control" name="display" placeholder="Rate Name">
+									</div>
+									<div class="col-auto">
+										<label class="form-label">Amount</label>
+										$<input type="text" class="form-control" name="amount" placeholder="0.00">
+									</div>
+								</div>
+								<input type="submit" name="submit" value="New" class="btn btn-success" value="New">
+							</form>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+</div>

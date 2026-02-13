@@ -1,63 +1,84 @@
-<!-- template name -->
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-    <tr>
-		<td >
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-				{include file="core/admin_tool_bar.tpl"}
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
-<table width="100%" border="0" cellpadding="20" cellspacing="0">
-	<tr>
-		<td><!-- Begin Page -->
-			<table width="700" cellpadding="5" cellspacing="0" border="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;Office Hours</td>
-				</tr><tr>
-					<td class="menutd2" >
-						<table width="100%" class="olotable" cellpadding="5" cellspacing="0" border="0" >
-						<tr>
-							<td width="100%" valign="top" class="menutd">
-							{if $error_msg != ""}
-								{include file="core/error.tpl"}
-							{/if}
-							{if $msg !=""}
-								{include file="core/msg.tpl"}
-							{/if}
-							
-								<!-- Content Here -->
-								<form method="POST" action="?page=control:hours_edit">
-								{section name=a loop=$arr}
-								<table >
-									<tr>
-										<td><b>Start Hour</b></td>
-										<td align="left">
-											{html_select_time use_24_hours=true display_minutes=false display_seconds=false prefix=start}
-										</td>
-									</tr><tr>
-										<td><b>End Hour</b></td>
-										<td>
-											{html_select_time use_24_hours=true display_minutes=false display_seconds=false prefix=end}
-										</td>
-									</tr><tr>
-										<td>
-											<input type="submit" name="submit" value="Submit">
-										</td>
-									</tr>	
-								</table>
-								These settings are used to dispplay the start and stop times of the Schedual.
-								Curent Start Hour = 	{$arr[a].OFFICE_HOUR_START} and current end hour = {$arr[a].OFFICE_HOUR_END}.
-								{/section}	
-								<!-- End Content -->
-							</td>
-						</tr>
-					</table>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
-	
+<div class="container my-4">
+
+	<!-- Admin Toolbar -->
+	<div class="mb-3">
+		{include file="core/admin_tool_bar.tpl"}
+	</div>
+
+	<div class="row justify-content-center">
+		<div class="col-lg-12">
+
+			<div class="card shadow-sm">
+				<div class="card-header">
+					<h5 class="mb-0">Office Hours</h5>
+				</div>
+
+				<div class="card-body">
+
+					{if $error_msg != ""}
+						<div class="alert alert-danger">
+							{include file="core/error.tpl"}
+						</div>
+					{/if}
+
+					{if $msg !=""}
+						<div class="alert alert-success">
+							{include file="core/msg.tpl"}
+						</div>
+					{/if}
+
+					<form method="POST" action="?page=control:hours_edit">
+
+						{section name=a loop=$arr}
+
+							<div class="mb-3">
+								<label class="form-label fw-bold">Start Hour</label>
+								<div>
+									{html_select_time
+									use_24_hours=true
+									display_minutes=false
+									display_seconds=false
+									all_extra='class="form-select d-inline w-auto"'
+									prefix=start}
+								</div>
+							</div>
+
+							<div class="mb-3">
+								<label class="form-label fw-bold">End Hour</label>
+								<div>
+									{html_select_time
+									use_24_hours=true
+									display_minutes=false
+									display_seconds=false
+									all_extra='class="form-select d-inline w-auto"'
+									prefix=end}
+								</div>
+							</div>
+
+							<div class="mb-3">
+								<input type="submit"
+										name="submit"
+										class="btn btn-primary"
+									value="Submit" >
+
+							</div>
+
+							<div class="alert alert-info mt-4">
+								These settings are used to display the start and stop times of the schedule.
+								<br><br>
+								<strong>Current Start Hour:</strong> {$arr[a].OFFICE_HOUR_START}
+								<br>
+								<strong>Current End Hour:</strong> {$arr[a].OFFICE_HOUR_END}
+							</div>
+
+						{/section}
+
+					</form>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+</div>

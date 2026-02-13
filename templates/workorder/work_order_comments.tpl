@@ -1,34 +1,21 @@
-<table class="olotable" width="100%" border="0"  cellpadding="0" cellspacing="0" summary="Work order display">
-							<tr>
-								<td class="olohead">
-									<table width="100%" cellpadding="0" cellspacing="0" border="0">
-										<tr>
-											<td class="menuhead2" width="80%">&nbsp;{$translate_workorder_comments_title}</td>
-											<td class="menuhead2" width="20%" align="right">
-												<table cellpadding="2" cellspacing="2" border="0">
-												<tr>
-													<td width="33%" align="right" class="button"> 
-														{if $single_workorder_array[i].WORK_ORDER_STATUS != 6}
-														<a href="?page=workorder:edit_comment&wo_id={$single_workorder_array[i].WORK_ORDER_ID}&page_title={$translate_workorder_edit_comments}"><img src="images/icons/16x16/small_edit.gif" border="0" onMouseOver="ddrivetip('Edit Comment')" onMouseOut="hideddrivetip()"></a>
-														{/if}
-													</td>
-												</tr>
-												</table>
-											</td>
-										<tr>
-									</table>
-									
-								</td>
-							</tr><tr>
-							{if $hide_work_order_comment == 1}
-							{else}
-								<td class="menutd">
-									<table width="100%" cellpadding="4" cellspacing="0">
-										<tr>
-											<td>{$single_workorder_array[i].WORK_ORDER_COMMENT}<br></td>
-										</tr>
-									</table>	
-								</td>
-							{/if}
-							</tr>
-						</table>
+<div class="card mb-3">
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<span>{$translate_workorder_comments_title}</span>
+		{if $single_workorder_array[i].WORK_ORDER_STATUS != 6}
+			<a href="?page=workorder:edit_comment&wo_id={$single_workorder_array[i].WORK_ORDER_ID}&page_title={$translate_workorder_edit_comments}"
+			   class="btn btn-sm btn-outline-secondary"
+			   data-bs-toggle="tooltip"
+			   title="Edit Comment">
+				<img src="images/icons/16x16/small_edit.gif" alt="Edit">
+			</a>
+		{/if}
+	</div>
+
+	{if $hide_work_order_comment != 1}
+		<div class="card-body">
+			<p class="mb-0">
+				{$single_workorder_array[i].WORK_ORDER_COMMENT|nl2br}
+			</p>
+		</div>
+	{/if}
+</div>
