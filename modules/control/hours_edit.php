@@ -42,6 +42,7 @@ if(isset($VAR['submit']) ) {
 	$arr = $rs->GetArray();
 	
 	$hour = array();
+	$count = 0; 
 	while($count != 25) {
 		array_push($hour,$count);
 	$count++;

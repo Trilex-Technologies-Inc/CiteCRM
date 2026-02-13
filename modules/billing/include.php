@@ -131,18 +131,6 @@ function validate_cc( $ccNum, $card_type, $card_type_accepted_arr ){
   return $safe_num;
 }
 
-#########################################
-# Hex to bin coverter					#
-#########################################
-
-function hex2bin($data) {
-
-	$len = strlen($data);
-	for($i=0;$i<$len;$i+=2) {
-		$newdata .= pack("C",hexdec(substr($data,$i,2)));
-	}
-	return $newdata;
-} // End of hex2bin
 
 
 function charge_an($fields) {

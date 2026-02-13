@@ -5,11 +5,11 @@
 
 function setOptions(chosen) {
 var selbox = document.form1.CAT2;
-	
+
 	selbox.options.length = 0;
 	if (chosen == " ") {
 	selbox.options[selbox.options.length] = new Option('Please select one of the options above first',' ');
-	
+
 	}
    {/literal}
    {section name=q loop=$CAT}
@@ -49,7 +49,7 @@ var selbox = document.form1.CAT2;
 
 			<table width="100%" 	cellpadding="5" cellspacing="0" border="0" >
 				<tr>
-					<td class="menuhead2">&nbsp;{$translate_parts_order}</td>	
+					<td class="menuhead2">&nbsp;{$translate_parts_order}</td>
 				</tr><tr>
 					<td class="menutd2">
 					<table width="100%" class="olotable" cellpadding="5" cellspacing="0" border="0" >
@@ -83,7 +83,7 @@ var selbox = document.form1.CAT2;
 													</table>
 												</td>
 											</tr>
-											</table>	
+											</table>
 										{/if}
 										{if $parts != ''}
 											<table class="olotable" width="100%" cellpadding="3" cellspacing="0" border="0">
@@ -93,7 +93,7 @@ var selbox = document.form1.CAT2;
 													<td class="olohead">{$translate_parts_item_id}</td>
 													<td class="olohead">{$translate_parts_description}</td>
 													<td class="olohead">{$translate_parts_vendor}</td>
-													<td class="olohead">{$translate_parts_weight}</td> 
+													<td class="olohead">{$translate_parts_weight}</td>
 													<td class="olohead">{$translate_parts_price}</td>
 													<td class="olohead">{$translate_parts_add}</td>
 											{section name=p loop=$parts}
@@ -104,7 +104,7 @@ var selbox = document.form1.CAT2;
 													<td class="olotd4" align="center" valign="middle">{$parts[p].ITEMID}</td>
 													<td class="olotd4">{$parts[p].DESCRIPTION}</td>
 													<td class="olotd4">{$parts[p].VENDOR}</td>
-													<td class="olotd4" align="center" valign="middle">{$parts[p].Weight} {$parts[p].UNIT}</td> 
+													<td class="olotd4" align="center" valign="middle">{$parts[p].Weight} {$parts[p].UNIT}</td>
 													<td class="olotd4" align="center" valign="middle">${$parts[p].PRICE}</td>
 													<input type="hidden" name="SKU" value="{$parts[p].SKU}">
 													<input type="hidden" name="DESCRIPTION" value="{$parts[p].DESCRIPTION}">
@@ -133,26 +133,26 @@ var selbox = document.form1.CAT2;
 													<td class="olohead">{$translate_parts_item_id}</td>
 													<td class="olohead">{$translate_parts_description}</td>
 													<td class="olohead">{$translate_parts_vendor}</td>
-													<td class="olohead">{$translate_parts_weight}</td> 
+													<td class="olohead">{$translate_parts_weight}</td>
 													<td class="olohead">{$translate_parts_each}</td>
 													<td class="olohead">{$translate_parts_total}</td>
 											{section name=a loop=$cart_contents}
-												
+
 												<tr onmouseover="this.className='row2'" onmouseout="this.className='row1';" class="row1">
 													<td class="olotd4" align="center" valign="middle">{$cart_contents[a].AMOUNT}</td>
 													<td class="olotd4" align="center" valign="middle">{$cart_contents[a].SKU}</td>
 													<td class="olotd4" align="center" valign="middle">{$cart_contents[a].ITEMID}</td>
 													<td class="olotd4">{$cart_contents[a].DESCRIPTION}</td>
 													<td class="olotd4">{$cart_contents[a].VENDOR}</td>
-													<td class="olotd4" align="center" valign="middle">{$cart_contents[a].Weight} {$cart_contents[a].UNIT}</td> 
+													<td class="olotd4" align="center" valign="middle">{$cart_contents[a].Weight} {$cart_contents[a].UNIT}</td>
 													<td class="olotd4" align="right" valign="middle">${$cart_contents[a].PRICE|string_format:"%.2f"}</td>
 													<td class="olotd4" align="right" valign="middle">${$cart_contents[a].SUB_TOTAL|string_format:"%.2f"}</td>
 													<input type="hidden" name="SKU" value="{$cart_contents[a].SKU}">
 													<input type="hidden" name="PRICE" value="{$cart_contents[a].PRICE|string_format:"%.2f"}">
-													
+
 												</tr>
 											{/section}
-										
+
 												<tr>
 													<td colspan="6" align="left">{$translate_parts_msg_5} ${$total_charges|string_format:"%.2f"}. {$translate_parts_msg_6} {$service_code} {$translate_parts_msg_7} {$location}. {$translate_parts_msg_8} </td>
 													<td class="olotd4" align="right" nowrap><b>{$translate_parts_sub_total}</b></td>
@@ -177,11 +177,11 @@ var selbox = document.form1.CAT2;
 													<td class="olotd4"  align="right" valign="middle"><b>${$total_charges|string_format:"%.2f"}</b></td>
 												</tr>
 											</table>
-															
-														
+
+
 													</td>
 												</tr>
-											</table>	
+											</table>
 										{/if}
 										</td>
 										<td valign="top" width="25%">
@@ -221,30 +221,30 @@ var selbox = document.form1.CAT2;
 													<td align="center">{$cart[c].AMOUNT}</td>
 													<td align="right">${$cart[c].PRICE|string_format:"%.2f"}</td>
 												</tr>
-												{/section}	
+												{/section}
 												<tr>
 													<td colspan="4"><input type="hidden" name="wo_id" value="{$wo_id}">
 														<input type="hidden" name="CAT2" value="{$CAT2}">
 														<input type="hidden" name="update_cart" value="1">
-														<input type="submit" name="submit" value="{$translate_parts_update}"> 
+														<input type="submit" name="submit" value="{$translate_parts_update}">
 														</form><br><hr></td>
 												</tr><tr>
 													<td>{$translate_parts_cart_total}</td>
 													<td colspan="3" align="right">${$cart_total|string_format:"%.2f"}</td>
 												</tr>
-												
+
 											</table>
-											 
+
 											<table>
 												<tr>
 													<td>
-														
+
 													</td>
 													<td>
 														<form method="POST" action="?page=parts:main">
 															<input type="hidden" name="wo_id" value="{$wo_id}">
 															<input type="hidden" name="check_out" value="1">
-															
+
 															<input type="submit" name="submit" value="{$translate_parts_checkout}">
 															<input type="submit" name="submit" value="{$translate_parts_view}">
 														</form>
@@ -254,8 +254,8 @@ var selbox = document.form1.CAT2;
 											<b>{$translate_parts_wo_id}</b> {$wo_id}<br>
 											<b>{$translate_parts_shipping_method}</b> {$service_code}<br>
 											<b>{$translate_parts_ware}</b> {$location}<br>
-											
-										</td>	
+
+										</td>
 									</tr>
 								</table>
 

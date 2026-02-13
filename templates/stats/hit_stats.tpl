@@ -1,79 +1,90 @@
-<!-- hits -->
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td >
-		
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-		    		{include file="core/admin_tool_bar.tpl"}
-				</tr>
-			</table>
-			
-		</td>
-	</tr>
-</table>
-<table width="100%" border="0" cellpadding="20" cellspacing="5">
-	<tr>
-		<td>
+<div class="container my-3">
 
-			<table width="700" cellpadding="4" cellspacing="0" border="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;Stats for {$smarty.now|date_format:"%m-%d-%Y"}</td>
-					<td class="menuhead2" width="20%" align="right" valign="middle">
-						<img src="images/icons/16x16/help.gif" border="0"
-						onMouseOver="ddrivetip('<b>Help Menu</b><hr><p></p>')" 
-						onMouseOut="hideddrivetip()">
-					</td>
-				</tr><tr>
-					<td class="menutd2" colspan="2">
-						<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
-							<tr>
-								<td class="menutd">
-						{if $error_msg != ""}
-							<br>
-							{include file="core/error.tpl"}
-							<br>
-						{/if}
-						<!-- Content -->
-						
-						<table class="olotable"  border="0" cellpadding="5" cellspacing="0">
-							<tr>
-								<td class="olohead">Daily Hits</td>
-								<td class="olohead">Daily Visits</td>
-								<td class="olohead">Monthly HIts</td>
-							</tr><tr>
-								<td class="olotd4">{$daily_total}</td>
-								<td class="olotd4"></td>
-								<td class="olotd4">{$month_hit}</td>
-							</tr>
-						</table>
-						<br>
-						<br>	
-							
-						<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
-							<tr>
-								<td class="olohead">Time</td>
-								<td class="olohead">IP Address</td>
-								<td class="olohead">User Agent</td>
-								<td class="olohead">Hits</td>
-							</tr>
-							{section name=i loop=$hit}
-							<tr onmouseover="this.className='row2'" onmouseout="this.className='row1'" onDblClick="window.location='index.php?page=stats:hit_stats_view&ip={$hit[i].ip}&page_title=Hits For {$hit[i].ip}';" class="row1">
-								
-								<td class="olotd4">{$hit[i].date|date_format:" %H:%M:%S"}</td>
-								<td class="olotd4">{$hit[i].ip}</td>
-								<td class="olotd4">{$hit[i].uagent}</td>
-								<td class="olotd4">{$hit[i].count}</td>
-							</tr>
-							{/section}
-						</table>
-							
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
-		</td>
-	</tr>
-</table>
+	<!-- Admin Toolbar -->
+	<div class="mb-3">
+		{include file="core/admin_tool_bar.tpl"}
+	</div>
+
+	<div class="card shadow-sm">
+
+		<!-- Header -->
+		<div class="card-header d-flex justify-content-between align-items-center">
+			<div>
+				<strong>Stats for {$smarty.now|date_format:"%m-%d-%Y"}</strong>
+			</div>
+			<div>
+				<img src="images/icons/16x16/help.gif" border="0"
+					 onMouseOver="ddrivetip('<b>Help Menu</b><hr><p></p>')"
+					 onMouseOut="hideddrivetip()">
+			</div>
+		</div>
+
+		<div class="card-body">
+
+			{if $error_msg != ""}
+				<div class="alert alert-danger">
+					{include file="core/error.tpl"}
+				</div>
+			{/if}
+
+			<!-- Summary Stats -->
+			<div class="row mb-4 g-3">
+				<div class="col-md-4">
+					<div class="card bg-light border-0 h-100">
+						<div class="card-body text-center">
+							<h6 class="fw-bold">Daily Hits</h6>
+							<h4>{$daily_total}</h4>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="card bg-light border-0 h-100">
+						<div class="card-body text-center">
+							<h6 class="fw-bold">Daily Visits</h6>
+							<h4>{$daily_visits}</h4>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="card bg-light border-0 h-100">
+						<div class="card-body text-center">
+							<h6 class="fw-bold">Monthly Hits</h6>
+							<h4>{$month_hit}</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Detailed Hit Table -->
+			<div class="table-responsive">
+				<table class="table table-striped table-hover align-middle">
+					<thead class="table-secondary">
+					<tr>
+						<th>Time</th>
+						<th>IP Address</th>
+						<th>User Agent</th>
+						<th>Hits</th>
+					</tr>
+					</thead>
+					<tbody>
+					{section name=i loop=$hit}
+						<tr style="cursor:pointer;"
+							ondblclick="window.location='index.php?page=stats:hit_stats_view&ip={$hit[i].ip}&page_title=Hits For {$hit[i].ip}';">
+							<td>{$hit[i].date|date_format:" %H:%M:%S"}</td>
+							<td>{$hit[i].ip}</td>
+							<td class="text-truncate" style="max-width: 300px;">
+								{$hit[i].uagent}
+							</td>
+							<td>{$hit[i].count}</td>
+						</tr>
+					{/section}
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+	</div>
+
+</div>

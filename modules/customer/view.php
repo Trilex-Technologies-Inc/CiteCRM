@@ -23,9 +23,10 @@ $alpha = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 
 		$page_no = 1;
 	} else {
 		$page_no = $VAR['page_no'];
-	}	
+	}
 
-	$customer_search_result = display_customer_search($db, $name = $VAR['name'], $page_no, $smarty);
+	$name = isset($VAR['name']) ? $VAR['name'] : '';
+	$customer_search_result = display_customer_search($db, $name, $page_no, $smarty);
 
 	$smarty->assign('alpha', $alpha);
 	$smarty->assign('customer_search_result', $customer_search_result);

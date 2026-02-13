@@ -25,10 +25,10 @@ if(!is_file('lock') ) {
 	die;
 } 
 	
-$VAR = array_merge($_GET,$_POST);
-$page_title = $VAR['page_title'];
+$VAR = array_merge($_GET, $_POST);
+$page_title = isset($VAR['page_title']) ? $VAR['page_title'] : 'Home'; // FIXED: Check if set
 
-$auth = &new Auth($db, 'login.php', 'secret');
+$auth = new Auth($db, 'login.php', 'secret');
 require(INCLUDE_URL.SEP.'acl.php');
 
 require('modules/core/translate.php');
@@ -72,49 +72,61 @@ $smarty->assign('compnay_mobile',$rs->fields['COMPNAY_MOBILE']);
 #	Url Builder This grabs gets and post and builds the url	# 
 #	conection strings										#
 #############################################################
+$module = 'core';
+$page = 'main';
+$the_page = 'modules'.SEP.'core'.SEP.'main.php';
+
 if(!isset($_POST['page'])) {
-        if ( $_GET['page']) {
-                // Explode the url so we can get the module and page
-                list($module, $page) = explode(":", $_GET['page']);
-                $the_page = 'modules'.SEP.$module.SEP.$page.'.php';
-
-                // remove page from the $_GET array we dont want it to pass the options
-                unset($_GET['page']);
-
-                // Define the global options for each page
-                foreach($_GET as $key=>$val){
-                        @define($key, $val);
-                }
-
-                // Check to see if the page is real other wise send em a 404
-                if ( file_exists ($the_page) ) {
-                        $the_page= 'modules'.SEP.$module.SEP.$page.'.php';
-                } else {
-                        $the_page= 'modules'.SEP.'core'.SEP.'404.php';
-                }
-        } else {
-                // If no page is supplied then go to the main page
-                $the_page= 'modules'.SEP.'core'.SEP.'main.php';
-        }
-} else {
+    if (isset($_GET['page']) && !empty($_GET['page'])) { // FIXED: Check if set
         // Explode the url so we can get the module and page
-                list($module, $page) = explode(":", $_POST['page']);
-                $the_page = $the_page= 'modules'.SEP.$module.SEP.$page.'.php';
+        list($module, $page) = explode(":", $_GET['page']);
+        $the_page = 'modules'.SEP.$module.SEP.$page.'.php';
 
-                // remove page from the $_GET array we dont want it to pass the options
-                unset($_POST['page']);
+        // remove page from the $_GET array we dont want it to pass the options
+        unset($_GET['page']);
 
-                // Define the global options for each page
-                foreach($_POST as $key=>$val){
-                        @define($key, $val);
-                }
+        // Define the global options for each page
+        foreach($_GET as $key=>$val){
+            @define($key, $val);
+        }
 
-                // Check to see if the page is real other wise send em a 404
-                if ( file_exists ($the_page) ) {
-                        $the_page= 'modules'.SEP.$module.SEP.$page.'.php';
-                } else {
-                        $the_page= 'modules'.SEP.'core'.SEP.'404.php';
-                }
+        // Check to see if the page is real other wise send em a 404
+        if ( file_exists ($the_page) ) {
+            $the_page = 'modules'.SEP.$module.SEP.$page.'.php';
+        } else {
+            $the_page = 'modules'.SEP.'core'.SEP.'404.php';
+            $module = 'core';
+            $page = '404';
+        }
+    } else {
+        // If no page is supplied then go to the main page
+        $the_page = 'modules'.SEP.'core'.SEP.'main.php';
+        $module = 'core';
+        $page = 'main';
+    }
+} else {
+    if (isset($_POST['page']) && !empty($_POST['page'])) { // FIXED: Check if set
+        // Explode the url so we can get the module and page
+        list($module, $page) = explode(":", $_POST['page']);
+        $the_page = 'modules'.SEP.$module.SEP.$page.'.php';
+
+        // remove page from the $_GET array we dont want it to pass the options
+        unset($_POST['page']);
+
+        // Define the global options for each page
+        foreach($_POST as $key=>$val){
+            @define($key, $val);
+        }
+
+        // Check to see if the page is real other wise send em a 404
+        if ( file_exists ($the_page) ) {
+            $the_page = 'modules'.SEP.$module.SEP.$page.'.php';
+        } else {
+            $the_page = 'modules'.SEP.'core'.SEP.'404.php';
+            $module = 'core';
+            $page = '404';
+        }
+    }
 }
 
 
@@ -133,29 +145,22 @@ if(isset($_GET['wo_id'])) {
 }
 require('modules'.SEP.'core'.SEP.'error.php');
 
-if(isset($page_title)) {
-	$smarty->assign('page_title', $page_title); 
-} else {
-	$page_title ="Home";
-	$smarty->assign('page_title', $page_title);
-}  
+$smarty->assign('page_title', $page_title); // FIXED: Now uses initialized variable
 
 if(isset($VAR['msg'])) {
-
 	$smarty->assign('msg', $VAR['msg']);
 }
 
-if($VAR['escape'] != 1 ) {
+if(!isset($VAR['escape']) || $VAR['escape'] != 1 ) { // FIXED: Check if escape is set
 	require('modules'.SEP.'core'.SEP.'header.php');
 	require('modules'.SEP.'core'.SEP.'navagation.php');
 	require('modules'.SEP.'core'.SEP.'company.php');
 }
 
+$menu = isset($VAR['menu']) ? $VAR['menu'] : 0; // FIXED: Initialize menu variable
 if($menu == 1 ) {
-
 	$smarty->assign('menu', '1');
 	$smarty->display('core'.SEP.'error.tpl');
-
 } else {
 	
 	/* check acl for page request */
@@ -166,7 +171,7 @@ if($menu == 1 ) {
 	}
 }
 
-if($VAR['escape'] != 1 ) {
+if(!isset($VAR['escape']) || $VAR['escape'] != 1 ) { // FIXED: Check if escape is set
 	require('modules'.SEP.'core'.SEP.'footer.php');
 }
 
@@ -183,18 +188,20 @@ function getIP() {
 
 
 $logtime = time();
-$q = 'INSERT into '.PRFX.'tracker SET
-   date						='. $db->qstr( $logtime						).',
-   ip							='. $db->qstr( getIP()						).',
-   uagent						='. $db->qstr( getenv(HTTP_USER_AGENT)	).',
-   full_page					='. $db->qstr( $the_page						).',
-   module					='. $db->qstr( $module						).',
-   page						='. $db->qstr( $page							).',
-   referer					='. $db->qstr( getenv(HTTP_REFERER)		);
+$uagent  = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-   if(!$rs = $db->Execute($q)) {
-      echo 'Error inserting tracker :'. $db->ErrorMsg();
-   }
+$q  = 'INSERT INTO '.PRFX.'tracker SET ';
+$q .= 'date      = '.$db->qstr($logtime).', ';
+$q .= 'ip        = '.$db->qstr(getIP()).', ';
+$q .= 'uagent    = '.$db->qstr($uagent).', ';
+$q .= 'full_page = '.$db->qstr($the_page).', ';
+$q .= 'module    = '.$db->qstr($module).', ';
+$q .= 'page      = '.$db->qstr($page).', ';
+$q .= 'referer   = '.$db->qstr($referer);
+
+if(!$rs = $db->Execute($q)) {
+   echo 'Error inserting tracker :'. $db->ErrorMsg();
+}
  
 ?>
-

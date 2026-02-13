@@ -469,7 +469,7 @@ function create_gift($db) {
 	`INVOICE_ID` int(20) NOT NULL default '0',
 	PRIMARY KEY  (`GIFT_ID`),
 	KEY `GIFT_CODE` (`GIFT_CODE`,`CUSTOMER_ID`,`ACTIVE`)
-	) TYPE=MyISAM ";
+	) ENGINE=MyISAM ";
 	if(!$rs = $db->execute($q)) {
 			return false;
 	} else {
@@ -589,7 +589,7 @@ function create_table_company($db)
   `COMPANY_TOLL_FREE` varchar(20) NOT NULL default '',
   `COMPANY_EMAIL` varchar(100) NOT NULL default '',
   PRIMARY KEY  (`COMPANY_NAME`)
-) TYPE=MyISAM;";
+) ENGINE=MyISAM;";
 
 	$rs = $db->Execute($q);
 		if(!$rs) {
@@ -637,7 +637,7 @@ function create_table_customer_memo($db) {
 	`NOTE` TEXT NOT NULL ,
 	PRIMARY KEY ( `ID` ) ,
 	INDEX ( `CUSTOMER_ID` )
-	) TYPE = MYISAM";
+	) ENGINE = MYISAM";
 	$rs = $db->Execute($q);
 		if(!$rs) {
 			return false;
@@ -660,7 +660,7 @@ function create_table_employee($db) {
 		`EMPLOYEE_SSN` int(9) NOT NULL default '0',
 		`EMPLOYEE_ADDRESS` varchar(40) NOT NULL default '',
 		`EMPLOYEE_CITY` varchar(40) NOT NULL default '',
-		`EMPLOYEE_STATE` char(2) NOT NULL default '',
+		`EMPLOYEE_STATE` char(40) NOT NULL default '',
 		`EMPLOYEE_ZIP` varchar(11) NOT NULL ,
 		`EMPLOYEE_TYPE` varchar(60) NOT NULL default '',
 		`EMPLOYEE_WORK_PHONE` varchar(13) NOT NULL default '',
@@ -702,7 +702,7 @@ function create_table_invoice($db)
   PRIMARY KEY  (`INVOICE_ID`),
   KEY `EMPLOYEE_ID` (`EMPLOYEE_ID`),
   KEY `WORKORDER_ID` (`WORKORDER_ID`)
-) TYPE=MyISAM";
+) ENGINE=MyISAM";
 	
 	$rs = $db->Execute($q);
 		if(!$rs) {
@@ -749,7 +749,7 @@ function create_table_invoice_parts($db)
   `INVOICE_PARTS_COUNT` int(11) NOT NULL default '0',
   PRIMARY KEY  (`INVOICE_PARTS_ID`),
   KEY `INVOICE_ID` (`INVOICE_ID`)
-) TYPE=MyISAM ";
+) ENGINE=MyISAM ";
 
 	$rs = $db->Execute($q);
 		if(!$rs) {
@@ -798,7 +798,7 @@ function create_table_schedual($db) {
   `SCHEDUAL_NOTES` text NOT NULL,
   PRIMARY KEY  (`SCHEDUAL_ID`),
   KEY `WORK_ORDER_ID` (`WORK_ORDER_ID`,`EMPLOYEE_ID`)
-) TYPE=MyISAM";
+) ENGINE=MyISAM";
 	
 	$rs = $db->Execute($q);
 		if(!$rs) {
@@ -823,7 +823,7 @@ function create_table_transactions($db) {
   KEY `DATE` (`DATE`),
   KEY `TYPE` (`TYPE`),
   FULLTEXT KEY `MEMO` (`MEMO`)
-) TYPE=MyISAM";
+) ENGINE=MyISAM";
 	$rs = $db->Execute($q);
 		if(!$rs) {
 			return false;
@@ -857,7 +857,7 @@ function create_table_workorder($db)
   KEY `WORK_ORDER_CREATE_BY` (`WORK_ORDER_CREATE_BY`),
   KEY `WORK_ORDER_CLOSE_BY` (`WORK_ORDER_CLOSE_BY`),
   KEY `CUSTOMER_ID` (`CUSTOMER_ID`)
-) TYPE=MyISAM";
+) ENGINE=MyISAM";
 	
 	$rs = $db->Execute($q);
 		if(!$rs) {
@@ -914,25 +914,24 @@ function create_table_tracker($db) {
 	$q="CREATE TABLE `".PRFX."tracker` (
 		`id` int(20) NOT NULL auto_increment,
 		`date` int(20) NOT NULL default '0',
-		`ip` varchar(32) NOT NULL default '',
+		`ip` varchar(45) NOT NULL default '',
 		`uagent` varchar(255) NOT NULL default '',
-		`page` varchar(255) NOT NULL default '',
+		`page` varchar(191) NOT NULL default '',
 		`module` varchar(64) NOT NULL default '',
 		`full_page` varchar(64) NOT NULL default '',
-		`referer` varchar(64) NOT NULL default '',
+		`referer` varchar(191) NOT NULL default '',
 		PRIMARY KEY  (`id`),
-		KEY `date` (`date`,`ip`,`page`),
+		KEY `date` (`date`,`ip`,`page`(100)),
 		KEY `module` (`module`,`full_page`)
-		) ENGINE=MyISAM ";
-	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
+		) ENGINE=MyISAM";
 	
+	$rs = $db->Execute($q);
+	if(!$rs) {
+		return false;
+	} else {
+		return true;
+	}
 }
-
 function create_setup($db) {
 	$q = "CREATE TABLE `".PRFX."SETUP` (
   `OFFICE_HOUR_START` int(2) NOT NULL default '0',
@@ -943,33 +942,34 @@ function create_setup($db) {
   `PP_ID` varchar(255) NOT NULL default '',
   `HTML_PRINT` int(1) NOT NULL default '0',
   `PDF_PRINT` int(1) NOT NULL default '0',
-  `INVOCIE_TAX` decimal(2,2) NOT NULL default '00.00',
+  `INVOCIE_TAX` decimal(4,2) NOT NULL default '0.00',  -- Changed from (2,2)
   `INV_THANK_YOU` varchar(255) NOT NULL default '',
   `WELCOME_NOTE` varchar(255) NOT NULL default '',
   `PARTS_LO` varchar(10) NOT NULL default '',
   `PARTS_LOGIN` varchar(60) NOT NULL default '',
   `PARTS_PASSWORD` varchar(60) NOT NULL default '',
   `SERVICE_CODE` varchar(10) NOT NULL default '',
-	`PARTS_MARKUP` DECIMAL( 2,2 ) NOT NULL default '00.00',
-	`UPS_LOGIN` VARCHAR( 50 ) NOT NULL ,
-	`UPS_PASSWORD` VARCHAR( 50 ) NOT NULL ,
-	`UPS_ACCESS_KEY` VARCHAR( 50 ) NOT NULL,
+  `PARTS_MARKUP` DECIMAL(4,2) NOT NULL default '0.00',  -- Changed from (2,2)
+  `UPS_LOGIN` VARCHAR(50) NOT NULL default '',
+  `UPS_PASSWORD` VARCHAR(50) NOT NULL default '',
+  `UPS_ACCESS_KEY` VARCHAR(50) NOT NULL default '',
   KEY `OFFICE_HOUR_START` (`OFFICE_HOUR_START`,`OFFICE_HOUR_END`)
-) TYPE=MyISAM;";
+) ENGINE=MyISAM;";
+	
 	$rs = $db->Execute($q);
-		if(!$rs) {
+	if(!$rs) {
+		return false;
+	} else {
+		
+		$q = "INSERT INTO `".PRFX."SETUP` VALUES (7, 19, '', '', '', '', 1, 0, 0.00, '', '', '', '', '', '03', 0.00, '', '', '')";
+		
+		if(!$rs = $db->Execute($q)) {
 			return false;
 		} else {
-			$q = "INSERT INTO `".PRFX."SETUP` VALUES (7, 19, '', '', '', '', 1, 0,'','','','','','','03','0.00','','','')";
-		
-			if(!$rs = $db->Execute($q)) {
-				return false;
-			} else {
-				return true;
-		   }
+			return true;
 		}
-
-}	
+	}
+}
 
 function create_acl($db) {
 	$q="CREATE TABLE `".PRFX."ACL` (
@@ -1076,7 +1076,7 @@ function create_cart($db) {
 		`WO_ID` int(11) NOT NULL default '0',
 		PRIMARY KEY  (`ID`),
 		KEY `SKU` (`SKU`)
-		) TYPE=MyISAM";
+		) ENGINE=MyISAM";
 	if(!$rs = $db->Execute($q)) {
 		return false;
 	} else {
@@ -1090,7 +1090,7 @@ function create_cat($db) {
 	`DESCRIPTION` varchar(100) NOT NULL default '',
 	PRIMARY KEY  (`ID`),
 	KEY `DESCRIPTION` (`DESCRIPTION`)
-	) TYPE=MyISAM";
+	) ENGINE=MyISAM";
 	if(!$rs = $db->Execute($q)) {
 		return false;
 	} else {
@@ -1156,7 +1156,7 @@ function create_orders($db) {
   `STATUS` int(4) NOT NULL default '0',
   PRIMARY KEY  (`ORDER_ID`),
   KEY `INVOICE_ID` (`INVOICE_ID`,`WO_ID`,`STATUS`)
-) TYPE=MyISAM";
+) ENGINE=MyISAM";
 	if(!$rs = $db->Execute($q)) {
 		return false;
 	} else {
@@ -1176,7 +1176,7 @@ function create_order_details($db) {
   `SUB_TOTAL` decimal(6,2) NOT NULL default '0.00',
   PRIMARY KEY  (`DETAILS_ID`),
   KEY `ORDER_ID` (`ORDER_ID`,`SKU`)
-) TYPE=MyISAM";
+) ENGINE=MyISAM";
 	if(!$rs = $db->Execute($q)) {
 		return false;
 	} else {
@@ -1193,7 +1193,7 @@ function create_sub_cat($db) {
   PRIMARY KEY  (`ID`),
   KEY `CAT` (`CAT`),
   KEY `SUB_CATEGORY` (`SUB_CATEGORY`)
-) TYPE=MyISAM";
+) ENGINE=MyISAM";
 	if(!$rs = $db->Execute($q)) {
 		return false;
 	} else {
@@ -1410,7 +1410,7 @@ function create_country($db){
 	`code` char(3) NOT NULL default '',
 	`name` varchar(80) NOT NULL default '',
 	PRIMARY KEY  (`code`)
-	) TYPE=MyISAM";
+	) ENGINE=MyISAM";
 	if(!$rs = $db->Execute($q)) {
 		return false;
 	} else {

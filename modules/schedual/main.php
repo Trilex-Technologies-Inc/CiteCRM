@@ -13,11 +13,12 @@ require('include.php');
 if(!xml2php("schedual")) {
 	$smarty->assign('error_msg',"Error in language file");
 }
+
 /* load the date formate from the js calendar */
-$wo_id = $_GET['wo_id'];
+$wo_id = isset($_GET['wo_id']) ? $_GET['wo_id'] : '';
 
 /* check if work order closed we don't want to reschedual a work order if it's closed */
-if(isset($wo_id)) {
+if(isset($wo_id) && !empty($wo_id)) {
 	$q = "SELECT WORK_ORDER_CURENT_STATUS FROM ".PRFX."TABLE_WORK_ORDER WHERE WORK_ORDER_ID=".$db->qstr($wo_id);
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
@@ -26,26 +27,17 @@ if(isset($wo_id)) {
 		$status = $rs->fields['WORK_ORDER_CURENT_STATUS'];
 	}
 	
-	
-	if($status == '6') {
+	// Check if status is closed (6,7,8,9)
+	if(in_array($status, array('6', '7', '8', '9'))) {
 		force_page('workorder', 'view&wo_id='.$wo_id.'&error_msg=Can not set a schedual for closed work order&page_title=Work Order ID '.$wo_id.'&type=warning');
-	} elseif ($status == '7') {
-		force_page('workorder', 'view&wo_id='.$wo_id.'&error_msg=Can not set a schedual for closed work order&page_title=Work Order ID '.$wo_id.'&type=warning');
-	} elseif ($status == '8') {
-		force_page('workorder', 'view&wo_id='.$wo_id.'&error_msg=Can not set a schedual for closed work order&page_title=Work Order ID '.$wo_id.'&type=warning');
-	} elseif ($status == '9') {
-		force_page('workorder', 'view&wo_id='.$wo_id.'&error_msg=Can not set a schedual for closed work order&page_title=Work Order ID '.$wo_id.'&type=warning');
+		exit;
 	}
-		
 }
 
-
-$y = $VAR['y'] ;
-$m = $VAR['m'];
-$d = $VAR['d'];
+$y = isset($VAR['y']) ? $VAR['y'] : date('Y');
+$m = isset($VAR['m']) ? $VAR['m'] : date('m');
+$d = isset($VAR['d']) ? $VAR['d'] : date('d');
 $cur_date = $m."/".$d."/".$y; 
-
-
 
 $date_array = array('y'=>$y, 'm'=>$m, 'd'=>$d, 'wo_id'=>$wo_id);
 $smarty->assign('date_array',$date_array);
@@ -83,65 +75,64 @@ $smarty->assign('d',$d);
 $business_start = mktime($H,0,0,$m,$d,$y);
 $business_end = mktime($E,0,0,$m,$d,$y);
 
-
 /* look in the database for a schedualed event and build the calander */	
-	$q = "SELECT * FROM ".PRFX."TABLE_SCHEDUAL WHERE SCHEDUAL_START >= " . $business_start. " AND SCHEDUAL_START  <= " .$business_end. "
-			AND  EMPLOYEE_ID ='".$tech."' ORDER BY SCHEDUAL_START ASC";
-	if(!$rs = $db->Execute($q)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-			exit;
-	}
-	
-	$sch = array();
-	while (!$rs->EOF ){
-		array_push($sch, array(
-				 "SCHEDUAL_ID"		=> $rs->fields["SCHEDUAL_ID"],
-				 "SCHEDUAL_START"	=> $rs->fields["SCHEDUAL_START"],
-				 "SCHEDUAL_END"		=> $rs->fields["SCHEDUAL_END"],	
-				 "SCHEDUAL_NOTES"	=> $rs->fields["SCHEDUAL_NOTES"],
-				 "WORK_ORDER_ID"	=> $rs->fields["WORK_ORDER_ID"]
-				 ));
-		$rs->MoveNext();
-	}
-		
+$q = "SELECT * FROM ".PRFX."TABLE_SCHEDUAL WHERE SCHEDUAL_START >= " . $business_start. " AND SCHEDUAL_START  <= " .$business_end. "
+		AND  EMPLOYEE_ID ='".$tech."' ORDER BY SCHEDUAL_START ASC";
+if(!$rs = $db->Execute($q)) {
+	force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+	exit;
+}
 
+$sch = array();
+$sch_count = 0;
+while (!$rs->EOF ){
+	array_push($sch, array(
+			 "SCHEDUAL_ID"		=> $rs->fields["SCHEDUAL_ID"],
+			 "SCHEDUAL_START"	=> $rs->fields["SCHEDUAL_START"],
+			 "SCHEDUAL_END"		=> $rs->fields["SCHEDUAL_END"],	
+			 "SCHEDUAL_NOTES"	=> $rs->fields["SCHEDUAL_NOTES"],
+			 "WORK_ORDER_ID"	=> $rs->fields["WORK_ORDER_ID"]
+			 ));
+	$rs->MoveNext();
+	$sch_count++;
+}
 
 /* start the calendar var */
-$calendar .= "<table  cellpadding=\"0\" cellspacing=\"0\"  class=\"olotable\">\n
+$calendar = "<table  cellpadding=\"0\" cellspacing=\"0\"  class=\"olotable\">\n
 		<tr>\n
 			<td class=\"olohead\" width=\"75\">&nbsp;</td>\n
 			<td class=\"olohead\" width=\"600\">&nbsp;</td>\n
-		</tr>\n"	;
+		</tr>\n";
 
 $i = 0;
 $start = mktime($H,0,0,$m,$d,$y);
 
 while($start <= $business_end){
-
-	if(date("i",$start) == 0) {
+	$sch_exists = isset($sch[$i]) && $sch[$i];
+	$in_schedule = false;
 	
+	if($sch_exists) {
+		$in_schedule = ($start >= $sch[$i]['SCHEDUAL_START'] && $start <= $sch[$i]['SCHEDUAL_END']);
+	}
+	
+	if(date("i",$start) == 0) {
 		$calendar .= "<tr><td class=\"olotd\" nowrap>&nbsp;<b>".date("h:i a", $start)."</b></td>\n";
 		
-		if($start >= $sch[$i]['SCHEDUAL_START'] && $start <= $sch[$i]['SCHEDUAL_END']){
-		
+		if($in_schedule){
 			if($start == $sch[$i]['SCHEDUAL_START']){
-				
-					if($sch[$i]['WORK_ORDER_ID'] != 0) {
-						$calendar .= "<td class=\"menutd2\" align=\"center\" onClick=\"window.location='?page=workorder:view&wo_id=".$sch[$i]['WORK_ORDER_ID']."page_title=Work Order ID ".$sch[$i]['WORK_ORDER_ID ']."'\"><b>\n";
-						$calendar .= "Work Order ID ". $sch[$i]['WORK_ORDER_ID']." From: ".date("h:i a",$sch[$i]['SCHEDUAL_START'])." To: ".date("h:i a",$sch[$i]['SCHEDUAL_END'])." ".$sch[$i]['SCHEDUAL_NOTES']."\n";
-						$calendar . "</b></td>\n";
-					} else {
-						$calendar .= "<td class=\"menutd2\" align=\"center\" onClick=\"window.location='?page=schedual:view&sch_id=".$sch[$i]['SCHEDUAL_ID']."&y=".$y."&m=".$m."&d=".$d."'\">";
-						$calendar .= "<b>From: ".date("h:i a",$sch[$i]['SCHEDUAL_START'])." To: ".date("h:i a",$sch[$i]['SCHEDUAL_END']).' '.$sch[$i]['SCHEDUAL_NOTES']."\n";
-						$calendar .= "</b></td>\n";
-					}
-					
+				if($sch[$i]['WORK_ORDER_ID'] != 0) {
+					$calendar .= "<td class=\"menutd2\" align=\"center\" onClick=\"window.location='?page=workorder:view&wo_id=".$sch[$i]['WORK_ORDER_ID']."page_title=Work Order ID ".$sch[$i]['WORK_ORDER_ID']."'\"><b>\n";
+					$calendar .= "Work Order ID ". $sch[$i]['WORK_ORDER_ID']." From: ".date("h:i a",$sch[$i]['SCHEDUAL_START'])." To: ".date("h:i a",$sch[$i]['SCHEDUAL_END'])." ".$sch[$i]['SCHEDUAL_NOTES']."\n";
+					$calendar .= "</b></td>\n";
+				} else {
+					$calendar .= "<td class=\"menutd2\" align=\"center\" onClick=\"window.location='?page=schedual:view&sch_id=".$sch[$i]['SCHEDUAL_ID']."&y=".$y."&m=".$m."&d=".$d."'\">";
+					$calendar .= "<b>From: ".date("h:i a",$sch[$i]['SCHEDUAL_START'])." To: ".date("h:i a",$sch[$i]['SCHEDUAL_END']).' '.$sch[$i]['SCHEDUAL_NOTES']."\n";
+					$calendar .= "</b></td>\n";
+				}
 			} else {
 				$calendar .= "<td class=\"menutd2\">&nbsp;</td>\n";
 			}
-			
 		} else {
-		
 			$calendar .= "<td class=\"olotd\" onClick=\"window.location='?page=schedual:new&starttime=".date("h:i a", $start)."&day=".$cur_date."&wo_id=".$wo_id."&tech=".$tech."'\"></td>\n";
 		}
 		
@@ -149,45 +140,35 @@ while($start <= $business_end){
 	} else {
 		$calendar .= "<tr>\n<td></td>\n";
 		
-		if($start >= $sch[$i]['SCHEDUAL_START'] && $start <= $sch[$i]['SCHEDUAL_END']){
-		
+		if($in_schedule){
 			if($start == $sch[$i]['SCHEDUAL_START']) {
-			
 				if($sch[$i]['WORK_ORDER_ID'] != 0) {
-					$calendar .= "<td class=\"menutd2\" align=\"center\" onClick=\"window.location='?page=workorder:view&wo_id=".$sch[$i]['WORK_ORDER_ID']."page_title=Work Order ID ".$sch[$i]['WORK_ORDER_ID ']."'\"><b>\n";
+					$calendar .= "<td class=\"menutd2\" align=\"center\" onClick=\"window.location='?page=workorder:view&wo_id=".$sch[$i]['WORK_ORDER_ID']."page_title=Work Order ID ".$sch[$i]['WORK_ORDER_ID']."'\"><b>\n";
 					$calendar .= "Work Order ID ". $sch[$i]['WORK_ORDER_ID']." From: ".date("h:i a",$sch[$i]['SCHEDUAL_START'])." To: ".date("h:i a",$sch[$i]['SCHEDUAL_END'])." ".$sch[$i]['SCHEDUAL_NOTES']."\n";
-					$calendar . "</b></td>\n";
+					$calendar .= "</b></td>\n";
 				} else {
 					$calendar .= "<td class=\"menutd2\" align=\"center\" onClick=\"window.location='?page=schedual:view&sch_id=".$sch[$i]['SCHEDUAL_ID']."&y=".$y."&m=".$m."&d=".$d."'\">";
 					$calendar .= "<b>From: ".date("h:i a",$sch[$i]['SCHEDUAL_START'])." To: ".date("h:i a",$sch[$i]['SCHEDUAL_END']).' '.$sch[$i]['SCHEDUAL_NOTES']."\n";
 					$calendar .= "</b></td>\n";
 				}
-					
-			}  else {
+			} else {
 				$calendar .= "<td class=\"menutd2\"><br></td>\n</tr>";
 			}
-			
 		} else {
 			$calendar .= "<td class=\"olotd4\" onClick=\"window.location='?page=schedual:new&starttime=".date("h:i a", $start) ."&day=".$cur_date."&wo_id=".$wo_id."&tech=".$tech."'\">&nbsp; ".date("h:i a", $start)."</td>\n</tr>";
 		}
-		
 	}
 
-	if($start == $sch[$i]['SCHEDUAL_END']) {
+	if($sch_exists && $start == $sch[$i]['SCHEDUAL_END']) {
 		$i++;
 	}
 	$start = mktime(date("H",$start),date("i",$start)+15,0,$m,$d,$y);
-	
-		
 }
 
 $calendar .= "\n</table>";
-/* get employee Display Name */
 
 /* feed smarty */
 $smarty->assign('calendar', $calendar);
 $smarty->assign('cur_date', $cur_date);
 $smarty->display('schedual'.SEP.'main.tpl');
-
-
 ?>

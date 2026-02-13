@@ -58,7 +58,9 @@ function display_employee_search($db, $name, $page_no) {
 	} else {
 		$employee_search_result = $rs->GetArray();
 	}
-	
+	 // Initialize prev and next variables
+    $prev = 0;
+    $next = 0;
 
 	// Figure out the total number of results in DB: 
 	$q = "SELECT COUNT(*) as Num FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_DISPLAY_NAME LIKE '$name%'";

@@ -18,7 +18,7 @@ if(!xml2php("customer")) {
 $customer_details = display_customer_info($db, $VAR['customer_id']);
 
 if(isset($VAR['submit'])) {	
-		
+	
 	if (!update_customer($db, $VAR)){
 		force_page('customer', 'edit&error_msg=Falied to Update Customer Information&customer_id='.$VAR['customer_id']);
 		exit;

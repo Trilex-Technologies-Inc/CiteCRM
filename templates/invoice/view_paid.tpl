@@ -1,119 +1,135 @@
 {literal}
-<script language="JavaScript">
-        function go()
-        {
-                box = document.forms[0].page_no;
-                destination = box.options[box.selectedIndex].value;
-                if (destination) location.href = destination;
-        }
-        </script>
+	<script>
+		function go() {
+			const box = document.forms[0].page_no;
+			const destination = box.options[box.selectedIndex].value;
+			if (destination) location.href = destination;
+		}
+	</script>
 {/literal}
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td >
-		
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-		    		{include file="core/tool_bar.tpl"}
-				</tr>
-			</table>
-			
-		</td>
-	</tr>
-</table>
-<table width="100%" border="0" cellpadding="20" cellspacing="5">
-	<tr>
-		<td>
-			<table width="700" cellpadding="4" cellspacing="0" border="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;{$translate_incvoice_view_paid}</td>
-					<td class="menuhead2" width="20%" align="right" valign="middle">
-						<img src="images/icons/16x16/help.gif" border="0">
-					</td>
-					</tr><tr>
-					<td class="menutd2" colspan="2">
-						<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
-							<tr>
-								<td class="menutd">
-									{if $error_msg != ""}
-										<br>
-										{include file="core/error.tpl"}
-										<br>
-									{/if}
-									<!-- Content -->
-										<table class="menutable" width="100%" border="0" cellpadding="5" cellspacing="0">
-											<tr>
-												<td valign="top">
-													
-												</td>
-												<td valign="top" nowrap align="right">
-												<form id="1">
-													<a href="?page=invoice:view_paid&submit=submit&page_no=1"><img src="images/rewnd_24.gif" border="0"></a>&nbsp;
-													{if $previous != ''}
-														<a href="?page=invoice:view_paid&submit=submit&page_no={$previous}"><img src="images/back_24.gif" border="0"></a>&nbsp;
-													{/if}
-													<select name="page_no" onChange="go()">
-													{section name=page loop=$total_pages start=1}
-														<option value="?page=invoice:view_paid&submit=submit&page_no={$smarty.section.page.index}" {if $page_no == $smarty.section.page.index } Selected {/if}>
-															{$translate_invoice_page} {$smarty.section.page.index} {$translate_invoice_of} {$total_pages} 
-														</option>
-													{/section}
-														<option value="?page=invoice:view_paid&submit=submit&page_no={$total_pages}" {if $page_no == $total_pages} selected {/if}>
-															{$translate_invoice_page}  {$total_pages} {$translate_invoice_of} {$total_pages}
-														</option>
-													</select>
-													
-													{if $next != ''}
-													<a href="?page=invoice:view_paid&submit=submit&page_no={$next}"><img src="images/forwd_24.gif" border="0"></a>
-													{/if}
-													
-													<a href="?page=invoice:view_paid&submit=submit&page_no={$total_pages}"><img src="images/fastf_24.gif" border="0"></a>
-													<br>
-													{$total_results} {$translate_invoice_records}
-													</form>
-												</td>
-											</tr><tr>
-												<td valign="top" colspan="2">
-														<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
-															<tr>
-																<td class="olohead">{$translate_invoice_id}</td>
-																<td class="olohead">{$translate_invoice_date}</td>
-																<td class="olohead">{$translate_invoice_due}</td>
-																<td class="olohead">{$translate_invoice_customer}</td>
-																<td class="olohead">{$translate_invoice_work_order}</td>
-																<td class="olohead">{$translate_invoice_employee}</td>	
-																<td class="olohead">{$translate_invoice_sub_total}</td>
-																<td class="olohead">{$translate_invoice_tax}</td>
-																<td class="olohead">{$translate_invoice_discount}</td>
-																<td class="olohead">{$translate_invoice_amount}</td>
-															</tr>
-															{section name=q loop=$invoice}
-															<tr onmouseover="this.className='row2'" onmouseout="this.className='row1'" onDblClick="window.location='index.php?page=invoice:view&invoice_id={$invoice[q].INVOICE_ID}&page_title={$translate_invoice_invoice}&customer_id={$invoice[q].CUSTOMER_ID}';" class="row1">
-																<td class="olotd4" nowrap><a href="index.php?page=invoice:view&invoice_id={$invoice[q].INVOICE_ID}&page_title=Invoice&customer_id={$invoice[q].CUSTOMER_ID}">{$invoice[q].INVOICE_ID}</a></td>
-																<td class="olotd4" nowrap>{$invoice[q].INVOICE_DATE|date_format:"%m-%d-%Y"}</td>
-																<td class="olotd4" nowrap>{$invoice[q].INVOICE_DUE|date_format:"%m-%d-%Y"}</td>
-																<td class="olotd4" nowrap><img src="images/icons/16x16/view+.gif" border="0" onMouseOver="ddrivetip('<b>{$translate_invoice_phone} </b>{$invoice[q].CUSTOMER_PHONE}<br><b>Work: </b>{$invoice[q].CUSTOMER_WORK_PHONE}<br><b>Moile: </b>{$invoice[q].CUSTOMER_MOBILE_PHONE}<br><br>{$invoice[q].CUSTOMER_ADDRESS}<br>{$invoice[q].CUSTOMER_CITY}, {$invoice[q].CUSTOMER_STATE}<br>{$invoice[q].CUSTOMER_ZIP}')" onMouseOut="hideddrivetip()"><a href="{$invoice[q].CUSTOMER_ID}">{$invoice[q].CUSTOMER_DISPLAY_NAME}</a></td>
-																<td class="olotd4" nowrap><a href="index.php?page=workorder:view&wo_id={$invoice[q].WORKORDER_ID}&page_title={$translate_invoice_wo_id}{$invoice[q].WORKORDER_ID}">{$invoice[q].WORKORDER_ID}</a></td>
-																<td class="olotd4" nowrap><img src="images/icons/16x16/view+.gif" border="0" onMouseOver="ddrivetip('<b>Work: </b>{$invoice[q].EMPLOYEE_WORK_PHONE}<br><b>Mobile: </b>{$invoice[q].EMPLOYEE_MOBILE_PHONE}<br><b>Home: </b>{$invoice[q].EMPLOYEE_HOME_PHONE}')" onMouseOut="hideddrivetip()"><a  href="?page=employees:employee_details&employee_id={$invoice[q].EMPLOYEE_ID}&page_title={$invoice[q].EMPLOYEE_DISPLAY_NAME}">{$invoice[q].EMPLOYEE_DISPLAY_NAME}</a></td>
-																<td class="olotd4" nowrap>${$invoice[q].SUB_TOTAL|string_format:"%.2f"}</td>
-																<td class="olotd4" nowrap>${$invoice[q].TAX|string_format:"%.2f"}</td>
-																<td class="olotd4" nowrap>${$invoice[q].DISCOUNT|string_format:"%.2f"}</td>
-																<td class="olotd4" nowrap>${$invoice[q].PAID_AMOUNT|string_format:"%.2f"}</td>
-																	
-															</tr>
-															{/section}
-														</table>
-												</td>
-											</tr>
-										</table>
-									<!-- end content-->
-								</td>
-							</tr>	
-						</table>
-					</td>
-				</tr>
-			</table>
-		</tr>
-	</td>
-</table>
 
+<div class="container my-4">
+
+	<!-- Toolbar -->
+	<div class="mb-3">
+		{include file="core/tool_bar.tpl"}
+	</div>
+
+	<!-- Error Messages -->
+	{if $error_msg != ""}
+		<div class="alert alert-danger">
+			{include file="core/error.tpl"}
+		</div>
+	{/if}
+
+	<!-- Paid Invoices Card -->
+	<div class="card shadow-sm">
+		<div class="card-header d-flex justify-content-between align-items-center">
+			<h5 class="mb-0">{$translate_incvoice_view_paid}</h5>
+			<img src="images/icons/16x16/help.gif" alt="Help">
+		</div>
+		<div class="card-body">
+
+			<!-- Pagination Controls -->
+			<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+				<div>
+					<form class="d-flex align-items-center" id="paginationForm">
+						<a href="?page=invoice:view_paid&submit=submit&page_no=1" class="me-1">
+							<img src="images/rewnd_24.gif" border="0" alt="First Page">
+						</a>
+
+						{if $previous != ''}
+							<a href="?page=invoice:view_paid&submit=submit&page_no={$previous}" class="me-1">
+								<img src="images/back_24.gif" border="0" alt="Previous Page">
+							</a>
+						{/if}
+
+						<select name="page_no" class="form-select form-select-sm me-1" style="width:auto;" onchange="go()">
+							{section name=page loop=$total_pages start=1}
+								<option value="?page=invoice:view_paid&submit=submit&page_no={$smarty.section.page.index}" {if $page_no == $smarty.section.page.index } selected {/if}>
+									{$translate_invoice_page} {$smarty.section.page.index} {$translate_invoice_of} {$total_pages}
+								</option>
+							{/section}
+							<option value="?page=invoice:view_paid&submit=submit&page_no={$total_pages}" {if $page_no == $total_pages} selected {/if}>
+								{$translate_invoice_page} {$total_pages} {$translate_invoice_of} {$total_pages}
+							</option>
+						</select>
+
+						{if $next != ''}
+							<a href="?page=invoice:view_paid&submit=submit&page_no={$next}" class="me-1">
+								<img src="images/forwd_24.gif" border="0" alt="Next Page">
+							</a>
+						{/if}
+
+						<a href="?page=invoice:view_paid&submit=submit&page_no={$total_pages}">
+							<img src="images/fastf_24.gif" border="0" alt="Last Page">
+						</a>
+					</form>
+				</div>
+
+				<div>
+					<small>{$total_results} {$translate_invoice_records}</small>
+				</div>
+			</div>
+
+			<!-- Paid Invoice Table -->
+			<div class="table-responsive">
+				<table class="table table-bordered table-hover align-middle">
+					<thead class="table-light">
+					<tr>
+						<th>{$translate_invoice_id}</th>
+						<th>{$translate_invoice_date}</th>
+						<th>{$translate_invoice_due}</th>
+						<th>{$translate_invoice_customer}</th>
+						<th>{$translate_invoice_work_order}</th>
+						<th>{$translate_invoice_employee}</th>
+						<th>{$translate_invoice_sub_total}</th>
+						<th>{$translate_invoice_tax}</th>
+						<th>{$translate_invoice_discount}</th>
+						<th>{$translate_invoice_amount}</th>
+					</tr>
+					</thead>
+					<tbody>
+					{section name=q loop=$invoice}
+						<tr class="table-row"
+							ondblclick="window.location='index.php?page=invoice:view&invoice_id={$invoice[q].INVOICE_ID}&page_title={$translate_invoice_invoice}&customer_id={$invoice[q].CUSTOMER_ID}';">
+							<td>
+								<a href="index.php?page=invoice:view&invoice_id={$invoice[q].INVOICE_ID}&page_title=Invoice&customer_id={$invoice[q].CUSTOMER_ID}">
+									{$invoice[q].INVOICE_ID}
+								</a>
+							</td>
+							<td>{$invoice[q].INVOICE_DATE|date_format:"%m-%d-%Y"}</td>
+							<td>{$invoice[q].INVOICE_DUE|date_format:"%m-%d-%Y"}</td>
+							<td>
+								<img src="images/icons/16x16/view+.gif"
+									 onMouseOver="ddrivetip('<b>{$translate_invoice_phone} </b>{$invoice[q].CUSTOMER_PHONE}<br><b>Work: </b>{$invoice[q].CUSTOMER_WORK_PHONE}<br><b>Mobile: </b>{$invoice[q].CUSTOMER_MOBILE_PHONE}<br><br>{$invoice[q].CUSTOMER_ADDRESS}<br>{$invoice[q].CUSTOMER_CITY}, {$invoice[q].CUSTOMER_STATE}<br>{$invoice[q].CUSTOMER_ZIP}')"
+									 onMouseOut="hideddrivetip()">
+								<a href="{$invoice[q].CUSTOMER_ID}">{$invoice[q].CUSTOMER_DISPLAY_NAME}</a>
+							</td>
+							<td>
+								<a href="index.php?page=workorder:view&wo_id={$invoice[q].WORKORDER_ID}&page_title={$translate_invoice_wo_id}{$invoice[q].WORKORDER_ID}">
+									{$invoice[q].WORKORDER_ID}
+								</a>
+							</td>
+							<td>
+								<img src="images/icons/16x16/view+.gif"
+									 onMouseOver="ddrivetip('<b>Work: </b>{$invoice[q].EMPLOYEE_WORK_PHONE}<br><b>Mobile: </b>{$invoice[q].EMPLOYEE_MOBILE_PHONE}<br><b>Home: </b>{$invoice[q].EMPLOYEE_HOME_PHONE}')"
+									 onMouseOut="hideddrivetip()">
+								<a href="?page=employees:employee_details&employee_id={$invoice[q].EMPLOYEE_ID}&page_title={$invoice[q].EMPLOYEE_DISPLAY_NAME}">
+									{$invoice[q].EMPLOYEE_DISPLAY_NAME}
+								</a>
+							</td>
+							<td>${$invoice[q].SUB_TOTAL|string_format:"%.2f"}</td>
+							<td>${$invoice[q].TAX|string_format:"%.2f"}</td>
+							<td>${$invoice[q].DISCOUNT|string_format:"%.2f"}</td>
+							<td>${$invoice[q].PAID_AMOUNT|string_format:"%.2f"}</td>
+						</tr>
+					{/section}
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+	</div>
+
+</div>

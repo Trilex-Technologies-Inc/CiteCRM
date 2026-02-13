@@ -19,6 +19,7 @@ $month_end	 = mktime(0,0,0,date("m")+1, 0, date("Y"));
 
 /* local ip's we do not want to watch*/
 $filter_ips = array('71.32.223.153');
+$where = '';
 
 /* build and */
 foreach($filter_ips as $ip) {

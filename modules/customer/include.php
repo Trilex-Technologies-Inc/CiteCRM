@@ -42,60 +42,64 @@ function display_customer_info($db, $customer_id){
 #####################################
 
 function display_customer_search($db, $name, $page_no, $smarty) {
-	global $smarty;
-	
-	// Define the number of results per page
-	$max_results = 10;
-	
-	// Figure out the limit for the Execute based
-	// on the current page number.
-	$from = (($page_no * $max_results) - $max_results);  
-	
-	$sql = "SELECT * FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME LIKE ". $db->qstr("$name%") ." ORDER BY CUSTOMER_DISPLAY_NAME LIMIT $from, $max_results";
-	
-	//print $sql;
-	
-	if(!$result = $db->Execute($sql)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;
-	} else {
-		$customer_search_result = array();
-	}
-	
-	while($row = $result->FetchRow()){
-		 array_push($customer_search_result, $row);
-	}
-	
-	// Figure out the total number of results in DB: 
-	$results = $db->Execute("SELECT COUNT(*) as Num FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME LIKE ".$db->qstr("$name%") );
-	
-	if(!$total_results = $results->FetchRow()) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;
-	} else {
-		$smarty->assign('total_results', $total_results['Num']);
-	}
-		
-	// Figure out the total number of pages. Always round up using ceil()
-	$total_pages = ceil($total_results["Num"] / $max_results); 
-	$smarty->assign('total_pages', $total_pages);
-	
-	// Assign the first page
-	if($page_no > 1) {
-    	$prev = ($page_no - 1);	 
-	} 	
+    global $smarty;
+    
+    // Define the number of results per page
+    $max_results = 10;
+    
+    // Figure out the limit for the Execute based
+    // on the current page number.
+    $from = (($page_no * $max_results) - $max_results);  
+    
+    $sql = "SELECT * FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME LIKE ". $db->qstr("$name%") ." ORDER BY CUSTOMER_DISPLAY_NAME LIMIT $from, $max_results";
+    
+    //print $sql;
+    
+    if(!$result = $db->Execute($sql)) {
+        force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+        exit;
+    } else {
+        $customer_search_result = array();
+    }
+    
+    while($row = $result->FetchRow()){
+         array_push($customer_search_result, $row);
+    }
+    
+    // Figure out the total number of results in DB: 
+    $results = $db->Execute("SELECT COUNT(*) as Num FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME LIKE ".$db->qstr("$name%") );
+    
+    if(!$total_results = $results->FetchRow()) {
+        force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+        exit;
+    } else {
+        $smarty->assign('total_results', $total_results['Num']);
+    }
+        
+    // Figure out the total number of pages. Always round up using ceil()
+    $total_pages = ceil($total_results["Num"] / $max_results); 
+    $smarty->assign('total_pages', $total_pages);
+    
+    // Initialize prev and next variables
+    $prev = 0;
+    $next = 0;
+    
+    // Assign the first page
+    if($page_no > 1) {
+        $prev = ($page_no - 1);     
+    }     
 
-	// Build Next Link
-	if($page_no < $total_pages){
-    	$next = ($page_no + 1); 
-	}
-	
-	$smarty->assign('name', $name);
-	$smarty->assign('page_no', $page_no);
-	$smarty->assign("previous", $prev);	
-	$smarty->assign("next", $next);
-	
-	return $customer_search_result;
+    // Build Next Link
+    if($page_no < $total_pages){
+        $next = ($page_no + 1); 
+    }
+    
+    $smarty->assign('name', $name);
+    $smarty->assign('page_no', $page_no);
+    $smarty->assign("previous", $prev);    
+    $smarty->assign("next", $next);
+    
+    return $customer_search_result;
 }
 
 ###############################
@@ -287,6 +291,7 @@ function update_customer($db,$VAR) {
 			CUSTOMER_LAST_NAME		= ". $db->qstr( $VAR["lastName"]		).",
 			DISCOUNT 					= ". $db->qstr( $VAR['discount']		)."
 			WHERE CUSTOMER_ID		= ". $db->qstr( $VAR['customer_id']	);
+
 			
 	if(!$result = $db->Execute($sql)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
