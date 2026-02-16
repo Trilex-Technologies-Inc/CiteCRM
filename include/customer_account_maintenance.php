@@ -63,7 +63,8 @@ class AccountMaintenance {
     * @access public
     */
     function fetchLogin($email) {
-        $email=mysql_escape_string($email);
+        // Use generic addslashes() to escape dangerous characters instead of deprecated mysql_* functions
+        $email = addslashes($email);
         $sql="SELECT
                   ".USER_TABLE_LOGIN.", ".USER_TABLE_PASSW.",
                   ".USER_TABLE_FIRST.", ".USER_TABLE_LAST."
@@ -87,8 +88,9 @@ class AccountMaintenance {
     * @access public
     */
     function resetPassword($login,$email) {
-        $login=mysql_escape_string($login);
-        $email=mysql_escape_string($email);
+        // Escape inputs without using deprecated mysql_* extension
+        $login = addslashes($login);
+        $email = addslashes($email);
         $sql="SELECT ".USER_TABLE_ID.",
                   ".USER_TABLE_LOGIN.", ".USER_TABLE_PASSW.",
                   ".USER_TABLE_FIRST.", ".USER_TABLE_LAST."
@@ -171,8 +173,9 @@ class AccountMaintenance {
     * @access public
     */
     function changePassword(& $auth,$oldPassword,$newPassword) {
-        $oldPassword=mysql_escape_string($oldPassword);
-        $newPassword=mysql_escape_string($newPassword);
+        // Escape passwords without relying on deprecated mysql_* extension
+        $oldPassword = addslashes($oldPassword);
+        $newPassword = addslashes($newPassword);
 
         // Instantiate the Session class
         $session=new Session();
