@@ -1,72 +1,57 @@
-<!-- edit schedual.tpl -->
-{literal}
-<script language="javascript" type="text/javascript" src="include/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
-<script language="javascript" type="text/javascript">
-	tinyMCE.init({
-		mode : "specific_textareas",
-		theme : "advanced",
-		plugins : "advlink,iespell,insertdatetime,preview",
-		theme_advanced_buttons2_add : "separator,insertdate,inserttime,preview,separator,forecolor,backcolor",
-		theme_advanced_buttons2_add_before: "cut,copy,paste",
-		theme_advanced_toolbar_location : "bottom",
-		theme_advanced_toolbar_align : "center", 
-		content_css : "themes/default/style.css",
-	    plugin_insertdate_dateFormat : "%Y-%m-%d",
-	    plugin_insertdate_timeFormat : "%H:%M:%S",
-		extended_valid_elements : "a[name|href|target|title|onclick],img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name],hr[class|width|size|noshade],font[face|size|color|style],span[class|align|style]",
-		external_link_list_url : "example_link_list.js",
-		external_image_list_url : "example_image_list.js",
-		flash_external_list_url : "example_flash_list.js",
-		file_browser_callback : "fileBrowserCallBack",
-		width : "100%"
-	}); 
+<!-- Edit Schedule Template -->
 
-</script>
+{literal}
+	<script src="include/tinymce/js/tinymce/tinymce.min.js"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			tinymce.init({
+				selector: 'textarea[name="schedual_notes"]',
+				license_key: 'gpl',
+				height: 400,
+				menubar: true,
+				plugins: 'lists link image table code preview fullscreen',
+				toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image table | code preview fullscreen',
+				toolbar_mode: 'sliding'
+			});
+		});
+	</script>
 {/literal}
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td >
-		
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-		    		{include file="core/tool_bar.tpl"}
-				</tr>
-			</table>
-			
-		</td>
-	</tr>
-</table>
-<table width="100%" border="0" cellpadding="20" cellspacing="5">
-	<tr>
-		<td>
-			<table width="700" cellpadding="4" cellspacing="0" border="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;Edit Schedual</td>
-				</tr><tr>
-					<td class="menutd2">
-						<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
-							<tr>
-								<td class="menutd">
-									<table width="100%" celpadding="5" cellspacing="5">
-										<tr>
-											<td >
-											<br>
-												<form method="POST" action="?page=schedual:edit&y={$y}&m={$m}&d={$d}">
-													<textarea name="schedual_notes" rows="15" cols="70" mce_editable="true">{$schedual_notes}</textarea>
-													<input type="hidden" name="sch_id" value="{$sch_id}">
-													<br>
-													<input type="submit" name="submit" value="Submit">
-												</form>
-											</td>
-										</tr>
-									</table>
-									<br>
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
+
+<div class="container mt-4">
+
+	<!-- Toolbar -->
+	<div class="mb-3">
+		{include file="core/tool_bar.tpl"}
+	</div>
+
+	<div class="card shadow-sm">
+		<div class="card-header">
+			<h5 class="mb-0">Edit Schedule</h5>
+		</div>
+
+		<div class="card-body">
+			<form method="POST" action="?page=schedual:edit&y={$y}&m={$m}&d={$d}">
+
+				<!-- Notes -->
+				<div class="mb-3">
+					<label for="schedual_notes" class="form-label fw-bold">Notes</label>
+					<textarea id="schedual_notes"
+							  name="schedual_notes"
+							  class="form-control"
+							  rows="15">{$schedual_notes}</textarea>
+				</div>
+
+				<input type="hidden" name="sch_id" value="{$sch_id}">
+
+				<!-- Submit -->
+				<div class="text-end">
+					<input type="submit"
+						   name="submit"
+						   value="Submit"
+						   class="btn btn-primary">
+				</div>
+
+			</form>
+		</div>
+	</div>
+</div>
