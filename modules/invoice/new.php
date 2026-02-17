@@ -16,9 +16,10 @@ if(!xml2php("invoice")) {
 }
 
 // Grab customers Information
-$wo_id       = $VAR['wo_id'];
-$customer_id = $VAR['customer_id'];
-$submit		 = $VAR['submit'];
+$wo_id       = isset($VAR['wo_id']) ? $VAR['wo_id'] : null;
+$customer_id = isset($VAR['customer_id']) ? $VAR['customer_id'] : null;
+$submit      = isset($VAR['submit']) ? $VAR['submit'] : null;
+
 
 /* Generic error control */
 if(!$wo_id) {
