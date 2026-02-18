@@ -140,6 +140,24 @@
                         </li>
                     </ul>
                 </li>
+                 <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="?page=stats:main&page_title=Sats"
+                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Category
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="?page=cats:main&page_title=Category">
+                               Categories
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="?page=cats:new&page_title=New Category">
+                               New
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </nav>

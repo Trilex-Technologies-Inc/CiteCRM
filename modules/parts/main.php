@@ -209,8 +209,13 @@ if(!isset($VAR['check_out'])) {
 		}
 	}
 	
-	$smarty->assign('from_zip',$from_zip);
-	$smarty->assign( 'parts', $parts );
+	$from_zip = isset($from_zip) ? $from_zip : '';
+$parts    = isset($parts) ? $parts : array();
+
+$smarty->assign('from_zip', $from_zip);
+$smarty->assign('parts', $parts);
+$smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
+
 	$smarty->assign('CAT2', $VAR['CAT2']);
 }
 ###############################
