@@ -24,7 +24,7 @@
             <div class="card-body">
 
                 <div class="row mb-3">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <h2 class="h4 mb-0">{$translate_billing_gift}</h2>
                     </div>
                     <div class="col-md-4 text-md-end">

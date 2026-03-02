@@ -12,6 +12,11 @@
 
 
 function check_acl($db,$module,$page	) {
+	if (!isset($_SESSION['login_id']) || empty($_SESSION['login_id'])) {
+		// No logged-in user; deny access cleanly
+		return false;
+	}
+
 	$uid = $_SESSION['login_id'];
 	
 	/* get group id */

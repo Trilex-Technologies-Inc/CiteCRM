@@ -209,8 +209,13 @@ if(!isset($VAR['check_out'])) {
 		}
 	}
 	
-	$smarty->assign('from_zip',$from_zip);
-	$smarty->assign( 'parts', $parts );
+	$from_zip = isset($from_zip) ? $from_zip : '';
+$parts    = isset($parts) ? $parts : array();
+
+$smarty->assign('from_zip', $from_zip);
+$smarty->assign('parts', $parts);
+$smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
+
 	$smarty->assign('CAT2', $VAR['CAT2']);
 }
 ###############################
@@ -269,10 +274,15 @@ if(isset($VAR['check_out'])) {
 		}
 		$arr = $rs->GetArray();
 		
+		// Initialize totals before accumulating
+		$sub_total         = 0;
+		$cart_weight_total = 0;
+		$from_zip          = '';
+		
 		foreach($arr as $key=>$val) {
-			$sub_total = $sub_total + $val['SUB_TOTAL'];
-			$from_zip = $val['ZIP'];
-			$amount = $val['AMOUNT'] * $val['Weight'];
+			$sub_total         = $sub_total + $val['SUB_TOTAL'];
+			$from_zip          = $val['ZIP'];
+			$amount            = $val['AMOUNT'] * $val['Weight'];
 			$cart_weight_total = $cart_weight_total + $amount;
 		}
 		
@@ -375,6 +385,9 @@ $q = "SELECT * FROM ".PRFX."CART";
 	}
 $arr = $rs->GetArray();
 //print_r($arr);
+
+// Initialize cart subtotal before accumulating
+$cart_sub_total = 0;
 foreach($arr as $key=>$val) {
 	$cart_sub_total = $cart_sub_total + $val['SUB_TOTAL'];
 }

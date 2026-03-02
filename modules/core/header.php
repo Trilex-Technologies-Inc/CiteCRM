@@ -5,7 +5,7 @@ if(!xml2php("core")) {
 	$smarty->assign('error_msg',"Error in language file");
 }
 
-$login = $_SESSION['login'];
+$login = isset($_SESSION['login']) ? $_SESSION['login'] : '';
 
 if(!$login)
 {

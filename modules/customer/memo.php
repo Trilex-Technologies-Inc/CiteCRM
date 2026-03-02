@@ -10,8 +10,11 @@
 #																	#
 ####################################################
 
-$smarty->assign('customer_id', isset($VAR['customer_id']) ? $VAR['customer_id'] : '');
-$smarty->assign('customer_name', isset($VAR['customer_name']) ? $VAR['customer_name'] : '');
+$customer_id   = isset($VAR['customer_id'])   ? $VAR['customer_id']   : '';
+$customer_name = isset($VAR['customer_name']) ? $VAR['customer_name'] : '';
+
+$smarty->assign('customer_id', $customer_id);
+$smarty->assign('customer_name', $customer_name);
 
 
 if(isset($VAR['submit'])) {
@@ -26,7 +29,7 @@ if(isset($VAR['submit'])) {
 		exit;
 	}
 
-	force_page('customer', 'customer_details&page_title='.$VAR['customer_name'].'&customer_id='.$VAR['customer_id']);
+	force_page('customer', 'customer_details&page_title='.$customer_name.'&customer_id='.$customer_id);
 } else {
 
 	if(isset($VAR['action']) && $VAR['action'] == 'delete') {
@@ -37,7 +40,7 @@ if(isset($VAR['submit'])) {
 			exit;
 		}
 
-	force_page('customer', 'customer_details&page_title='.$VAR['customer_name'].'&customer_id='.$VAR['customer_id']);
+	force_page('customer', 'customer_details&page_title='.$customer_name.'&customer_id='.$customer_id);
 
 	} else {
 

@@ -48,12 +48,16 @@ class Auth {
       $password = $_POST[USER_PASSW_VAR];
     }
 
-    // Escape the variables for the query
-    $login     = mysql_real_escape_string($_POST[USER_LOGIN_VAR]);
-    $password  = mysql_real_escape_string($password);
+    // Use the database abstraction layer to safely quote values
+    $login_raw     = isset($_POST[USER_LOGIN_VAR]) ? $_POST[USER_LOGIN_VAR] : '';
+    $password_raw  = $password;
+
+    // qstr() returns a safely quoted and escaped string suitable for SQL
+    $login_q    = $this->db->qstr($login_raw);
+    $password_q = $this->db->qstr($password_raw);
   
     // Query to count number of users with this combination
-    $sql = "SELECT COUNT(*) AS num_users FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN='".$login."' AND EMPLOYEE_PASSWD='".$password."'";
+    $sql = "SELECT COUNT(*) AS num_users FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN=".$login_q." AND EMPLOYEE_PASSWD=".$password_q;
     
     $result = $this->db->Execute($sql);
     
@@ -70,12 +74,12 @@ class Auth {
 
     // If there isn't is exactly one entry, redirect
     if ($row['num_users'] != 1) {    
-      $this->writeLog('Failed Login',$login);
+      $this->writeLog('Failed Login',$login_raw);
       $this->force_page('login.php?error_msg=Login Failed');
     // Else is a valid user; set the session variables
     } else {
         /* grab their login ID for tracking purposes */
-        $sql = "SELECT EMPLOYEE_ID FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN='".$login."'";
+        $sql = "SELECT EMPLOYEE_ID FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN=".$login_q;
         $result = $this->db->Execute($sql);
         
         // Check if second query was successful
@@ -95,7 +99,7 @@ class Auth {
             $login_id = $row['EMPLOYEE_ID'];
         }
     
-      $this->storeAuth($login, $password, $login_id);
+      $this->storeAuth($login_raw, $password_raw, $login_id);
     }
   }
   

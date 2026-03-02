@@ -8,7 +8,7 @@
         <div>
             &copy; 2005&nbsp;-&nbsp;{php}echo date('Y');{/php}
             Cite CRM
-            <a href="http://www.citecrm.com" target="new">www.citecrm.com</a>
+            <a href="http://www.incitecrm.com" target="new">www.incitecrm.com</a> — All rights reserved.
         </div>
         <div>
             All rights reserved.

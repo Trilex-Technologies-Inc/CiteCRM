@@ -16,7 +16,7 @@ if(!xml2php("billing")) {
 }
 		
 $customer_id 	= $VAR['customer_id'];
-$customer_name	= $VAR['customer_name'];
+$customer_name	= $VAR['customer_name']? $VAR['customer_name']:'';
 
 $smarty->assign('customer_name', $customer_name);
 $smarty->assign('customer_id',$customer_id);

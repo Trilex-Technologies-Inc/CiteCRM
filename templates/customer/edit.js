@@ -1,111 +1,122 @@
-	{literal}
-	<script type="text/javascript">
-	//<![CDATA[
+{literal}
+<script type="text/javascript">
 	function validate_edit_customer(frm) {
-	var value = '';
-	var errFlag = new Array();
-	var _qfGroups = {};
-	_qfMsg = '';
-	
-	value = frm.elements['displayName'].value;
-	if (value == '' && !errFlag['displayName']) {
-	errFlag['displayName'] = true;
-	_qfMsg = _qfMsg + '\n - Please enter the  customers Display Name';
-	}
-	
-	value = frm.elements['displayName'].value;
-	if (value != '' && value.length > 80 && !errFlag['displayName']) {
-	errFlag['displayName'] = true;
-	_qfMsg = _qfMsg + '\n - The Customers Display  Name cannot be more than 80 characters';
-	}
-	
-	value = frm.elements['firstName'].value;
-	if (value == '' && !errFlag['firstName']) {
-	errFlag['firstName'] = true;
-	_qfMsg = _qfMsg + '\n - Please enter the customers First Name';
-	}
-	
-	value = frm.elements['firstName'].value;
-	if (value != '' && value.length > 50 && !errFlag['firstName']) {
-	errFlag['firstName'] = true;
-	_qfMsg = _qfMsg + '\n - The customers First Name cannot be more than 50 characters';
-	}
-	
-	value = frm.elements['lastName'].value;
-	if (value == '' && !errFlag['lastName']) {
-	errFlag['lastName'] = true;
-	_qfMsg = _qfMsg + '\n - Please enter the customers last name';
-	}
-	
-	value = frm.elements['lastName'].value;
-	if (value != '' && value.length > 50 && !errFlag['lastName']) {
-	errFlag['lastName'] = true;
-	_qfMsg = _qfMsg + '\n - The customers Last name cannot be more than 50 characters';
-	}
-	
-	value = frm.elements['address'].value;
-	if (value == '' && !errFlag['address']) {
-	errFlag['address'] = true;
-	_qfMsg = _qfMsg + '\n - Please enter the customers address';
-	}
-	
-	value = frm.elements['address'].value;
-	if (value != '' && value.length > 50 && !errFlag['address']) {
-	errFlag['address'] = true;
-	_qfMsg = _qfMsg + '\n - Address cannot be more than 50 characters';
-	}
-	
-	value = frm.elements['city'].value;
-	if (value == '' && !errFlag['city']) {
-	errFlag['city'] = true;
-	_qfMsg = _qfMsg + '\n - Please enter the customers city';
-	}
-	
-	value = frm.elements['city'].value;
-	if (value != '' && value.length > 50 && !errFlag['city']) {
-	errFlag['city'] = true;
-	_qfMsg = _qfMsg + '\n - City cannot be more than 50 characters';
-	}
-	
-	value = frm.elements['state'].value;
-	if (value == '' && !errFlag['state']) {
-	errFlag['state'] = true;
-	_qfMsg = _qfMsg + '\n - Please enter the customers state';
-	}
-	
-	value = frm.elements['state'].value;
-	if (value != '' && value.length > 20 && !errFlag['state']) {
-	errFlag['state'] = true;
-	_qfMsg = _qfMsg + '\n - State cannot be more than 20 characters';
-	}
-	
-	value = frm.elements['zip'].value;
-	if (value == '' && !errFlag['zip']) {
-	errFlag['zip'] = true;
-	_qfMsg = _qfMsg + '\n - Please enter the customers zip';
-	}
-	
-	value = frm.elements['zip'].value;
-	if (value != '' && value.length > 10 && !errFlag['zip']) {
-	errFlag['zip'] = true;
-	_qfMsg = _qfMsg + '\n - Zip cannot be more than 10 characters';
-	}
-	
-	value = frm.elements['customerType'].selectedIndex == -1? '': frm.elements['customerType'].options[frm.elements['customerType'].selectedIndex].value;
-	
-	if (value == '' && !errFlag['customerType']) {
-	errFlag['customerType'] = true;
-	_qfMsg = _qfMsg + '\n - Please select the customer type.';
-	}
-	
-	if (_qfMsg != '') {
-	_qfMsg = 'Invalid information entered.' + _qfMsg;
-	_qfMsg = _qfMsg + '\nPlease correct these fields.';
-	alert(_qfMsg);
+
+	var errors = [];
+	var firstErrorField = null;
+
+	function markInvalid(field, message) {
+	if (!field) return;
+
+	field.classList.add("is-invalid");   // Bootstrap red border
+	if (!firstErrorField) {
+	firstErrorField = field;
+}
+	errors.push(message);
+}
+
+	function clearInvalid(field) {
+	if (!field) return;
+	field.classList.remove("is-invalid");
+}
+
+	function checkRequired(fieldName, message) {
+	var field = frm.elements[fieldName];
+	clearInvalid(field);
+
+	if (!field || field.value.trim() === '') {
+	markInvalid(field, message);
+}
+}
+
+	function checkMaxLength(fieldName, maxLength, message) {
+	var field = frm.elements[fieldName];
+	if (!field) return;
+
+	if (field.value.length > maxLength) {
+	markInvalid(field, message);
+}
+}
+
+	// Display Name
+	checkRequired('displayName', 'Please enter the Customer Display Name');
+	checkMaxLength('displayName', 80, 'Display Name cannot be more than 80 characters');
+
+	// First Name
+	checkRequired('firstName', 'Please enter the Customer First Name');
+	checkMaxLength('firstName', 50, 'First Name cannot be more than 50 characters');
+
+	// Last Name
+	checkRequired('lastName', 'Please enter the Customer Last Name');
+	checkMaxLength('lastName', 50, 'Last Name cannot be more than 50 characters');
+
+	// Phones
+	checkRequired('homePhone', 'Please enter the Home Phone');
+	checkRequired('workPhone', 'Please enter the Work Phone');
+	checkRequired('mobilePhone', 'Please enter the Mobile Phone');
+
+	// Address
+	checkRequired('address', 'Please enter the Address');
+	checkMaxLength('address', 100, 'Address cannot be more than 100 characters');
+
+	checkRequired('city', 'Please enter the City');
+	checkMaxLength('city', 50, 'City cannot be more than 50 characters');
+
+	checkRequired('state', 'Please enter the State');
+	checkMaxLength('state', 20, 'State cannot be more than 20 characters');
+
+	checkRequired('zip', 'Please enter the Zip');
+	checkMaxLength('zip', 10, 'Zip cannot be more than 10 characters');
+
+	// Email
+	var emailField = frm.elements['email'];
+	clearInvalid(emailField);
+	if (emailField.value.trim() === '') {
+	markInvalid(emailField, 'Please enter the Email');
+} else {
+	var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	if (!emailPattern.test(emailField.value)) {
+	markInvalid(emailField, 'Please enter a valid email address');
+}
+}
+
+	// Customer Type
+	var typeField = frm.elements['customerType'];
+	clearInvalid(typeField);
+	if (typeField.value === '') {
+	markInvalid(typeField, 'Please select the Customer Type');
+}
+
+	// Discount
+	var discountField = frm.elements['discount'];
+	clearInvalid(discountField);
+	if (discountField.value !== '') {
+	if (isNaN(discountField.value) ||
+	discountField.value < 0 ||
+	discountField.value > 100) {
+	markInvalid(discountField, 'Discount must be between 0 and 100');
+}
+}
+
+	if (errors.length > 0) {
+	alert("Invalid information entered:\n\n- " + errors.join("\n- "));
+	firstErrorField.focus();
 	return false;
-	}
+}
+
 	return true;
-	}
-	//]]>
-	</script>
-	{/literal}
+}
+
+	// Remove red border automatically when typing
+	document.addEventListener("DOMContentLoaded", function () {
+	var form = document.getElementById("edit_customer");
+	var inputs = form.querySelectorAll("input, select");
+
+	inputs.forEach(function (input) {
+	input.addEventListener("input", function () {
+	this.classList.remove("is-invalid");
+});
+});
+});
+</script>
+{/literal}
