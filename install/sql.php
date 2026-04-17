@@ -15,14 +15,14 @@
 ##################################
 if(!create_billing_options($db)) {
 	echo("<tr>\n
-					<td>create table ".PRFX."BILLING_OPTIONS</td>\n
-					<td><font color=\"red\"><b>Failed </b> </font> ".$db->ErrorMsg() ."</td>\n
+					<td>Create table ".PRFX."BILLING_OPTIONS</td>\n
+					<td><span class=\"badge bg-danger\">Failed</span> ".$db->ErrorMsg() ."</td>\n
 			</tr>\n");
 			$error_flag = true;
 } else {
 	echo("<tr>\n
 					<td>Create table ".PRFX."BILLING_OPTIONS</td>\n
-					<td><font color=\"green\"><b>OK</b></font></td>\n
+					<td><span class=\"badge bg-success\">OK</span></td>\n
 			<tr>\n");
 }
 
@@ -1047,7 +1047,11 @@ function create_acl($db) {
 (58, 'workorder:edit_comment', 1, 1, 1, 1),
 (59, 'control:check_updates', 0, 0, 0, 1),
 (60, 'parts:print_results', 1, 1, 1, 1),
-(61, 'customer:memo ', 1, 1, 1, 1)";
+(61, 'customer:memo ', 1, 1, 1, 1),
+(62, 'cats:main', 1, 1, 1, 1),
+(63, 'cats:new', 1, 1, 1, 1),
+(64, 'cats:edit', 1, 1, 1, 1),
+(65, 'cats:delete', 0, 0, 0, 1)";
 
 			$rs = $db->Execute($q);
 			if(!$rs) {
@@ -1131,7 +1135,11 @@ function create_cat($db) {
 			('TB', 'TapeBack-up'),
 			('UP', 'UPS'),
 			('VC', 'VGACards'),
-			('ZP', 'ZipDrive')";
+			('ZP', 'ZipDrive'),
+			('NW', 'NewCategory1'),
+			('NX', 'NewCategory2'),
+			('NY', 'NewCategory3'),
+			('NZ', 'NewCategory4')";
 			if(!$rs = $db->Execute($q)) {
 				return false;
 			} else {
