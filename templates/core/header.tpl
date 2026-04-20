@@ -24,7 +24,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="index.php">
-            <img src="images/cite_crm.jpg" alt="Cite CRM" class="me-2 logo-image">
+            
             <span>Cite CRM</span>
         </a>
 
