@@ -101,6 +101,14 @@ function update_cat($db, $VAR, $cat_id) {
 #####################################
 
 function delete_cat($db, $cat_id) {
+    // Check if category has subcategories
+    $check_q = "SELECT COUNT(*) as num FROM ".PRFX."SUB_CAT WHERE CAT = ". $db->qstr($cat_id);
+    $check_rs = $db->Execute($check_q);
+    if($check_rs->fields['num'] > 0) {
+        force_page('core', 'error&error_msg=Cannot delete category with existing subcategories. Delete subcategories first.&menu=1&type=validation');
+        exit;
+    }
+    
     $q = "DELETE FROM ".PRFX."CAT WHERE ID = ". $db->qstr($cat_id);
     
     if(!$rs = $db->Execute($q)) {
@@ -124,5 +132,86 @@ function check_cat_exists($db, $id) {
     } else {
         return false; // Cat doesn't exist
     }
+}
+
+#####################################
+#	Display Subcat Info             #
+#####################################
+
+function display_subcat_info($db, $subcat_id) {
+    $q = "SELECT * FROM ".PRFX."SUB_CAT WHERE ID=". $db->qstr($subcat_id);
+    
+    if(!$rs = $db->Execute($q)) {
+        force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+        exit;
+    }
+    
+    return $rs->GetArray();
+}
+
+#####################################
+#	Search Subcats by Category      #
+#####################################
+
+function display_subcat_search($db, $cat_id) {
+    $q = "SELECT * FROM ".PRFX."SUB_CAT WHERE CAT = ". $db->qstr($cat_id) ." ORDER BY DESCRIPTION";
+    
+    if(!$rs = $db->Execute($q)) {
+        force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+        exit;
+    }
+    
+    return $rs->GetArray();
+}
+
+#####################################
+#	Insert New Subcat               #
+#####################################
+
+function insert_new_subcat($db, $VAR) {
+    $q = "INSERT INTO ".PRFX."SUB_CAT SET
+          CAT           = ". $db->qstr($VAR["cat_id"]).",
+          DESCRIPTION   = ". $db->qstr($VAR["description"]).",
+          SUB_CATEGORY  = ". $db->qstr($VAR["sub_category"]);
+    
+    if(!$rs = $db->Execute($q)) {
+        force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+        exit;
+    }
+    
+    return $db->insert_id();
+}
+
+#####################################
+#	Update Subcat                   #
+#####################################
+
+function update_subcat($db, $VAR, $subcat_id) {
+    $q = "UPDATE ".PRFX."SUB_CAT SET
+          DESCRIPTION   = ". $db->qstr($VAR["description"]).",
+          SUB_CATEGORY  = ". $db->qstr($VAR["sub_category"])."
+          WHERE ID = ". $db->qstr($subcat_id);
+    
+    if(!$rs = $db->Execute($q)) {
+        force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+        exit;
+    }
+    
+    return true;
+}
+
+#####################################
+#	Delete Subcat                   #
+#####################################
+
+function delete_subcat($db, $subcat_id) {
+    $q = "DELETE FROM ".PRFX."SUB_CAT WHERE ID = ". $db->qstr($subcat_id);
+    
+    if(!$rs = $db->Execute($q)) {
+        force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+        exit;
+    }
+    
+    return true;
 }
 ?>

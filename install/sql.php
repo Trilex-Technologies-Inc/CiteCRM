@@ -367,7 +367,7 @@ echo("<tr>\n
 ##################################
 if(!create_cat($db)) {
 echo("<tr>\n
-				<td>Create table ".PRFX."CAT</td>\n
+				<td>Create table ".PRFX."</td>\n
 				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
 			</tr>\n");
 	$error_flag = true;
@@ -1051,7 +1051,11 @@ function create_acl($db) {
 (62, 'cats:main', 1, 1, 1, 1),
 (63, 'cats:new', 1, 1, 1, 1),
 (64, 'cats:edit', 1, 1, 1, 1),
-(65, 'cats:delete', 0, 0, 0, 1)";
+(65, 'cats:delete', 0, 0, 0, 1),
+(66, 'cats:cat_details', 1, 1, 1, 1),
+(67, 'cats:subcat_new', 1, 1, 1, 1),
+(68, 'cats:subcat_edit', 1, 1, 1, 1),
+(69, 'cats:subcat_delete', 0, 0, 0, 1)";
 
 			$rs = $db->Execute($q);
 			if(!$rs) {

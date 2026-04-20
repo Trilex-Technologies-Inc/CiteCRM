@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lang>
+ <section name="cats">
+  <item name="cat_search"><![CDATA[Cat Search]]></item>
+  <item name="cat_id"><![CDATA[ID]]></item>
+  <item name="cat_description"><![CDATA[Description]]></item>
+  <item name="cat_action"><![CDATA[Action]]></item>
+  <item name="cat_add_new"><![CDATA[Add New Cat]]></item>
+  <item name="cat_edit"><![CDATA[Edit Cat]]></item>
+  <item name="cat_delete"><![CDATA[Delete Cat]]></item>
+  <item name="cat_details"><![CDATA[Cat Details]]></item>
+  <item name="cat_details_for"><![CDATA[Details for]]></item>
+  <item name="cat_records_found"><![CDATA[records found]]></item>
+  <item name="cat_page"><![CDATA[Page]]></item>
+  <item name="cat_of"><![CDATA[of]]></item>
+  <item name="cat_view_details"><![CDATA[View Details]]></item>
+  <item name="cat_confirm_delete"><![CDATA[Are you sure you want to delete this cat?]]></item>
+  <item name="cat_required_fields"><![CDATA[Please fill in all required fields]]></item>
+  <item name="cat_id_exists"><![CDATA[Cat ID already exists]]></item>
+  <item name="cat_save"><![CDATA[Save]]></item>
+  <item name="cat_cancel"><![CDATA[Cancel]]></item>
+ </section>
+</lang>

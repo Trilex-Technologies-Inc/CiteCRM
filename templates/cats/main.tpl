@@ -129,11 +129,29 @@
                                 <a href="?page=cats:edit&id={$cat_search_result[i].ID}" class="text-decoration-none me-2">
                                     <img src="images/icons/16x16/small_edit.gif" border="0" onMouseOver="ddrivetip('Edit')" onMouseOut="hideddrivetip()" alt="Edit">
                                 </a>
+                                <a href="?page=cats:subcat_new&cat_id={$cat_search_result[i].ID}" class="text-decoration-none me-2">
+                                    <img src="images/icons/16x16/add.gif" border="0" onMouseOver="ddrivetip('Add Subcategory')" onMouseOut="hideddrivetip()" alt="Add Subcat">
+                                </a>
                                 <a href="?page=cats:delete&id={$cat_search_result[i].ID}" onclick="return confirm('Are you sure you want to delete this cat?');" class="text-decoration-none">
                                     <img src="images/icons/16x16/stop.gif" border="0" onMouseOver="ddrivetip('Delete')" onMouseOut="hideddrivetip()" alt="Delete">
                                 </a>
                             </td>
                         </tr>
+                        <!-- Nested subcategories -->
+                        {section name=j loop=$cat_search_result[i].subcats}
+                        <tr class="table-secondary">
+                            <td>&nbsp;&nbsp;&mdash; {$cat_search_result[i].subcats[j].SUB_CATEGORY}</td>
+                            <td>&nbsp;&nbsp;&mdash; {$cat_search_result[i].subcats[j].DESCRIPTION}</td>
+                            <td class="text-center">
+                                <a href="?page=cats:subcat_edit&id={$cat_search_result[i].subcats[j].ID}" class="text-decoration-none me-2">
+                                    <img src="images/icons/16x16/small_edit.gif" border="0" onMouseOver="ddrivetip('Edit Subcat')" onMouseOut="hideddrivetip()" alt="Edit">
+                                </a>
+                                <a href="?page=cats:subcat_delete&id={$cat_search_result[i].subcats[j].ID}" onclick="return confirm('Are you sure?');" class="text-decoration-none">
+                                    <img src="images/icons/16x16/stop.gif" border="0" onMouseOver="ddrivetip('Delete Subcat')" onMouseOut="hideddrivetip()" alt="Delete">
+                                </a>
+                            </td>
+                        </tr>
+                        {/section}
                         {/section}
                     </tbody>
                 </table>
