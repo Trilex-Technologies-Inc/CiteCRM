@@ -1,17 +1,8 @@
 <!-- invoice view -->
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td>
-		
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-		    		{include file="core/tool_bar.tpl"}
-				</tr>
-			</table>
-			
-		</td>
-	</tr>
-</table>
+<!-- Toolbar -->
+<div class="container-fluid mb-3">
+	{include file="core/tool_bar.tpl"}
+</div>
 
 <table width="100%" border="0" cellpadding="20" cellspacing="5">
 	<tr>

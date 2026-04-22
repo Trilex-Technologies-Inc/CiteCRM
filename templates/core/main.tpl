@@ -1,15 +1,7 @@
 <!-- Main TPL -->
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-  <tr>
-    <td >
-      <table  cellpadding="2" cellspacing="2">
-        <tr>
-           {include file="core/tool_bar.tpl"}
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
+<div class="container-fluid mb-3">
+  {include file="core/tool_bar.tpl"}
+</div>
 
 <div class="card shadow-sm mb-3">
   <div class="card-header d-flex justify-content-between align-items-center">

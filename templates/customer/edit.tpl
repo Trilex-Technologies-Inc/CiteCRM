@@ -160,9 +160,10 @@
                         <strong>{$translate_customer_zip}</strong>
                     </label>
                     <input type="text"
-                           name="zip"
-                           value="{$customer[q].CUSTOMER_ZIP}"
-                           class="form-control">
+	                       name="zip"
+	                       value="{$customer[q].CUSTOMER_ZIP}"
+	                       maxlength="20"
+	                       class="form-control">
                 </div>
             </div>
 

@@ -607,7 +607,7 @@ function create_table_customer($db){
 		`CUSTOMER_ADDRESS` varchar(30) default NULL,
 		`CUSTOMER_CITY` varchar(20) default NULL,
 		`CUSTOMER_STATE` varchar(20) default NULL,
-		`CUSTOMER_ZIP` varchar(8) default NULL,
+			`CUSTOMER_ZIP` varchar(20) default NULL,
 		`CUSTOMER_PHONE` varchar(13) default NULL,
 		`CUSTOMER_WORK_PHONE` varchar(13) NOT NULL default '',
 		`CUSTOMER_MOBILE_PHONE` varchar(13) NOT NULL default '',
@@ -1688,4 +1688,3 @@ function create_country($db){
 
 }
 ?>
-

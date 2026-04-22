@@ -130,7 +130,26 @@ if(!isset($_POST['page'])) {
 }
 
 
-$tracker_page = "$module:$page";
+	$tracker_page = "$module:$page";
+	$smarty->assign('current_module', $module);
+	$smarty->assign('current_page', $page);
+
+	// Employee type (used to show/hide admin menu sections)
+	$employee_type = '';
+	$show_admin_menu = false;
+	if (isset($_SESSION['login_id']) && !empty($_SESSION['login_id'])) {
+		$uid = $_SESSION['login_id'];
+		$q = 'SELECT '.PRFX.'CONFIG_EMPLOYEE_TYPE.TYPE_NAME
+				FROM '.PRFX.'TABLE_EMPLOYEE,'.PRFX.'CONFIG_EMPLOYEE_TYPE
+				WHERE '.PRFX.'TABLE_EMPLOYEE.EMPLOYEE_TYPE = '.PRFX.'CONFIG_EMPLOYEE_TYPE.TYPE_ID
+				  AND EMPLOYEE_ID='.$db->qstr($uid);
+		if ($rs = $db->execute($q)) {
+			$employee_type = $rs->fields['TYPE_NAME'];
+			$show_admin_menu = in_array($employee_type, array('Admin', 'Manager', 'Supervisor'), true);
+		}
+	}
+	$smarty->assign('employee_type', $employee_type);
+	$smarty->assign('show_admin_menu', $show_admin_menu);
 
 
 #####################################
