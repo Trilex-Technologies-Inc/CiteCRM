@@ -1,5 +1,5 @@
 <!-- Office stats + app info (closes sidebar and opens main content) -->
-        <div class="card shadow-sm mb-3">
+        <div class="card shadow-sm mb-3 sidebar-card">
             <div class="card-header bg-body-secondary py-2">
                 <span class="fw-semibold small text-uppercase">
                     {$translate_core_office_stats}
@@ -15,7 +15,7 @@
             </div>
         </div>
 
-        <div class="card shadow-sm mb-3">
+        <div class="card shadow-sm mb-3 sidebar-card">
             <div class="card-header bg-body-secondary py-2">
                 <span class="fw-semibold small text-uppercase">
                     {$translate_core_cite_crm}
@@ -55,6 +55,12 @@
                     </li>
                 </ul>
             </div>
+        </div>
+
+        <div class="text-center d-none d-lg-block pt-2">
+            <button type="button" class="sidebar-toggle" data-sidebar-collapse aria-label="Toggle sidebar">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+            </button>
         </div>
 
         </div><!-- /.app-sidebar-widgets -->

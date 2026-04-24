@@ -1,6 +1,6 @@
-<div class="offcanvas-lg offcanvas-start app-sidebar text-bg-dark border-end" tabindex="-1"
+<div class="offcanvas-lg offcanvas-start app-sidebar sb-sidebar" tabindex="-1"
      id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
-    <div class="offcanvas-header d-lg-none">
+    <div class="offcanvas-header d-lg-none text-white">
         <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">
             {$company_name|default:"Cite CRM"}
         </h5>
@@ -9,15 +9,21 @@
     </div>
 
     <div class="offcanvas-body p-0 d-flex flex-column">
-        <div class="app-sidebar-brand px-3 py-3 border-bottom">
-            <div class="fw-semibold">
-                {$company_name|default:"Cite CRM"}
-            </div>
+        <div class="app-sidebar-brand">
+            <a class="sb-sidebar-brand d-flex align-items-center justify-content-center"
+               href="index.php" aria-label="Home">
+                <span class="sb-sidebar-brand-icon" aria-hidden="true">
+                    <i class="bi bi-hexagon-fill"></i>
+                </span>
+                <span class="sb-sidebar-brand-text">
+                    {$company_name|default:"Cite CRM"}
+                </span>
+            </a>
         </div>
 
-	        <div class="app-sidebar-menu px-2 py-2 border-bottom">
-	            <div class="text-uppercase small text-white-50 px-2 mb-1">
-	                MAIN MENU
+	        <div class="app-sidebar-menu px-2 py-2 border-bottom border-white border-opacity-10">
+	            <div class="text-uppercase small text-white-50 px-3 mb-1">
+	                Menu
 	            </div>
 	            <nav class="app-sidebar-nav">
 	                {assign var="nav_customer_id" value=$customer_details.0.CUSTOMER_ID|default:$single_workorder_array.0.CUSTOMER_ID|default:$smarty.request.customer_id|default:""}
@@ -264,7 +270,7 @@
 	        </div>
 
         <div class="app-sidebar-widgets px-3 py-3">
-            <div class="card shadow-sm mb-3">
+            <div class="card shadow-sm mb-3 sidebar-card">
                 <div class="card-header bg-body-secondary py-2">
                     <span class="fw-semibold small text-uppercase">
                         {$translate_core_schedule}
@@ -277,9 +283,6 @@
                     </p>
                 </div>
             </div>
-
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
-            <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
             {literal}
             <style>

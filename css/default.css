@@ -220,26 +220,101 @@ border-collapse: collapse;
 }
 
 /* Modern app shell (Bootstrap-based) */
-:root { --app-topbar-height: 56px; }
+:root {
+	--app-topbar-height: 56px;
+	--sb-primary: #4e73df;
+	--sb-primary-dark: #224abe;
+	--sb-gray-100: #f8f9fc;
+	/* Bootstrap theme alignment (SB Admin 2-like) */
+	--bs-primary: var(--sb-primary);
+	--bs-primary-rgb: 78, 115, 223;
+	--bs-link-color: var(--sb-primary);
+	--bs-link-hover-color: var(--sb-primary-dark);
+}
+
+.app-body {
+	background: var(--sb-gray-100);
+}
 
 .app-topbar {
 	min-height: var(--app-topbar-height);
 	position: sticky;
 	top: 0;
 	z-index: 1030;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 .app-shell { min-height: calc(100vh - var(--app-topbar-height)); }
 .app-sidebar { width: 280px; }
 .app-main { min-width: 0; }
 
+.app-topbar-search .form-control {
+	min-width: 16rem;
+}
+.app-topbar-icon-btn,
+.app-topbar-user-btn {
+	text-decoration: none;
+}
+.app-topbar-icon-btn {
+	font-size: 1.15rem;
+	line-height: 1;
+}
+.app-topbar-icon-btn.active {
+	color: var(--sb-primary) !important;
+}
+.app-topbar-user-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+.app-topbar-avatar {
+	font-size: 1.35rem;
+	line-height: 1;
+}
+
+.sb-sidebar {
+	background: linear-gradient(180deg, var(--sb-primary) 10%, var(--sb-primary-dark) 100%);
+	color: #ffffff;
+}
+
 .app-sidebar-menu {
-	background: linear-gradient(180deg, #0b2a3d 0%, #0a2231 100%);
+	background: transparent;
 }
 
 .app-sidebar-nav {
 	display: flex;
 	flex-direction: column;
 	gap: 0.125rem;
+}
+
+.app-sidebar-brand {
+	height: 4.375rem;
+	display: flex;
+	align-items: center;
+}
+.sb-sidebar-brand {
+	height: 4.375rem;
+	width: 100%;
+	padding: 0 1rem;
+	color: rgba(255, 255, 255, 0.92);
+	text-decoration: none;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06rem;
+	font-size: 0.85rem;
+	gap: 0.6rem;
+}
+.sb-sidebar-brand:hover {
+	background: rgba(255, 255, 255, 0.08);
+	color: #ffffff;
+	text-decoration: none;
+}
+.sb-sidebar-brand-icon .bi {
+	font-size: 1.1rem;
+}
+.sb-sidebar-brand-text {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .app-nav-item {
@@ -251,6 +326,7 @@ border-collapse: collapse;
 	color: rgba(255, 255, 255, 0.88);
 	text-decoration: none;
 	user-select: none;
+	border-left: 0.2rem solid transparent;
 }
 .app-nav-item:hover {
 	background: rgba(255, 255, 255, 0.08);
@@ -258,8 +334,9 @@ border-collapse: collapse;
 	text-decoration: none;
 }
 .app-nav-item.active {
-	background: rgba(13, 110, 253, 0.98);
+	background: rgba(255, 255, 255, 0.16);
 	color: #ffffff;
+	border-left-color: rgba(255, 255, 255, 0.72);
 }
 .app-nav-icon {
 	display: inline-flex;
@@ -324,8 +401,39 @@ border-collapse: collapse;
 }
 
 .app-sidebar-widgets {
-	background: #f8f9fa;
+	background: transparent;
 	color: #212529;
+	border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sb-sidebar .sidebar-card {
+	border: 0;
+	border-left: 0.25rem solid rgba(255, 255, 255, 0.35);
+}
+
+.sidebar-toggle {
+	width: 2.5rem;
+	height: 2.5rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 999px;
+	border: 0;
+	background: rgba(255, 255, 255, 0.18);
+	color: rgba(255, 255, 255, 0.95);
+	transition: background 120ms ease-in-out;
+}
+.sidebar-toggle:hover {
+	background: rgba(255, 255, 255, 0.28);
+	color: #ffffff;
+}
+.sidebar-toggle .bi {
+	font-size: 1.1rem;
+	transition: transform 160ms ease-in-out;
+}
+body.app-sidebar-collapsed .sidebar-toggle .bi,
+body.app-sidebar-collapsed .app-topbar [data-sidebar-collapse] .bi {
+	transform: rotate(180deg);
 }
 
 @media (min-width: 992px) {
@@ -482,14 +590,14 @@ body {
 	width: 6px;
 }
 .app-sidebar::-webkit-scrollbar-track {
-	background: #1a2a3a;
+	background: rgba(255, 255, 255, 0.08);
 }
 .app-sidebar::-webkit-scrollbar-thumb {
-	background: #4a6a8a;
+	background: rgba(255, 255, 255, 0.35);
 	border-radius: 3px;
 }
 .app-sidebar::-webkit-scrollbar-thumb:hover {
-	background: #6a8aaa;
+	background: rgba(255, 255, 255, 0.5);
 }
 
 .app-main::-webkit-scrollbar {
@@ -511,7 +619,7 @@ body {
 		transform: none !important;
 		visibility: visible !important;
 		position: relative !important;
-		background: #0a2231 !important;
+		background: linear-gradient(180deg, var(--sb-primary) 10%, var(--sb-primary-dark) 100%) !important;
 		top: 0 !important;
 		margin-top: 0 !important;
 		height: 100% !important;
@@ -543,7 +651,7 @@ body {
 		width: 280px !important;
 	}
 
-	#sidebarCollapseBtn {
+	.app-topbar [data-sidebar-collapse] {
 		display: none !important;
 	}
 }

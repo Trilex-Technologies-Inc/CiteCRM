@@ -20,6 +20,9 @@
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
 </script>
 
+<!-- Sidebar calendar JS (used in left sidebar widget) -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+
 {literal}
 <script type="text/javascript">
 	(function () {
@@ -55,12 +58,11 @@
 			}
 		} catch (e) {}
 
-		var btn = document.getElementById('sidebarCollapseBtn');
-		if (btn) {
+		document.querySelectorAll('[data-sidebar-collapse]').forEach(function (btn) {
 			btn.addEventListener('click', function () {
 				setCollapsed(!document.body.classList.contains(collapsedClass));
 			});
-		}
+		});
 	})();
 </script>
 {/literal}
