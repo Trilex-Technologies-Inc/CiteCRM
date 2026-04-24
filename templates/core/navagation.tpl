@@ -218,51 +218,7 @@
 	                    </div>
 	                </details>
 
-	                <details class="app-nav-group" {if $current_module == 'control'}open{/if}>
-	                    <summary class="app-nav-item {if $current_module == 'control'}active{/if}">
-	                        <span class="app-nav-icon" aria-hidden="true">
-	                            <i class="bi bi-gear-fill"></i>
-	                        </span>
-	                        <span class="app-nav-label">{$translate_core_control|default:"Settings"}</span>
-	                    </summary>
-	                    <div class="app-nav-sub">
-	                        <a class="app-nav-subitem {if $current_module == 'control' && $current_page == 'main'}active{/if}"
-	                           href="?page=control:main&page_title={$translate_core_control|default:"Control Center"}">
-	                            {$translate_core_control|default:"Control Center"}
-	                        </a>
-	                        <a class="app-nav-subitem {if $current_module == 'control' && $current_page == 'company_edit'}active{/if}"
-	                           href="?page=control:company_edit&page_title=Company">
-	                            Company
-	                        </a>
-	                        <a class="app-nav-subitem {if $current_module == 'control' && $current_page == 'acl'}active{/if}"
-	                           href="?page=control:acl&page_title=Permissions">
-	                            Permissions
-	                        </a>
-	                        {if $show_admin_menu}
-	                            <a class="app-nav-subitem {if $current_module == 'control' && $current_page == 'hours_edit'}active{/if}"
-	                               href="?page=control:hours_edit&page_title=Office%20Hours">
-	                                Office Hours
-	                            </a>
-	                            <a class="app-nav-subitem {if $current_module == 'control' && $current_page == 'payment_options'}active{/if}"
-	                               href="?page=control:payment_options&page_title=Payment%20Methods">
-	                                Payment Methods
-	                            </a>
-	                            <a class="app-nav-subitem {if $current_module == 'control' && $current_page == 'edit_rate'}active{/if}"
-	                               href="?page=control:edit_rate&page_title=Billing%20Rates">
-	                                Billing Rates
-	                            </a>
-	                            <a class="app-nav-subitem {if $current_module == 'control' && $current_page == 'check_updates'}active{/if}"
-	                               href="?page=control:check_updates&page_title=Check%20For%20Updates">
-	                                Check for Updates
-	                            </a>
-	                            <a class="app-nav-subitem {if $current_module == 'cats'}active{/if}"
-	                               href="?page=cats:main&page_title=Category">
-	                                Categories
-	                            </a>
-	                        {/if}
-	                    </div>
-	                </details>
-
+	               
 	                <a class="app-nav-item {if $current_module == 'schedual'}active{/if}"
 	                   href="?page=schedual:main&page_title={$translate_core_schedule|default:"Schedule"}">
 	                    <span class="app-nav-icon" aria-hidden="true">

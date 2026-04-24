@@ -14,6 +14,12 @@
     <div>
         {include file="core/tool_bar.tpl"}
     </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a class="btn btn-success btn-sm" href="?page=employees:new&page_title=New%20Employee">
+            <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>
+            {$translate_menu_add_new_employee|default:"New Employee"}
+        </a>
+    </div>
 </div>
 
 <!-- Main Content Container -->
@@ -158,10 +164,6 @@
                 </table>
             </div>
             
-            <!-- New Employee Button (Commented) -->
-            <!-- <div class="mt-3">
-                <a href="?page=employees:new" class="btn btn-success">New Employee</a>
-            </div> -->
         </div>
     </div>
 </div>
