@@ -1,5 +1,6 @@
 <!-- Begin footer.tpl -->
 </main>
+</div><!-- /.app-content -->
 </div><!-- /.app-shell -->
 
 <footer class="border-top bg-white text-muted small py-3 mt-0">

@@ -238,14 +238,13 @@ border-collapse: collapse;
 
 .app-topbar {
 	min-height: var(--app-topbar-height);
-	position: sticky;
-	top: 0;
 	z-index: 1030;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
-.app-shell { min-height: calc(100vh - var(--app-topbar-height)); }
+.app-shell { min-height: 100vh; }
 .app-sidebar { width: 280px; }
 .app-main { min-width: 0; }
+.app-content { min-width: 0; }
 
 .app-topbar-search .form-control {
 	min-width: 16rem;
@@ -469,8 +468,8 @@ body.app-sidebar-collapsed .app-topbar [data-sidebar-collapse] .bi {
 @media (min-width: 992px) {
 	.app-sidebar {
 		position: sticky;
-		top: var(--app-topbar-height);
-		height: calc(100vh - var(--app-topbar-height));
+		top: 0;
+		height: 100vh;
 	}
 	.app-sidebar .offcanvas-body {
 		overflow-y: auto;
@@ -568,7 +567,7 @@ body {
 
 .app-shell {
 	display: flex;
-	height: calc(100vh - var(--app-topbar-height));
+	height: 100vh;
 	overflow: hidden;
 }
 
@@ -580,10 +579,10 @@ body {
 }
 
 .app-main {
-	flex-grow: 1;
+	flex: 1 1 auto;
+	min-height: 0;
 	overflow-y: auto;
 	overflow-x: hidden;
-	height: 100%;
 }
 
 .app-sidebar::-webkit-scrollbar {
