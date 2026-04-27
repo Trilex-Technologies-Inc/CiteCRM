@@ -19,6 +19,11 @@
       {include file="core/error.tpl"}
     {/if}
 
+    <!-- Dashboard summary -->
+    <div class="mb-4">
+      {include file="stats/summary_cards.tpl"}
+    </div>
+
     <!-- Company notes -->
     <div class="mb-4">
       <h2 class="h6 mb-2">{$translate_main_company_notes}</h2>

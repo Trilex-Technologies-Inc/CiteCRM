@@ -13,6 +13,8 @@ require_once ('.'.SEP.'modules'.SEP.'workorder'.SEP.'include.php');
 
 
 /* stats */
+require_once('modules'.SEP.'stats'.SEP.'summary.php');
+
 /* New Work Order Counts */
 $q = 'SELECT count(*) as count FROM '.PRFX.'TABLE_WORK_ORDER WHERE  WORK_ORDER_CURENT_STATUS='.$db->qstr(1);
 if(!$rs = $db->execute($q)){
@@ -139,7 +141,7 @@ if(!$rs = $db->execute($q)){
 
 /* customer stats */
 /*new this month */
-$month = mktime(0,0,0,date('m'),0,date('Y'));
+$month = $month_start;
 
 $q = 'SELECT count(*) as count FROM '.PRFX.'TABLE_CUSTOMER WHERE  CREATE_DATE >= '.$db->qstr($month);
 if(!$rs = $db->execute($q)){

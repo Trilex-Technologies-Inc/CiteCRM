@@ -172,6 +172,21 @@ if(isset($VAR['msg'])) {
 
 if(!isset($VAR['escape']) || $VAR['escape'] != 1 ) { // FIXED: Check if escape is set
 	require('modules'.SEP.'core'.SEP.'header.php');
+
+	// Preload navigation-specific workorder data before nav is rendered.
+	if($module == 'workorder' && $page == 'view' && !empty($VAR['wo_id'])) {
+		require_once('modules'.SEP.'workorder'.SEP.'include.php');
+		$wo_id = $VAR['wo_id'];
+		$q = "SELECT count(*) as count FROM ".PRFX."ORDERS WHERE WO_ID=".$db->qstr($wo_id);
+		if($rs = $db->execute($q)) {
+			$smarty->assign('part', $rs->fields['count']);
+		}
+
+		if($single_work_order = display_single_open_workorder($db, $wo_id)) {
+			$smarty->assign('single_workorder_array', $single_work_order);
+		}
+	}
+
 	require('modules'.SEP.'core'.SEP.'navagation.php');
 	require('modules'.SEP.'core'.SEP.'company.php');
 }

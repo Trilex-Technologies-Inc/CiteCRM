@@ -44,12 +44,12 @@
                         </a>
                     </li>
                     <li>
-                        <a href="http://www.citecrm.com/bugs" target="new">
+                        <a href="https://github.com/Trilex-Technologies-Inc/CiteCRM" target="new">
                             {$translate_core_report_bug}
                         </a>
                     </li>
                     <li>
-                        <a href="http://forums.citecrm.com" target="new">
+                        <a href="https://www.incitecrm.com/module.php?modname=forum" target="new">
                             Support Forum
                         </a>
                     </li>
@@ -106,18 +106,21 @@
                             <li>
                                 <a class="dropdown-item {if $current_module == 'control' && $current_page == 'main'}active{/if}"
                                    href="?page=control:main&page_title={$translate_core_control|default:"Control Center"}">
+                                    <i class="bi bi-sliders me-2" aria-hidden="true"></i>
                                     {$translate_core_control|default:"Control Center"}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item {if $current_module == 'control' && $current_page == 'company_edit'}active{/if}"
                                    href="?page=control:company_edit&page_title=Company">
+                                    <i class="bi bi-building me-2" aria-hidden="true"></i>
                                     Company
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item {if $current_module == 'control' && $current_page == 'acl'}active{/if}"
                                    href="?page=control:acl&page_title=Permissions">
+                                    <i class="bi bi-shield-lock me-2" aria-hidden="true"></i>
                                     Permissions
                                 </a>
                             </li>
@@ -127,30 +130,35 @@
                                 <li>
                                     <a class="dropdown-item {if $current_module == 'control' && $current_page == 'hours_edit'}active{/if}"
                                        href="?page=control:hours_edit&page_title=Office%20Hours">
+                                        <i class="bi bi-clock me-2" aria-hidden="true"></i>
                                         Office Hours
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item {if $current_module == 'control' && $current_page == 'payment_options'}active{/if}"
                                        href="?page=control:payment_options&page_title=Payment%20Methods">
+                                        <i class="bi bi-credit-card me-2" aria-hidden="true"></i>
                                         Payment Methods
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item {if $current_module == 'control' && $current_page == 'edit_rate'}active{/if}"
                                        href="?page=control:edit_rate&page_title=Billing%20Rates">
+                                        <i class="bi bi-cash-coin me-2" aria-hidden="true"></i>
                                         Billing Rates
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item {if $current_module == 'control' && $current_page == 'check_updates'}active{/if}"
                                        href="?page=control:check_updates&page_title=Check%20For%20Updates">
+                                        <i class="bi bi-arrow-repeat me-2" aria-hidden="true"></i>
                                         Check for Updates
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item {if $current_module == 'cats'}active{/if}"
                                        href="?page=cats:main&page_title=Category">
+                                        <i class="bi bi-tags me-2" aria-hidden="true"></i>
                                         Categories
                                     </a>
                                 </li>
@@ -170,12 +178,14 @@
                             <li>
                                 <a class="dropdown-item"
                                    href="?page=employees:employee_details&employee_id={$login_id}">
+                                    <i class="bi bi-person me-2" aria-hidden="true"></i>
                                     Profile
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item" href="index.php?action=logout">
+                                    <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>
                                     {$translate_core_log_off}
                                 </a>
                             </li>
