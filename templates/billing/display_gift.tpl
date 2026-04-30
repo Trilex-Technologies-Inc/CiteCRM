@@ -86,12 +86,12 @@
 
             <div class="card-footer d-flex justify-content-between align-items-center">
                 <div>
-                    <a href="?page=billing:new_gift&gift_id={$gift_id}&customer_id={$customer_id}&action=print&submit=1&escape=1"
-                       target="new"
-                       class="btn btn-sm btn-secondary me-2"
-                       onMouseOver="ddrivetip('Print')" onMouseOut="hideddrivetip()">
-                        <img src="images/icons/16x16/fileprint.gif" alt="Print" border="0">
-                    </a>
+	                    <a href="?page=billing:new_gift&gift_id={$gift_id}&customer_id={$customer_id}&action=print&submit=1&escape=1"
+	                       target="new"
+	                       class="btn btn-sm btn-secondary me-2"
+	                       onMouseOver="ddrivetip('Print')" onMouseOut="hideddrivetip()">
+	                        <i class="bi bi-printer-fill fs-5" aria-hidden="true" ></i>
+	                    </a>
 
                     <a href="?page=customer:customer_details&customer_id={$customer_id}" class="btn btn-sm btn-link">
                         {$translate_billing_back}

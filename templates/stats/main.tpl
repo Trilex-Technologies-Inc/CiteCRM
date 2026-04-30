@@ -10,11 +10,12 @@
 			<div>
 				<strong>Stats for {$smarty.now|date_format:"%m-%d-%Y"}</strong>
 			</div>
-			<div>
-				<img src="images/icons/16x16/help.gif" border="0"
-					 onMouseOver="ddrivetip('<b>Monthly stats</b><hr><p></p>')"
-					 onMouseOut="hideddrivetip()">
-			</div>
+				<div>
+					<i class="bi bi-question-circle-fill fs-5 text-secondary"
+					   aria-hidden="true"
+					   onMouseOver="ddrivetip('<b>Monthly stats</b><hr><p></p>')"
+					   onMouseOut="hideddrivetip()"></i>
+				</div>
 		</div>
 
 		<div class="card-body">

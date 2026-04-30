@@ -18,7 +18,7 @@
 	<div class="card-header d-flex justify-content-between align-items-center">
 		{$translate_workorder_view_closed}
 		<a href="http://www.citecrm.com/docs/#work_orders" target="_blank">
-			<img src="images/icons/16x16/help.gif" alt="Help">
+			<i class="bi bi-question-circle-fill fs-5 text-secondary" aria-hidden="true"></i>
 		</a>
 	</div>
 
@@ -80,17 +80,19 @@
 							<td>{$work_order.WORK_ORDER_OPEN_DATE|date_format:"%m-%d-%Y"}</td>
 							<td>{$work_order.WORK_ORDER_CLOSE_DATE|date_format:"%m/%d/%Y"}</td>
 							<td>
-								<img src="images/icons/16x16/view+.gif" alt="Contact Info"
-									 onMouseOver="ddrivetip('<b><center>Contact Info</b></center><hr><b>Phone: </b>{$work_order.CUSTOMER_PHONE}<br> <b>Work: </b>{$work_order.CUSTOMER_WORK_PHONE}<br><b>Mobile: </b>{$work_order.CUSTOMER_MOBILE_PHONE}<br><br>{$work_order.CUSTOMER_ADDRESS}<br>{$work_order.CUSTOMER_CITY}, {$work_order.CUSTOMER_STATE}<br>{$work_order.CUSTOMER_ZIP}')"
-									 onMouseOut="hideddrivetip()">
+								<i class="bi bi-info-circle-fill text-primary fs-5"
+								   aria-hidden="true"
+								   onMouseOver="ddrivetip('<b><center>Contact Info</b></center><hr><b>Phone: </b>{$work_order.CUSTOMER_PHONE}<br> <b>Work: </b>{$work_order.CUSTOMER_WORK_PHONE}<br><b>Mobile: </b>{$work_order.CUSTOMER_MOBILE_PHONE}<br><br>{$work_order.CUSTOMER_ADDRESS}<br>{$work_order.CUSTOMER_CITY}, {$work_order.CUSTOMER_STATE}<br>{$work_order.CUSTOMER_ZIP}')"
+								   onMouseOut="hideddrivetip()"></i>
 								<a class="link1" href="?page=customer:customer_details&customer_id={$work_order.CUSTOMER_ID}&page_title={$work_order.CUSTOMER_DISPLAY_NAME}">{$work_order.CUSTOMER_DISPLAY_NAME}</a>
 							</td>
 							<td>{$work_order.WORK_ORDER_SCOPE}</td>
 							<td>{$work_order.CONFIG_WORK_ORDER_STATUS}</td>
 							<td>
-								<img src="images/icons/16x16/view+.gif" alt="Employee Contact"
-									 onMouseOver="ddrivetip('<center><b>Contact</b></center><hr><b>Work: </b>{$work_order.EMPLOYEE_WORK_PHONE}<br><b>Mobile: </b>{$work_order.EMPLOYEE_MOBILE_PHONE}<br><b>Home: </b>{$work_order.EMPLOYEE_HOME_PHONE}')"
-									 onMouseOut="hideddrivetip()">
+								<i class="bi bi-info-circle-fill text-primary fs-5"
+								   aria-hidden="true"
+								   onMouseOver="ddrivetip('<center><b>Contact</b></center><hr><b>Work: </b>{$work_order.EMPLOYEE_WORK_PHONE}<br><b>Mobile: </b>{$work_order.EMPLOYEE_MOBILE_PHONE}<br><b>Home: </b>{$work_order.EMPLOYEE_HOME_PHONE}')"
+								   onMouseOut="hideddrivetip()"></i>
 								<a class="link1" href="?page=employees:employee_details&employee_id={$work_order.EMPLOYEE_ID}&page_title={$work_order.EMPLOYEE_DISPLAY_NAME}">{$work_order.EMPLOYEE_DISPLAY_NAME}</a>
 							</td>
 						</tr>

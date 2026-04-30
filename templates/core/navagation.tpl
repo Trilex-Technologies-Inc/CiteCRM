@@ -241,20 +241,20 @@
 	                        <span class="app-nav-label">Help</span>
 	                    </summary>
 	                    <div class="app-nav-sub">
-	                        <a class="app-nav-subitem" href="http://www.citecrm.com/docs/" target="new">
+	                        <a class="app-nav-subitem" href="http://www.incitecrm.com/doc/" target="new">
 	                            {$translate_core_documentation|default:"Documentation"}
 	                        </a>
-	                        <a class="app-nav-subitem" href="http://www.citecrm.com/bugs" target="new">
+	                        <a class="app-nav-subitem" href="https://github.com/Trilex-Technologies-Inc/CiteCRM" target="new">
 	                            {$translate_core_report_bug|default:"Report Bug"}
 	                        </a>
 	                        <a class="app-nav-subitem"
 	                           href="?page=control:main&page_title={$translate_core_control|default:"Control Center"}">
 	                            {$translate_core_control|default:"Control Center"}
 	                        </a>
-	                        <a class="app-nav-subitem" href="http://www.citecrm.com" target="new">
+	                        <a class="app-nav-subitem" href="http://www.incitecrm.com" target="new">
 	                            Cite CRM
 	                        </a>
-	                        <a class="app-nav-subitem" href="http://forums.citecrm.com/" target="new">
+	                        <a class="app-nav-subitem" href="https://www.incitecrm.com/module.php?modname=forum" target="new">
 	                            Forums
 	                        </a>
 	                    </div>

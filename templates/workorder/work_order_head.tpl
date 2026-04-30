@@ -46,9 +46,10 @@
 				{if $single_workorder_array[i].EMPLOYEE_DISPLAY_NAME == ""}
 					{$translate_workorder_not_assigned}
 				{else}
-					<img src="images/icons/16x16/view+.gif" alt="Contact Info" class="me-1"
-						 onMouseOver="ddrivetip('<center><b>Contact</b></center><hr><b>Work: </b>{$single_workorder_array[i].EMPLOYEE_WORK_PHONE}<br><b>Mobile: </b>{$single_workorder_array[i].EMPLOYEE_MOBILE_PHONE}<br><b>Home: </b>{$single_workorder_array[i].EMPLOYEE_HOME_PHONE}')"
-						 onMouseOut="hideddrivetip()">
+					<i class="bi bi-info-circle-fill text-primary me-1 fs-5"
+					   aria-label="Contact Info"
+					   onMouseOver="ddrivetip('<center><b>Contact</b></center><hr><b>Work: </b>{$single_workorder_array[i].EMPLOYEE_WORK_PHONE}<br><b>Mobile: </b>{$single_workorder_array[i].EMPLOYEE_MOBILE_PHONE}<br><b>Home: </b>{$single_workorder_array[i].EMPLOYEE_HOME_PHONE}')"
+					   onMouseOut="hideddrivetip()"></i>
 					<a class="link-primary" href="?page=employees:employee_details&employee_id={$single_workorder_array[i].EMPLOYEE_ID}&page_title={$single_workorder_array[i].EMPLOYEE_DISPLAY_NAME}">
 						{$single_workorder_array[i].EMPLOYEE_DISPLAY_NAME}
 					</a>

@@ -37,7 +37,7 @@ function confirmSubmit(){
         <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">{$translate_customer_details} {$customer_details[i].CUSTOMER_DISPLAY_NAME}</h5>
             <a href="http://www.citecrm.com/docs/#Customers" target="new">
-                <img src="images/icons/16x16/help.gif" border="0" alt="Help">
+                <i class="bi bi-question-circle-fill fs-5 text-white" aria-hidden="true"></i>
             </a>
         </div>
         
@@ -221,9 +221,10 @@ function confirmSubmit(){
                                     <td>{$open_work_orders[a].CONFIG_WORK_ORDER_STATUS}</td>
                                     <td>
                                         {if $open_work_orders[a].EMPLOYEE_ID != ''}
-                                            <img src="images/icons/16x16/view+.gif" border="0" class="me-1" 
-                                                onMouseOver="ddrivetip('<center><b>{$translate_contact}</b></center><hr><b>{$translate_work} </b>{$open_work_orders[a].EMPLOYEE_WORK_PHONE}<br><b>{$translate_mobile} </b>{$open_work_orders[a].EMPLOYEE_MOBILE_PHONE}<br><b>{$translate_home} </b>{$open_work_orders[a].EMPLOYEE_HOME_PHONE}')" 
-                                                onMouseOut="hideddrivetip()">
+                                            <i class="bi bi-info-circle-fill text-primary me-1 fs-5"
+                                               aria-hidden="true"
+                                               onMouseOver="ddrivetip('<center><b>{$translate_contact}</b></center><hr><b>{$translate_work} </b>{$open_work_orders[a].EMPLOYEE_WORK_PHONE}<br><b>{$translate_mobile} </b>{$open_work_orders[a].EMPLOYEE_MOBILE_PHONE}<br><b>{$translate_home} </b>{$open_work_orders[a].EMPLOYEE_HOME_PHONE}')"
+                                               onMouseOut="hideddrivetip()"></i>
                                             <a href="?page=employees:employee_details&employee_id={$open_work_orders[a].EMPLOYEE_ID}&page_title={$open_work_orders[a].EMPLOYEE_DISPLAY_NAME}" class="text-primary">
                                                 {$open_work_orders[a].EMPLOYEE_DISPLAY_NAME}
                                             </a>
@@ -233,10 +234,16 @@ function confirmSubmit(){
                                     </td>
                                     <td class="text-center">
                                         <a href="?page=workorder:print&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
-                                            <img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()" alt="Print">
+                                            <i class="bi bi-printer-fill fs-5" aria-hidden="true" >l text-secondary"
+                                               aria-hidden="true"
+                                               onMouseOver="ddrivetip('{$translate_customer_print}')"
+                                               onMouseOut="hideddrivetip()"></i>
                                         </a>
                                         <a href="?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}" class="text-decoration-none">
-                                            <img src="images/icons/16x16/viewmag.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_view_wo}')" onMouseOut="hideddrivetip()" alt="View">
+                                            <i class="bi bi-eye-fill text-secondary  fs-5"
+                                               aria-hidden="true"
+                                               onMouseOver="ddrivetip('{$translate_customer_view_wo}')"
+                                               onMouseOut="hideddrivetip()"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -280,10 +287,16 @@ function confirmSubmit(){
                                     <td class="text-center">
                                         {if $gift[g].ACTIVE == 1}
                                             <a href="?page=billing:new_gift&gift_id={$gift[g].GIFT_ID}&customer_id={$gift[g].CUSTOMER_ID}&action=print&submit=1&escape=1" target="new" class="text-decoration-none me-2">
-                                                <img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()" alt="Print">
+                                                <i class="bi bi-printer-fill text-secondary  fs-5"
+                                                   aria-hidden="true"
+                                                   onMouseOver="ddrivetip('{$translate_customer_print}')"
+                                                   onMouseOut="hideddrivetip()"></i>
                                             </a>
                                             <a href="?page=billing:new_gift&gift_id={$gift[g].GIFT_ID}&customer_id={$gift[g].CUSTOMER_ID}&action=delete&submit=1" class="text-decoration-none">
-                                                <img src="images/icons/16x16/stop.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_delete}')" onMouseOut="hideddrivetip()" alt="Delete">
+                                                <i class="bi bi-trash-fill text-danger"
+                                                   aria-hidden="true"
+                                                   onMouseOver="ddrivetip('{$translate_customer_delete}')"
+                                                   onMouseOut="hideddrivetip()"></i>
                                             </a>
                                         {else}
                                             Not Active
@@ -328,15 +341,21 @@ function confirmSubmit(){
                                     <td>${$unpaid_invoices[w].PAID_AMOUNT|string_format:"%.2f"}</td>
                                     <td>${$unpaid_invoices[w].BALLANCE|string_format:"%.2f"}</td>
                                     <td>{$unpaid_invoices[w].PAID_DATE|date_format:"%m-%d-%y"}</td>
-                                    <td>{$unpaid_invoices[w].EMPLOYEE_DISPLAY_NAME}</td>
-                                    <td class="text-center">
-                                        <a href="?page=invoice:print&invoice_id={$unpaid_invoices[w].INVOICE_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
-                                            <img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()" alt="Print">
-                                        </a>
-                                        <a href="?page=workorder:view&wo_id={$unpaid_invoices[w].WORK_ORDER_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}" class="text-decoration-none">
-                                            <img src="images/icons/16x16/viewmag.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_view}')" onMouseOut="hideddrivetip()" alt="View">
-                                        </a>
-                                    </td>
+	                                    <td>{$unpaid_invoices[w].EMPLOYEE_DISPLAY_NAME}</td>
+	                                    <td class="text-center">
+	                                        <a href="?page=invoice:print&invoice_id={$unpaid_invoices[w].INVOICE_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
+	                                            <i class="bi bi-printer-fill text-secondary  fs-5"
+	                                               aria-hidden="true"
+	                                               onMouseOver="ddrivetip('{$translate_customer_print}')"
+	                                               onMouseOut="hideddrivetip()"></i>
+	                                        </a>
+	                                        <a href="?page=workorder:view&wo_id={$unpaid_invoices[w].WORK_ORDER_ID}&customer_id={$unpaid_invoices[w].CUSTOMER_ID}" class="text-decoration-none">
+	                                            <i class="bi bi-eye-fill text-secondary  fs-5"
+	                                               aria-hidden="true"
+	                                               onMouseOver="ddrivetip('{$translate_customer_view}')"
+	                                               onMouseOut="hideddrivetip()"></i>
+	                                        </a>
+	                                    </td>
                                 </tr>
                                 {/section}
                             </tbody>
@@ -376,15 +395,21 @@ function confirmSubmit(){
                                     <td>${$paid_invoices[w].PAID_AMOUNT|string_format:"%.2f"}</td>
                                     <td>${$paid_invoices[w].BALLANCE|string_format:"%.2f"}</td>
                                     <td>{$paid_invoices[w].PAID_DATE|date_format:"%m-%d-%y"}</td>
-                                    <td>{$paid_invoices[w].EMPLOYEE_DISPLAY_NAME}</td>
-                                    <td class="text-center">
-                                        <a href="?page=invoice:print&invoice_id={$paid_invoices[w].INVOICE_ID}&customer_id={$paid_invoices[w].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
-                                            <img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_print}')" onMouseOut="hideddrivetip()" alt="Print">
-                                        </a>
-                                        <a href="?page=invoice:view&customer_id={$paid_invoices[w].CUSTOMER_ID}&invoice_id={$paid_invoices[w].INVOICE_ID}&page_title={$translate_customer_invoice}" class="text-decoration-none">
-                                            <img src="images/icons/16x16/viewmag.gif" border="0" onMouseOver="ddrivetip('{$translate_customer_view}')" onMouseOut="hideddrivetip()" alt="View">
-                                        </a>
-                                    </td>
+	                                    <td>{$paid_invoices[w].EMPLOYEE_DISPLAY_NAME}</td>
+	                                    <td class="text-center">
+	                                        <a href="?page=invoice:print&invoice_id={$paid_invoices[w].INVOICE_ID}&customer_id={$paid_invoices[w].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
+	                                            <i class="bi bi-printer-fill text-secondary  fs-5"
+	                                               aria-hidden="true"
+	                                               onMouseOver="ddrivetip('{$translate_customer_print}')"
+	                                               onMouseOut="hideddrivetip()"></i>
+	                                        </a>
+	                                        <a href="?page=invoice:view&customer_id={$paid_invoices[w].CUSTOMER_ID}&invoice_id={$paid_invoices[w].INVOICE_ID}&page_title={$translate_customer_invoice}" class="text-decoration-none">
+	                                            <i class="bi bi-eye-fill text-secondary  fs-5"
+	                                               aria-hidden="true"
+	                                               onMouseOver="ddrivetip('{$translate_customer_view}')"
+	                                               onMouseOut="hideddrivetip()"></i>
+	                                        </a>
+	                                    </td>
                                 </tr>
                                 {/section}
                             </tbody>

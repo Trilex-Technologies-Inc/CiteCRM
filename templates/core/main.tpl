@@ -8,11 +8,11 @@
     <div>
       {$translate_main_heading}
     </div>
-    <div>
-      <a href="http://www.citecrm.com/docs/" target="new" class="btn btn-sm btn-outline-light">
-        <img src="images/icons/16x16/help.gif" alt="Help" border="0">
-      </a>
-    </div>
+	    <div>
+	      <a href="http://www.citecrm.com/docs/" target="new" class="btn btn-sm btn-outline-light">
+	        <i class="bi bi-question-circle-fill" aria-hidden="true"></i>
+	      </a>
+	    </div>
   </div>
   <div class="card-body">
     {if $error_msg != ""}

@@ -25,13 +25,14 @@
 <!-- Main Content Container -->
 <div class="container-fluid p-3">
     <!-- Employee Search Card -->
-    <div class="card mb-4">
-        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">{$translate_employee_search}</h5>
-            <img src="images/icons/16x16/help.gif" border="0" alt="Help" 
-                onMouseOver="ddrivetip('<b>Employee Search</b><hr><p>You can search by the employees full display name or just their first name. If you wish to see all the employees for just one letter like A enter the letter a only.</p> <p>To find employees whos name starts with Ja enter just ja. The system will intelegently look for the corect employee that matches.</p>')" 
-                onMouseOut="hideddrivetip()">
-        </div>
+	    <div class="card mb-4">
+	        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+	            <h5 class="mb-0">{$translate_employee_search}</h5>
+	            <i class="bi bi-question-circle-fill fs-5 text-white"
+	               aria-hidden="true"
+	               onMouseOver="ddrivetip('<b>Employee Search</b><hr><p>You can search by the employees full display name or just their first name. If you wish to see all the employees for just one letter like A enter the letter a only.</p> <p>To find employees whos name starts with Ja enter just ja. The system will intelegently look for the corect employee that matches.</p>')"
+	               onMouseOut="hideddrivetip()"></i>
+	        </div>
         
         <div class="card-body">
             {if $error_msg != ""}
@@ -130,34 +131,42 @@
                                     {$employee_search_result[i].EMPLOYEE_ID}
                                 </a>
                             </td>
-                            <td>
-                                <img src="images/icons/16x16/view+.gif" border="0" class="me-1" 
-                                    onMouseOver="ddrivetip('{$employee_search_result[i].EMPLOYEE_ADDRESS}<br>{$employee_search_result[i].EMPLOYEE_CITY}, {$employee_search_result[i].EMPLOYEE_SATE} {$employee_search_result[i].EMPLOYEE_ZIP}')" 
-                                    onMouseOut="hideddrivetip()">
-                                {$employee_search_result[i].EMPLOYEE_DISPLAY_NAME}
-                            </td>
+	                            <td>
+	                                <i class="bi bi-info-circle-fill text-primary me-1 fs-5"
+	                                   aria-hidden="true"
+	                                   onMouseOver="ddrivetip('{$employee_search_result[i].EMPLOYEE_ADDRESS}<br>{$employee_search_result[i].EMPLOYEE_CITY}, {$employee_search_result[i].EMPLOYEE_SATE} {$employee_search_result[i].EMPLOYEE_ZIP}')"
+	                                   onMouseOut="hideddrivetip()"></i>
+	                                {$employee_search_result[i].EMPLOYEE_DISPLAY_NAME}
+	                            </td>
                             <td>{$employee_search_result[i].EMPLOYEE_FIRST_NAME}</td>
                             <td>{$employee_search_result[i].EMPLOYEE_LAST_NAME}</td>
-                            <td>
-                                <img src="images/icons/16x16/view+.gif" border="0" class="me-1"
-                                    onMouseOver="ddrivetip('<b>{$translate_employee_home} </b>{$employee_search_result[i].EMPLOYEE_HOME_PHONE}<br><b>{$translate_employee_mobile} </b>{$employee_search_result[i].EMPLOYEE_MOBILE_PHONE}')" 
-                                    onMouseOut="hideddrivetip()">
-                                {$employee_search_result[i].EMPLOYEE_WORK_PHONE}
-                            </td>
+	                            <td>
+	                                <i class="bi bi-info-circle-fill text-primary me-1 fs-5"
+	                                   aria-hidden="true"
+	                                   onMouseOver="ddrivetip('<b>{$translate_employee_home} </b>{$employee_search_result[i].EMPLOYEE_HOME_PHONE}<br><b>{$translate_employee_mobile} </b>{$employee_search_result[i].EMPLOYEE_MOBILE_PHONE}')"
+	                                   onMouseOut="hideddrivetip()"></i>
+	                                {$employee_search_result[i].EMPLOYEE_WORK_PHONE}
+	                            </td>
                             <td>{$employee_search_result[i].TYPE_NAME}</td>
                             <td>
                                 <a href="mailto:{$employee_search_result[i].EMPLOYEE_EMAIL}" class="text-primary">
                                     {$employee_search_result[i].EMPLOYEE_EMAIL}
                                 </a>
                             </td>
-                            <td class="text-center">
-                                <a href="?page=employees:employee_details&employee_id={$employee_search_result[i].EMPLOYEE_ID}&page_title={$translate_employee_details_for} {$employee_search_result[i].EMPLOYEE_DISPLAY_NAME}" class="text-decoration-none me-2">
-                                    <img src="images/icons/16x16/viewmag.gif" border="0" onMouseOver="ddrivetip('View Employees Details')" onMouseOut="hideddrivetip()" alt="View">
-                                </a>
-                                <a href="?page=employees:edit&employee_id={$employee_search_result[i].EMPLOYEE_ID}&page_title={$translate_employee_edit} {$employee_search_result[i].EMPLOYEE_DISPLAY_NAME}" class="text-decoration-none">
-                                    <img src="images/icons/16x16/small_edit_employees.gif" border="0" onMouseOver="ddrivetip('Edit')" onMouseOut="hideddrivetip()" alt="Edit">
-                                </a>
-                            </td>
+	                            <td class="text-center">
+	                                <a href="?page=employees:employee_details&employee_id={$employee_search_result[i].EMPLOYEE_ID}&page_title={$translate_employee_details_for} {$employee_search_result[i].EMPLOYEE_DISPLAY_NAME}" class="text-decoration-none me-2">
+	                                    <i class="bi bi-eye-fill text-secondary  fs-5"
+	                                       aria-hidden="true"
+	                                       onMouseOver="ddrivetip('View Employees Details')"
+	                                       onMouseOut="hideddrivetip()"></i>
+	                                </a>
+	                                <a href="?page=employees:edit&employee_id={$employee_search_result[i].EMPLOYEE_ID}&page_title={$translate_employee_edit} {$employee_search_result[i].EMPLOYEE_DISPLAY_NAME}" class="text-decoration-none">
+	                                    <i class="bi bi-pencil-square text-secondary fs-5"
+	                                       aria-hidden="true"
+	                                       onMouseOver="ddrivetip('Edit')"
+	                                       onMouseOut="hideddrivetip()"></i>
+	                                </a>
+	                            </td>
                         </tr>
                         {/section}
                     </tbody>

@@ -9,11 +9,11 @@
 		<div class="card-header d-flex justify-content-between align-items-center">
 			<h5 class="mb-0">Welcome to your Online Office</h5>
 
-			<img src="images/icons/16x16/help.gif"
-				 class="ms-2"
-				 style="cursor:pointer;"
-				 onMouseOver="ddrivetip('<b>Help Menu</b><hr><p></p>')"
-				 onMouseOut="hideddrivetip()">
+				<i class="bi bi-question-circle-fill fs-5 text-secondary ms-2"
+				   style="cursor:pointer;"
+				   aria-hidden="true"
+				   onMouseOver="ddrivetip('<b>Help Menu</b><hr><p></p>')"
+				   onMouseOut="hideddrivetip()"></i>
 		</div>
 
 		<div class="card-body">

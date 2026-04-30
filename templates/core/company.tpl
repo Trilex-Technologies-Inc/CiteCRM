@@ -34,12 +34,12 @@
                         </a>
                     </li>
                     <li>
-                        <a href="http://www.citecrm.com/docs/" target="new">
+                        <a href="http://www.incitecrm.com/doc/" target="new">
                             {$translate_core_documentation}
                         </a>
                     </li>
                     <li>
-                        <a href="http://www.citecrm.com" target="new">
+                        <a href="http://www.incitecrm.com" target="new">
                             www.citecrm.com
                         </a>
                     </li>

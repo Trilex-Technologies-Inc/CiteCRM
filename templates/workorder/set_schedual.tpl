@@ -43,8 +43,11 @@
 							Set Schedual For Work Order ID#{$wo_id}
 						{/if}
 					</td>
-					<td class="menuhead2" size="10%" valign="right"><img src="images/icons/16x16/help.gif" border="0"
-						onMouseOver="ddrivetip('<b>Set Schedual</b>')" onMouseOut="hideddrivetip()">
+					<td class="menuhead2" size="10%" valign="right">
+						<i class="bi bi-question-circle-fill text-secondary"
+						   aria-hidden="true"
+						   onMouseOver="ddrivetip('<b>Set Schedual</b>')"
+						   onMouseOut="hideddrivetip()"></i>
 					</td>
 				</tr><tr>
 					<td class="olotd5" colspan="2">

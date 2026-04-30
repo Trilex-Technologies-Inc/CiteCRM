@@ -19,14 +19,15 @@
 		<td>
 
 			<table width="700" cellpadding="4" cellspacing="0" border="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;{$or_status} Orders</td>
-					<td class="menuhead2" width="20%" align="right" valign="middle">
-							<img src="images/icons/16x16/help.gif" border="0" 
-							onMouseOver="ddrivetip('<b>Employee Search</b><hr><p>You can search by the employees full display name or just their first name. If you wish to see all the employees for just one letter like A enter the letter a only.</p> <p>To find employees whos name starts with Ja enter just ja. The system will intelegently look for the corect employee that matches.</p>')" 
-							onMouseOut="hideddrivetip()">
-					</td>
-				</tr><tr>
+					<tr>
+						<td class="menuhead2" width="80%">&nbsp;{$or_status} Orders</td>
+						<td class="menuhead2" width="20%" align="right" valign="middle">
+								<i class="bi bi-question-circle-fill text-secondary"
+								   aria-hidden="true"
+								   onMouseOver="ddrivetip('<b>Employee Search</b><hr><p>You can search by the employees full display name or just their first name. If you wish to see all the employees for just one letter like A enter the letter a only.</p> <p>To find employees whos name starts with Ja enter just ja. The system will intelegently look for the corect employee that matches.</p>')"
+								   onMouseOut="hideddrivetip()"></i>
+						</td>
+					</tr><tr>
 					<td class="menutd2" colspan="2">
 						<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
 							<tr>
@@ -134,4 +135,3 @@
 		</td>
 	</tr>
 </table>
-

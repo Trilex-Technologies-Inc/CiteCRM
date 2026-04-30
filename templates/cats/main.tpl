@@ -18,14 +18,15 @@
 
 <!-- Main Content Container -->
 <div class="container-fluid p-3">
-    <!-- Cat Search Card -->
-    <div class="card mb-4">
-        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Cat Search</h5>
-            <img src="images/icons/16x16/help.gif" border="0" alt="Help" 
-                onMouseOver="ddrivetip('<b>Cat Search</b><hr><p>Search for cats by description.</p>')" 
-                onMouseOut="hideddrivetip()">
-        </div>
+	    <!-- Cat Search Card -->
+	    <div class="card mb-4">
+	        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+	            <h5 class="mb-0">Cat Search</h5>
+	            <i class="bi bi-question-circle-fill fs-5 text-white"
+	               aria-hidden="true"
+	               onMouseOver="ddrivetip('<b>Cat Search</b><hr><p>Search for cats by description.</p>')"
+	               onMouseOut="hideddrivetip()"></i>
+	        </div>
         
         <div class="card-body">
             {if $error_msg != ""}
@@ -115,41 +116,60 @@
                                 <a href="?page=cats:cat_details&id={$cat_search_result[i].ID}">
                                     {$cat_search_result[i].ID}
                                 </a>
-                            </td>
-                            <td>
-                                <img src="images/icons/16x16/view+.gif" border="0" class="me-1"
-                                    onMouseOver="ddrivetip('{$cat_search_result[i].DESCRIPTION}')" 
-                                    onMouseOut="hideddrivetip()">
-                                {$cat_search_result[i].DESCRIPTION}
-                            </td>
-                            <td class="text-center">
-                                <a href="?page=cats:cat_details&id={$cat_search_result[i].ID}" class="text-decoration-none me-2">
-                                    <img src="images/icons/16x16/viewmag.gif" border="0" onMouseOver="ddrivetip('View Details')" onMouseOut="hideddrivetip()" alt="View">
-                                </a>
-                                <a href="?page=cats:edit&id={$cat_search_result[i].ID}" class="text-decoration-none me-2">
-                                    <img src="images/icons/16x16/small_edit.gif" border="0" onMouseOver="ddrivetip('Edit')" onMouseOut="hideddrivetip()" alt="Edit">
-                                </a>
-                                <a href="?page=cats:subcat_new&cat_id={$cat_search_result[i].ID}" class="text-decoration-none me-2">
-                                    <img src="images/icons/16x16/add.gif" border="0" onMouseOver="ddrivetip('Add Subcategory')" onMouseOut="hideddrivetip()" alt="Add Subcat">
-                                </a>
-                                <a href="?page=cats:delete&id={$cat_search_result[i].ID}" onclick="return confirm('Are you sure you want to delete this cat?');" class="text-decoration-none">
-                                    <img src="images/icons/16x16/stop.gif" border="0" onMouseOver="ddrivetip('Delete')" onMouseOut="hideddrivetip()" alt="Delete">
-                                </a>
-                            </td>
+	                            </td>
+	                            <td>
+	                                <i class="bi bi-info-circle-fill text-primary me-1 fs-5"
+	                                   aria-hidden="true"
+	                                   onMouseOver="ddrivetip('{$cat_search_result[i].DESCRIPTION}')"
+	                                   onMouseOut="hideddrivetip()"></i>
+	                                {$cat_search_result[i].DESCRIPTION}
+	                            </td>
+	                            <td class="text-center">
+	                                <a href="?page=cats:cat_details&id={$cat_search_result[i].ID}" class="text-decoration-none me-2">
+	                                    <i class="bi bi-eye-fill text-secondary  fs-5"
+	                                       aria-hidden="true"
+	                                       onMouseOver="ddrivetip('View Details')"
+	                                       onMouseOut="hideddrivetip()"></i>
+	                                </a>
+	                                <a href="?page=cats:edit&id={$cat_search_result[i].ID}" class="text-decoration-none me-2">
+	                                    <i class="bi bi-pencil-square text-secondary fs-5"
+	                                       aria-hidden="true"
+	                                       onMouseOver="ddrivetip('Edit')"
+	                                       onMouseOut="hideddrivetip()"></i>
+	                                </a>
+	                                <a href="?page=cats:subcat_new&cat_id={$cat_search_result[i].ID}" class="text-decoration-none me-2">
+	                                    <i class="bi bi-plus-circle-fill text-success"
+	                                       aria-hidden="true"
+	                                       onMouseOver="ddrivetip('Add Subcategory')"
+	                                       onMouseOut="hideddrivetip()"></i>
+	                                </a>
+	                                <a href="?page=cats:delete&id={$cat_search_result[i].ID}" onclick="return confirm('Are you sure you want to delete this cat?');" class="text-decoration-none">
+	                                    <i class="bi bi-trash-fill text-danger"
+	                                       aria-hidden="true"
+	                                       onMouseOver="ddrivetip('Delete')"
+	                                       onMouseOut="hideddrivetip()"></i>
+	                                </a>
+	                            </td>
                         </tr>
                         <!-- Nested subcategories -->
                         {section name=j loop=$cat_search_result[i].subcats}
                         <tr class="table-secondary">
                             <td>&nbsp;&nbsp;&mdash; {$cat_search_result[i].subcats[j].SUB_CATEGORY}</td>
                             <td>&nbsp;&nbsp;&mdash; {$cat_search_result[i].subcats[j].DESCRIPTION}</td>
-                            <td class="text-center">
-                                <a href="?page=cats:subcat_edit&id={$cat_search_result[i].subcats[j].ID}" class="text-decoration-none me-2">
-                                    <img src="images/icons/16x16/small_edit.gif" border="0" onMouseOver="ddrivetip('Edit Subcat')" onMouseOut="hideddrivetip()" alt="Edit">
-                                </a>
-                                <a href="?page=cats:subcat_delete&id={$cat_search_result[i].subcats[j].ID}" onclick="return confirm('Are you sure?');" class="text-decoration-none">
-                                    <img src="images/icons/16x16/stop.gif" border="0" onMouseOver="ddrivetip('Delete Subcat')" onMouseOut="hideddrivetip()" alt="Delete">
-                                </a>
-                            </td>
+	                            <td class="text-center">
+	                                <a href="?page=cats:subcat_edit&id={$cat_search_result[i].subcats[j].ID}" class="text-decoration-none me-2">
+	                                    <i class="bi bi-pencil-square text-secondary fs-5"
+	                                       aria-hidden="true"
+	                                       onMouseOver="ddrivetip('Edit Subcat')"
+	                                       onMouseOut="hideddrivetip()"></i>
+	                                </a>
+	                                <a href="?page=cats:subcat_delete&id={$cat_search_result[i].subcats[j].ID}" onclick="return confirm('Are you sure?');" class="text-decoration-none">
+	                                    <i class="bi bi-trash-fill text-danger"
+	                                       aria-hidden="true"
+	                                       onMouseOver="ddrivetip('Delete Subcat')"
+	                                       onMouseOut="hideddrivetip()"></i>
+	                                </a>
+	                            </td>
                         </tr>
                         {/section}
                         {/section}

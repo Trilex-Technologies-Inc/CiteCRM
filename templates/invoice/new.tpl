@@ -195,7 +195,7 @@
 		<div class="card-header d-flex justify-content-between align-items-center">
 			<h5 class="mb-0">{$translate_invoice_for} {$wo_id}</h5>
 			<a href="http://www.citecrm.com/docs/#billing" target="_blank">
-				<img src="images/icons/16x16/help.gif" alt="Help">
+				<i class="bi bi-question-circle-fill fs-5 text-secondary" aria-hidden="true"></i>
 			</a>
 		</div>
 
@@ -361,4 +361,3 @@
 		</div>
 	</div>
 </div>
-

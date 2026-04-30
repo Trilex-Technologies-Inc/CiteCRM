@@ -11,7 +11,9 @@
 				<tr>
 					<td class="menuhead2" width="80%">&nbsp;{$translate_invoice_for} {$wo_id}</td>
 					<td class="menuhead2" width="20%" align="right" valign="middle">
-						<a href="http://www.citecrm.com/docs/#billing" target="new"><img src="images/icons/16x16/help.gif" border="0"></a>
+						<a href="http://www.citecrm.com/docs/#billing" target="new">
+							<i class="bi bi-question-circle-fill text-secondary" aria-hidden="true"></i>
+						</a>
 						</td>
 					</tr><tr>
 					<td class="menutd2" colspan="2">
