@@ -30,16 +30,47 @@
 				</div>
 			{/if}
 
+			<div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+				<a class="btn btn-sm btn-outline-secondary" href="?page=control:roles&page_title=Roles">
+					<i class="bi bi-people-fill"></i> Roles
+				</a>
+
+				<form class="d-flex gap-2 m-0" method="get" action="">
+					<input type="hidden" name="page" value="control:acl">
+					<input type="hidden" name="page_title" value="Permissions">
+					<select name="role" class="form-select form-select-sm" style="max-width: 220px;" onchange="this.form.submit()">
+						<option value="">All roles</option>
+						{foreach from=$roles item=r}
+							{if $r.TYPE_NAME != 'Admin'}
+								<option value="{$r.TYPE_NAME|escape:'html'}" {if $role_filter == $r.TYPE_NAME}selected{/if}>
+									{$r.TYPE_NAME}
+								</option>
+							{/if}
+						{/foreach}
+					</select>
+				</form>
+
+				{if $role_filter != ''}
+					<div class="text-muted small">Showing permissions for <strong>{$role_filter|escape}</strong>.</div>
+				{/if}
+			</div>
+
 			<form method="post" action="?page=control:acl">
+				<input type="hidden" name="page_title" value="Permissions">
+				{if $role_filter != ''}
+					<input type="hidden" name="role" value="{$role_filter|escape:'html'}">
+				{/if}
 
 				<div class="table-responsive">
 					<table class="table table-bordered table-hover align-middle">
 						<thead class="table-light">
 						<tr>
 							<th>Module : Page</th>
-							<th class="text-center">Manager</th>
-							<th class="text-center">Supervisor</th>
-							<th class="text-center">Technician</th>
+							{foreach from=$roles item=r}
+								{if $r.TYPE_NAME != 'Admin' && ($role_filter == '' || $role_filter == $r.TYPE_NAME)}
+									<th class="text-center">{$r.TYPE_NAME}</th>
+								{/if}
+							{/foreach}
 						</tr>
 						</thead>
 						<tbody>
@@ -48,29 +79,17 @@
 							<tr>
 								<td><strong>{$acl[q].page}</strong></td>
 
-								<td class="text-center">
-									<select name="{$acl[q].page}[Manager]"
-											class="form-select form-select-sm">
-										<option value="1" {if $acl[q].Manager == '1'}selected{/if}>Yes</option>
-										<option value="0" {if $acl[q].Manager == '0'}selected{/if}>No</option>
-									</select>
-								</td>
-
-								<td class="text-center">
-									<select name="{$acl[q].page}[Supervisor]"
-											class="form-select form-select-sm">
-										<option value="1" {if $acl[q].Supervisor == '1'}selected{/if}>Yes</option>
-										<option value="0" {if $acl[q].Supervisor == '0'}selected{/if}>No</option>
-									</select>
-								</td>
-
-								<td class="text-center">
-									<select name="{$acl[q].page}[Technician]"
-											class="form-select form-select-sm">
-										<option value="1" {if $acl[q].Technician == '1'}selected{/if}>Yes</option>
-										<option value="0" {if $acl[q].Technician == '0'}selected{/if}>No</option>
-									</select>
-								</td>
+								{foreach from=$roles item=r}
+									{if $r.TYPE_NAME != 'Admin' && ($role_filter == '' || $role_filter == $r.TYPE_NAME)}
+										<td class="text-center">
+											<select name="{$acl[q].page}[{$r.TYPE_NAME}]"
+													class="form-select form-select-sm">
+												<option value="1" {if $acl[q][$r.TYPE_NAME] == '1'}selected{/if}>Yes</option>
+												<option value="0" {if $acl[q][$r.TYPE_NAME] == '0'}selected{/if}>No</option>
+											</select>
+										</td>
+									{/if}
+								{/foreach}
 							</tr>
 						{/section}
 

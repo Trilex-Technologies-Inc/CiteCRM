@@ -81,6 +81,25 @@
 
         {if $show_admin_menu|default:false}
             <div class="col-sm-6 col-lg-4">
+                <a href="?page=control:roles&page_title=Roles" class="text-decoration-none">
+                    <div class="card h-100 shadow-sm {if $current_module == 'control' && $current_page == 'roles'}border-primary bg-light-subtle{else}border-light{/if}" style="transition: all 0.2s ease-in-out; border-width: 1px; border-style: solid; cursor: pointer; border-radius: 0.75rem;">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-people-fill fs-2 text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-1">Roles</h5>
+                                <small class="text-secondary-emphasis">Create roles & manage access</small>
+                            </div>
+                            {if $current_module == 'control' && $current_page == 'roles'}
+                                <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+                            {/if}
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-sm-6 col-lg-4">
                 <a href="?page=control:hours_edit&page_title=Office%20Hours" class="text-decoration-none">
                     <div class="card h-100 shadow-sm {if $current_module == 'control' && $current_page == 'hours_edit'}border-primary bg-light-subtle{else}border-light{/if}" style="transition: all 0.2s ease-in-out; border-width: 1px; border-style: solid; cursor: pointer; border-radius: 0.75rem;">
                         <div class="card-body d-flex align-items-center gap-3">
@@ -184,4 +203,3 @@
         {/if}
     </div>
 </div>
-
