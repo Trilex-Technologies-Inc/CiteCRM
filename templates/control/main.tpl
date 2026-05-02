@@ -193,6 +193,44 @@
                     </div>
                 </a>
             </div>
+
+            <div class="col-sm-6 col-lg-4">
+                <a href="?page=inventory:manufacturers&page_title=Manufacturers" class="text-decoration-none">
+                    <div class="card h-100 shadow-sm {if $current_module == 'inventory' && $current_page == 'manufacturers'}border-primary bg-light-subtle{else}border-light{/if}" style="transition: all 0.2s ease-in-out; border-width: 1px; border-style: solid; cursor: pointer; border-radius: 0.75rem;">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-building fs-2 text-secondary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-1">Manufacturers</h5>
+                                <small class="text-secondary-emphasis">Manage manufacturers list</small>
+                            </div>
+                            {if $current_module == 'inventory' && $current_page == 'manufacturers'}
+                                <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+                            {/if}
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-sm-6 col-lg-4">
+                <a href="?page=inventory:products&page_title=Products" class="text-decoration-none">
+                    <div class="card h-100 shadow-sm {if $current_module == 'inventory' && $current_page == 'products'}border-primary bg-light-subtle{else}border-light{/if}" style="transition: all 0.2s ease-in-out; border-width: 1px; border-style: solid; cursor: pointer; border-radius: 0.75rem;">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-box-seam fs-2 text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-1">Products</h5>
+                                <small class="text-secondary-emphasis">Manage product catalog</small>
+                            </div>
+                            {if $current_module == 'inventory' && $current_page == 'products'}
+                                <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+                            {/if}
+                        </div>
+                    </div>
+                </a>
+            </div>
         {/if}
         
         {if !($show_admin_menu|default:false)}

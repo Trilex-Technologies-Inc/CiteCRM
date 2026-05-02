@@ -1,0 +1,24 @@
+-- Adds manufacturer + product catalog tables (safe to run multiple times).
+
+CREATE TABLE IF NOT EXISTS `TABLE_MANUFACTURER` (
+  `MANUFACTURER_ID` int(11) NOT NULL auto_increment,
+  `MANUFACTURER_NAME` varchar(120) NOT NULL default '',
+  `MANUFACTURER_WEBSITE` varchar(255) NOT NULL default '',
+  `MANUFACTURER_ACTIVE` tinyint(1) NOT NULL default '1',
+  PRIMARY KEY  (`MANUFACTURER_ID`),
+  UNIQUE KEY `MANUFACTURER_NAME` (`MANUFACTURER_NAME`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `TABLE_PRODUCT` (
+  `PRODUCT_ID` int(11) NOT NULL auto_increment,
+  `MANUFACTURER_ID` int(11) NOT NULL default '0',
+  `PRODUCT_SKU` varchar(60) NOT NULL default '',
+  `PRODUCT_NAME` varchar(120) NOT NULL default '',
+  `PRODUCT_DESCRIPTION` text,
+  `PRODUCT_PRICE` decimal(10,2) NOT NULL default '0.00',
+  `PRODUCT_ACTIVE` tinyint(1) NOT NULL default '1',
+  PRIMARY KEY  (`PRODUCT_ID`),
+  KEY `MANUFACTURER_ID` (`MANUFACTURER_ID`),
+  KEY `PRODUCT_SKU` (`PRODUCT_SKU`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+
