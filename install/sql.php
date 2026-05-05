@@ -415,13 +415,13 @@ if (!create_order_details($db)) {
 ##################################
 if (!create_sub_cat($db)) {
 	echo ("<tr>\n
-				<td>Create table " . PRFX . "SUB_CAT</td>\n
+				<td>Seed category children (CAT.PARENT_ID)</td>\n
 				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
 } else {
 	echo ("<tr>\n
-				<td>Create table " . PRFX . "SUB_CAT</td>\n
+				<td>Seed category children (CAT.PARENT_ID)</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -1103,54 +1103,56 @@ function create_cat($db)
 	$q = "CREATE TABLE `" . PRFX . "CAT` (
 	`ID` varchar(10) NOT NULL default '',
 	`DESCRIPTION` varchar(100) NOT NULL default '',
+	`PARENT_ID` varchar(10) NOT NULL default '',
 	PRIMARY KEY  (`ID`),
-	KEY `DESCRIPTION` (`DESCRIPTION`)
+	KEY `DESCRIPTION` (`DESCRIPTION`),
+	KEY `PARENT_ID` (`PARENT_ID`)
 	) ENGINE=MyISAM";
 	if (!$rs = $db->Execute($q)) {
 		return false;
 	} else {
-		$q = "INSERT INTO " . PRFX . "CAT VALUES
-			('AC', 'Accessories'),
-			('CB', 'Cables'),
-			('CC', 'ControllerCards'),
-			('CM', 'Cameras'),
-			('CP', 'CPUs'),
-			('CS', 'Cases'),
-			('FD', 'FloppyDrives'),
-			('FN', 'Fans'),
-			('GP', 'GPS'),
-			('HD', 'HardDrives'),
-			('KB', 'Keyboards'),
-			('MB', 'Motherboards'),
-			('MC', 'Mice'),
-			('MD', 'Modem'),
-			('ME', 'Memory'),
-			('MF', 'MemoryDevice'),
-			('MM', 'Multimedia/MP3'),
-			('MN', 'Monitors/LCD'),
-			('NB', 'Notebooks/PDA'),
-			('NT', 'Networking'),
-			('OD', 'OpticalDrive'),
-			('OM', 'OpticalMedia'),
-			('PO', 'POSEquipment'),
-			('PJ', 'Projector'),
-			('PR', 'Printers'),
-			('PS', 'PowerSupply'),
-			('RD', 'RemovableDriveBay'),
-			('RM', 'RemovableMedia'),
-			('SC', 'Scanners'),
-			('SF', 'Software'),
-			('SO', 'SoundCards'),
-			('SP', 'Speakers'),
-			('SY', 'BareboneSystems'),
-			('TB', 'TapeBack-up'),
-			('UP', 'UPS'),
-			('VC', 'VGACards'),
-			('ZP', 'ZipDrive'),
-			('NW', 'NewCategory1'),
-			('NX', 'NewCategory2'),
-			('NY', 'NewCategory3'),
-			('NZ', 'NewCategory4')";
+		$q = "INSERT INTO " . PRFX . "CAT (`ID`,`DESCRIPTION`,`PARENT_ID`) VALUES
+			('AC', 'Accessories', ''),
+			('CB', 'Cables', ''),
+			('CC', 'ControllerCards', ''),
+			('CM', 'Cameras', ''),
+			('CP', 'CPUs', ''),
+			('CS', 'Cases', ''),
+			('FD', 'FloppyDrives', ''),
+			('FN', 'Fans', ''),
+			('GP', 'GPS', ''),
+			('HD', 'HardDrives', ''),
+			('KB', 'Keyboards', ''),
+			('MB', 'Motherboards', ''),
+			('MC', 'Mice', ''),
+			('MD', 'Modem', ''),
+			('ME', 'Memory', ''),
+			('MF', 'MemoryDevice', ''),
+			('MM', 'Multimedia/MP3', ''),
+			('MN', 'Monitors/LCD', ''),
+			('NB', 'Notebooks/PDA', ''),
+			('NT', 'Networking', ''),
+			('OD', 'OpticalDrive', ''),
+			('OM', 'OpticalMedia', ''),
+			('PO', 'POSEquipment', ''),
+			('PJ', 'Projector', ''),
+			('PR', 'Printers', ''),
+			('PS', 'PowerSupply', ''),
+			('RD', 'RemovableDriveBay', ''),
+			('RM', 'RemovableMedia', ''),
+			('SC', 'Scanners', ''),
+			('SF', 'Software', ''),
+			('SO', 'SoundCards', ''),
+			('SP', 'Speakers', ''),
+			('SY', 'BareboneSystems', ''),
+			('TB', 'TapeBack-up', ''),
+			('UP', 'UPS', ''),
+			('VC', 'VGACards', ''),
+			('ZP', 'ZipDrive', ''),
+			('NW', 'NewCategory1', ''),
+			('NX', 'NewCategory2', ''),
+			('NY', 'NewCategory3', ''),
+			('NZ', 'NewCategory4', '')";
 		if (!$rs = $db->Execute($q)) {
 			return false;
 		} else {
@@ -1207,20 +1209,11 @@ function create_order_details($db)
 
 function create_sub_cat($db)
 {
-	$q = "CREATE TABLE `" . PRFX . "SUB_CAT` (
-  `ID` int(20) NOT NULL auto_increment,
-  `CAT` varchar(10) NOT NULL default '',
-  `DESCRIPTION` varchar(100) NOT NULL default '',
-  `SUB_CATEGORY` varchar(10) NOT NULL default '',
-  PRIMARY KEY  (`ID`),
-  KEY `CAT` (`CAT`),
-  KEY `SUB_CATEGORY` (`SUB_CATEGORY`)
-) ENGINE=MyISAM";
-	if (!$rs = $db->Execute($q)) {
-		return false;
-	} else {
-
-		$q = "INSERT INTO " . PRFX . "SUB_CAT VALUES
+	// Subcategories are stored as child rows in CAT (PARENT_ID).
+	// This seed list is kept in the legacy SUB_CAT tuple format:
+	// (numeric_id, parent_cat_id, description, child_cat_id)
+	// We parse it and insert into CAT as (ID=child_cat_id, DESCRIPTION=description, PARENT_ID=parent_cat_id).
+	$seed = "
 (1, 'AC', 'PDADevice', 'PDA'),
 (2, 'AC', 'MemoryHeatsink', 'MEH'),
 (3, 'AC', 'PrinterAcces', 'PRA'),
@@ -1418,13 +1411,33 @@ function create_sub_cat($db)
 (195, 'VC', 'VideoCard96MB', 'V96'),
 (196, 'VC', 'VideoCard64MB', 'V64'),
 (197, 'VC', 'TVTunerCard', 'TVT'),
-(198, 'ZP', 'IDEZipDrive', 'ZPI')";
+(198, 'ZP', 'IDEZipDrive', 'ZPI')
+";
+
+	$matches = array();
+	preg_match_all("/\\(\\s*\\d+\\s*,\\s*'([^']*)'\\s*,\\s*'([^']*)'\\s*,\\s*'([^']*)'\\s*\\)/", $seed, $matches, PREG_SET_ORDER);
+	if (!is_array($matches) || count($matches) === 0) {
+		return true;
+	}
+
+	$values = array();
+	for ($i = 0; $i < count($matches); $i++) {
+		$parent = $matches[$i][1];
+		$desc = $matches[$i][2];
+		$child = $matches[$i][3];
+		$values[] = "(".$db->qstr($child).",".$db->qstr($desc).",".$db->qstr($parent).")";
+	}
+
+	$chunk = 200;
+	for ($i = 0; $i < count($values); $i += $chunk) {
+		$part = array_slice($values, $i, $chunk);
+		$q = "INSERT IGNORE INTO " . PRFX . "CAT (`ID`,`DESCRIPTION`,`PARENT_ID`) VALUES ".implode(",", $part);
 		if (!$rs = $db->Execute($q)) {
 			return false;
-		} else {
-			return true;
 		}
 	}
+
+	return true;
 }
 
 function create_country($db)

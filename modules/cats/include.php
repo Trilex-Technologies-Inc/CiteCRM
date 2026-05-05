@@ -14,6 +14,13 @@ function display_cat_info($db, $cat_id) {
     return $rs->GetArray();
 }
 
+function cats_map_child_row($row) {
+	// Keys used by existing templates/pages
+	$row['CAT'] = isset($row['PARENT_ID']) ? $row['PARENT_ID'] : '';
+	$row['SUB_CATEGORY'] = isset($row['ID']) ? $row['ID'] : '';
+	return $row;
+}
+
 #####################################
 #	Search Cats                    #
 #####################################
@@ -25,9 +32,12 @@ function display_cat_search($db, $description, $page_no) {
     $from = (($page_no * $max_results) - $max_results);
     
     // Search query
-    $q = "SELECT * FROM ".PRFX."CAT 
-          WHERE DESCRIPTION LIKE ". $db->qstr($description.'%') ." 
-          ORDER BY DESCRIPTION 
+    // Only show top-level categories in the main list
+    $where_parent = " AND (PARENT_ID = '' OR PARENT_ID IS NULL)";
+    $q = "SELECT * FROM ".PRFX."CAT
+          WHERE DESCRIPTION LIKE ". $db->qstr($description.'%') ."
+          $where_parent
+          ORDER BY DESCRIPTION
           LIMIT $from, $max_results";
     
     if(!$rs = $db->Execute($q)) {
@@ -38,7 +48,7 @@ function display_cat_search($db, $description, $page_no) {
     $cat_search_result = $rs->GetArray();
     
     // Get total count for pagination
-    $q = "SELECT COUNT(*) as Num FROM ".PRFX."CAT WHERE DESCRIPTION LIKE ". $db->qstr($description.'%');
+    $q = "SELECT COUNT(*) as Num FROM ".PRFX."CAT WHERE DESCRIPTION LIKE ". $db->qstr($description.'%') . $where_parent;
     
     if(!$results = $db->Execute($q)) {
         force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
@@ -101,10 +111,10 @@ function update_cat($db, $VAR, $cat_id) {
 #####################################
 
 function delete_cat($db, $cat_id) {
-    // Check if category has subcategories
-    $check_q = "SELECT COUNT(*) as num FROM ".PRFX."SUB_CAT WHERE CAT = ". $db->qstr($cat_id);
+    // Check if category has subcategories (children in CAT)
+    $check_q = "SELECT COUNT(*) as num FROM ".PRFX."CAT WHERE PARENT_ID = ". $db->qstr($cat_id);
     $check_rs = $db->Execute($check_q);
-    if($check_rs->fields['num'] > 0) {
+    if($check_rs && (int)$check_rs->fields['num'] > 0) {
         force_page('core', 'error&error_msg=Cannot delete category with existing subcategories. Delete subcategories first.&menu=1&type=validation');
         exit;
     }
@@ -139,14 +149,20 @@ function check_cat_exists($db, $id) {
 #####################################
 
 function display_subcat_info($db, $subcat_id) {
-    $q = "SELECT * FROM ".PRFX."SUB_CAT WHERE ID=". $db->qstr($subcat_id);
+    $q = "SELECT ID, DESCRIPTION, PARENT_ID
+          FROM ".PRFX."CAT
+          WHERE ID=". $db->qstr($subcat_id);
     
     if(!$rs = $db->Execute($q)) {
         force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
         exit;
     }
     
-    return $rs->GetArray();
+    $rows = $rs->GetArray();
+    for ($i = 0; $i < count($rows); $i++) {
+        $rows[$i] = cats_map_child_row($rows[$i]);
+    }
+    return $rows;
 }
 
 #####################################
@@ -154,14 +170,21 @@ function display_subcat_info($db, $subcat_id) {
 #####################################
 
 function display_subcat_search($db, $cat_id) {
-    $q = "SELECT * FROM ".PRFX."SUB_CAT WHERE CAT = ". $db->qstr($cat_id) ." ORDER BY DESCRIPTION";
+    $q = "SELECT ID, DESCRIPTION, PARENT_ID
+          FROM ".PRFX."CAT
+          WHERE PARENT_ID = ". $db->qstr($cat_id) ."
+          ORDER BY DESCRIPTION";
     
     if(!$rs = $db->Execute($q)) {
         force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
         exit;
     }
     
-    return $rs->GetArray();
+    $rows = $rs->GetArray();
+    for ($i = 0; $i < count($rows); $i++) {
+        $rows[$i] = cats_map_child_row($rows[$i]);
+    }
+    return $rows;
 }
 
 #####################################
@@ -169,17 +192,18 @@ function display_subcat_search($db, $cat_id) {
 #####################################
 
 function insert_new_subcat($db, $VAR) {
-    $q = "INSERT INTO ".PRFX."SUB_CAT SET
-          CAT           = ". $db->qstr($VAR["cat_id"]).",
-          DESCRIPTION   = ". $db->qstr($VAR["description"]).",
-          SUB_CATEGORY  = ". $db->qstr($VAR["sub_category"]);
+    // Store subcategory as a child category record (ID is the subcategory code)
+    $q = "INSERT INTO ".PRFX."CAT SET
+          ID          = ". $db->qstr($VAR["sub_category"]).",
+          DESCRIPTION = ". $db->qstr($VAR["description"]).",
+          PARENT_ID   = ". $db->qstr($VAR["cat_id"]);
     
     if(!$rs = $db->Execute($q)) {
         force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
         exit;
     }
     
-    return $db->insert_id();
+    return (string)$VAR["sub_category"];
 }
 
 #####################################
@@ -187,9 +211,18 @@ function insert_new_subcat($db, $VAR) {
 #####################################
 
 function update_subcat($db, $VAR, $subcat_id) {
-    $q = "UPDATE ".PRFX."SUB_CAT SET
-          DESCRIPTION   = ". $db->qstr($VAR["description"]).",
-          SUB_CATEGORY  = ". $db->qstr($VAR["sub_category"])."
+    // Keep ID as the identifier; allow changing it by rewriting the record (MyISAM has no FK constraints)
+    $new_id = trim((string)$VAR["sub_category"]);
+    if ($new_id !== '' && $new_id !== (string)$subcat_id) {
+        $q = "UPDATE ".PRFX."CAT SET ID=".$db->qstr($new_id)." WHERE ID=".$db->qstr($subcat_id);
+        if(!$rs = $db->Execute($q)) {
+            force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+            exit;
+        }
+        $subcat_id = $new_id;
+    }
+    $q = "UPDATE ".PRFX."CAT SET
+          DESCRIPTION = ". $db->qstr($VAR["description"])."
           WHERE ID = ". $db->qstr($subcat_id);
     
     if(!$rs = $db->Execute($q)) {
@@ -205,7 +238,7 @@ function update_subcat($db, $VAR, $subcat_id) {
 #####################################
 
 function delete_subcat($db, $subcat_id) {
-    $q = "DELETE FROM ".PRFX."SUB_CAT WHERE ID = ". $db->qstr($subcat_id);
+    $q = "DELETE FROM ".PRFX."CAT WHERE ID = ". $db->qstr($subcat_id);
     
     if(!$rs = $db->Execute($q)) {
         force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');

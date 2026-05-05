@@ -108,9 +108,24 @@ if($count > 0) {
 # Load Category							#
 ##################################
 
+$supports_parent_id = false;
+$chk = "SELECT COUNT(*) AS cnt
+		FROM information_schema.COLUMNS
+		WHERE TABLE_SCHEMA = DATABASE()
+		  AND TABLE_NAME = ".$db->qstr(PRFX."CAT")."
+		  AND COLUMN_NAME = 'PARENT_ID'";
+$chk_rs = $db->Execute($chk);
+if ($chk_rs && (int)$chk_rs->fields['cnt'] > 0) {
+	$supports_parent_id = true;
+}
 
+if (!$supports_parent_id) {
+	force_page('core', 'error&error_msg=Database upgrade required: CAT.PARENT_ID missing.&menu=1&type=validation');
+	exit;
+}
 
-$q = "SELECT * FROM ".PRFX."CAT";
+// Parent categories (top-level)
+$q = "SELECT * FROM ".PRFX."CAT WHERE (PARENT_ID = '' OR PARENT_ID IS NULL) ORDER BY DESCRIPTION";
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 		exit;
@@ -119,13 +134,21 @@ $q = "SELECT * FROM ".PRFX."CAT";
 	$arr = $rs->GetArray();
 	$smarty->assign( 'CAT', $arr );
 	
-$q = "SELECT * FROM ".PRFX."SUB_CAT";
-	if(!$rs = $db->execute($q)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;
-	}
-	$arr = $rs->GetArray();
-	$smarty->assign( 'SUB_CAT', $arr );	
+// Child categories, mapped to legacy SUB_CAT keys expected by templates
+$q = "SELECT ID, DESCRIPTION, PARENT_ID
+	  FROM ".PRFX."CAT
+	  WHERE PARENT_ID <> '' AND PARENT_ID IS NOT NULL
+	  ORDER BY PARENT_ID, DESCRIPTION";
+if(!$rs = $db->execute($q)) {
+	force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+	exit;
+}
+$arr = $rs->GetArray();
+for ($i = 0; $i < count($arr); $i++) {
+	$arr[$i]['CAT'] = $arr[$i]['PARENT_ID'];
+	$arr[$i]['SUB_CATEGORY'] = $arr[$i]['ID'];
+}
+$smarty->assign('SUB_CAT', $arr);
 
 
 ##################################

@@ -30,9 +30,11 @@ if(isset($VAR['submit'])) {
     
     // Check if subcategory ID already exists for this category
     if(!empty($VAR['sub_category']) && !empty($VAR['cat_id'])) {
-        $check_q = "SELECT COUNT(*) as num FROM ".PRFX."SUB_CAT WHERE SUB_CATEGORY = ". $db->qstr($VAR['sub_category']) . " AND CAT = ". $db->qstr($VAR['cat_id']);
+        $check_q = "SELECT COUNT(*) as num FROM ".PRFX."CAT
+                    WHERE ID = ". $db->qstr($VAR['sub_category']) ."
+                      AND PARENT_ID = ". $db->qstr($VAR['cat_id']);
         $check_rs = $db->Execute($check_q);
-        if($check_rs->fields['num'] > 0) {
+        if($check_rs && (int)$check_rs->fields['num'] > 0) {
             $error .= '- Subcategory ID already exists for this category<br>';
         }
     }

@@ -143,7 +143,7 @@
 								</td>
 								<td>
 										<select name="subcat_id" class="form-select form-select-sm js-subcat" id="subcat_{$p.PRODUCT_ID}" data-selected="{$p.SUBCAT_ID}" required disabled>
-											{if $p.SUBCAT_ID > 0}
+											{if $p.SUBCAT_ID != ''}
 												<option value="{$p.SUBCAT_ID}" selected>{$p.SUBCAT_DESCRIPTION|escape}</option>
 											{else}
 												<option value="">Select category first…</option>

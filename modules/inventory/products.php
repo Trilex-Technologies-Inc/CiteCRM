@@ -21,7 +21,34 @@ function normalize_price($price) {
 	return number_format((float)$price, 2, '.', '');
 }
 
-// AJAX: fetch subcategories for a category (used by product add/edit forms)
+function inventory_table_has_column($db, $table, $column) {
+	$q = "SELECT COUNT(*) AS cnt
+		  FROM information_schema.COLUMNS
+		  WHERE TABLE_SCHEMA = DATABASE()
+		    AND TABLE_NAME = ".$db->qstr($table)."
+		    AND COLUMN_NAME = ".$db->qstr($column);
+	$rs = $db->Execute($q);
+	return $rs && (int)$rs->fields['cnt'] > 0;
+}
+
+function inventory_table_exists($db, $table) {
+	$q = "SELECT COUNT(*) AS cnt
+		  FROM information_schema.TABLES
+		  WHERE TABLE_SCHEMA = DATABASE()
+		    AND TABLE_NAME = ".$db->qstr($table);
+	$rs = $db->Execute($q);
+	return $rs && (int)$rs->fields['cnt'] > 0;
+}
+
+function inventory_categories_self_related($db) {
+	return inventory_table_has_column($db, PRFX.'CAT', 'PARENT_ID');
+}
+
+function inventory_products_has_cat_id($db) {
+	return inventory_table_has_column($db, PRFX.'TABLE_PRODUCT', 'CAT_ID');
+}
+
+// AJAX: fetch subcategories (child categories) for a category (used by product add/edit forms)
 if (isset($VAR['ajax']) && $VAR['ajax'] === 'subcats') {
 	$cat_id = isset($VAR['cat_id']) ? trim((string)$VAR['cat_id']) : '';
 	header('Content-Type: application/json; charset=UTF-8');
@@ -31,9 +58,15 @@ if (isset($VAR['ajax']) && $VAR['ajax'] === 'subcats') {
 		exit;
 	}
 
-	$q = "SELECT ID, DESCRIPTION, SUB_CATEGORY
-		  FROM ".PRFX."SUB_CAT
-		  WHERE CAT=".$db->qstr($cat_id)."
+	if (!inventory_categories_self_related($db)) {
+		http_response_code(500);
+		echo json_encode(array('error' => 'Database upgrade required: CAT.PARENT_ID missing'));
+		exit;
+	}
+
+	$q = "SELECT ID, DESCRIPTION
+		  FROM ".PRFX."CAT
+		  WHERE PARENT_ID=".$db->qstr($cat_id)."
 		  ORDER BY DESCRIPTION";
 	if(!$rs = $db->execute($q)) {
 		http_response_code(500);
@@ -57,8 +90,16 @@ if(!$rs = $db->execute($q)) {
 $smarty->assign('manufacturer_options', $rs->GetArray());
 
 // Categories for dropdowns
+$where = "WHERE (PARENT_ID = '' OR PARENT_ID IS NULL)";
+$supports_parent = inventory_categories_self_related($db);
+$supports_cat_id = inventory_products_has_cat_id($db);
+if (!$supports_parent || !$supports_cat_id) {
+	force_page('core', 'error&error_msg=Database upgrade required: missing CAT.PARENT_ID and/or TABLE_PRODUCT.CAT_ID.&menu=1&type=validation');
+	exit;
+}
 $q = "SELECT ID, DESCRIPTION
 	  FROM ".PRFX."CAT
+	  $where
 	  ORDER BY DESCRIPTION";
 if(!$rs = $db->execute($q)) {
 	force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
@@ -68,13 +109,13 @@ $smarty->assign('category_options', $rs->GetArray());
 
 function product_subcat_matches_cat($db, $cat_id, $subcat_id) {
 	$cat_id = trim((string)$cat_id);
-	$subcat_id = (int)$subcat_id;
-	if ($cat_id === '' || $subcat_id <= 0) {
+	$subcat_id = trim((string)$subcat_id);
+	if ($cat_id === '' || $subcat_id === '') {
 		return false;
 	}
 	$q = "SELECT COUNT(*) AS cnt
-		  FROM ".PRFX."SUB_CAT
-		  WHERE ID=".$db->qstr($subcat_id)." AND CAT=".$db->qstr($cat_id);
+		  FROM ".PRFX."CAT
+		  WHERE ID=".$db->qstr($subcat_id)." AND PARENT_ID=".$db->qstr($cat_id);
 	$rs = $db->Execute($q);
 	return $rs && (int)$rs->fields['cnt'] > 0;
 }
@@ -85,7 +126,7 @@ if (isset($VAR['submit'])) {
 	if ($submit === 'New') {
 		$manufacturer_id = isset($VAR['manufacturer_id']) ? (int)$VAR['manufacturer_id'] : 0;
 		$cat_id = isset($VAR['cat_id']) ? trim((string)$VAR['cat_id']) : '';
-		$subcat_id = isset($VAR['subcat_id']) ? (int)$VAR['subcat_id'] : 0;
+		$subcat_id = isset($VAR['subcat_id']) ? trim((string)$VAR['subcat_id']) : '';
 		$sku = isset($VAR['product_sku']) ? trim($VAR['product_sku']) : '';
 		$name = isset($VAR['product_name']) ? trim($VAR['product_name']) : '';
 		$description = isset($VAR['product_description']) ? trim($VAR['product_description']) : '';
@@ -100,7 +141,7 @@ if (isset($VAR['submit'])) {
 			force_page('inventory', 'products&page_title=Products&error_msg=Please select a category.');
 			exit;
 		}
-		if ($subcat_id <= 0 || !product_subcat_matches_cat($db, $cat_id, $subcat_id)) {
+		if ($subcat_id === '' || !product_subcat_matches_cat($db, $cat_id, $subcat_id)) {
 			force_page('inventory', 'products&page_title=Products&error_msg=Please select a subcategory.');
 			exit;
 		}
@@ -115,7 +156,7 @@ if (isset($VAR['submit'])) {
 
 		$q = "INSERT INTO ".PRFX."TABLE_PRODUCT SET
 				MANUFACTURER_ID=".$db->qstr($manufacturer_id).",
-				SUBCAT_ID=".$db->qstr($subcat_id).",
+				CAT_ID=".$db->qstr($subcat_id).",
 				PRODUCT_SKU=".$db->qstr($sku).",
 				PRODUCT_NAME=".$db->qstr($name).",
 				PRODUCT_DESCRIPTION=".$db->qstr($description).",
@@ -134,7 +175,7 @@ if (isset($VAR['submit'])) {
 		$product_id = isset($VAR['product_id']) ? (int)$VAR['product_id'] : 0;
 		$manufacturer_id = isset($VAR['manufacturer_id']) ? (int)$VAR['manufacturer_id'] : 0;
 		$cat_id = isset($VAR['cat_id']) ? trim((string)$VAR['cat_id']) : '';
-		$subcat_id = isset($VAR['subcat_id']) ? (int)$VAR['subcat_id'] : 0;
+		$subcat_id = isset($VAR['subcat_id']) ? trim((string)$VAR['subcat_id']) : '';
 		$sku = isset($VAR['product_sku']) ? trim($VAR['product_sku']) : '';
 		$name = isset($VAR['product_name']) ? trim($VAR['product_name']) : '';
 		$description = isset($VAR['product_description']) ? trim($VAR['product_description']) : '';
@@ -153,7 +194,7 @@ if (isset($VAR['submit'])) {
 			force_page('inventory', 'products&page_title=Products&error_msg=Please select a category.');
 			exit;
 		}
-		if ($subcat_id <= 0 || !product_subcat_matches_cat($db, $cat_id, $subcat_id)) {
+		if ($subcat_id === '' || !product_subcat_matches_cat($db, $cat_id, $subcat_id)) {
 			force_page('inventory', 'products&page_title=Products&error_msg=Please select a subcategory.');
 			exit;
 		}
@@ -168,7 +209,7 @@ if (isset($VAR['submit'])) {
 
 		$q = "UPDATE ".PRFX."TABLE_PRODUCT SET
 				MANUFACTURER_ID=".$db->qstr($manufacturer_id).",
-				SUBCAT_ID=".$db->qstr($subcat_id).",
+				CAT_ID=".$db->qstr($subcat_id).",
 				PRODUCT_SKU=".$db->qstr($sku).",
 				PRODUCT_NAME=".$db->qstr($name).",
 				PRODUCT_DESCRIPTION=".$db->qstr($description).",
@@ -213,14 +254,14 @@ if ($search !== '') {
 }
 
 $q = "SELECT p.PRODUCT_ID, p.MANUFACTURER_ID, p.PRODUCT_SKU, p.PRODUCT_NAME, p.PRODUCT_DESCRIPTION, p.PRODUCT_PRICE, p.PRODUCT_ACTIVE,
-			p.SUBCAT_ID,
+			p.CAT_ID AS SUBCAT_ID,
 			m.MANUFACTURER_NAME,
-			c.ID AS CAT_ID, c.DESCRIPTION AS CAT_DESCRIPTION,
-			sc.DESCRIPTION AS SUBCAT_DESCRIPTION, sc.SUB_CATEGORY AS SUBCAT_CODE
+			parent.ID AS CAT_ID, parent.DESCRIPTION AS CAT_DESCRIPTION,
+			child.DESCRIPTION AS SUBCAT_DESCRIPTION, child.ID AS SUBCAT_CODE
 	  FROM ".PRFX."TABLE_PRODUCT p
 	  LEFT JOIN ".PRFX."TABLE_MANUFACTURER m ON (m.MANUFACTURER_ID = p.MANUFACTURER_ID)
-	  LEFT JOIN ".PRFX."SUB_CAT sc ON (sc.ID = p.SUBCAT_ID)
-	  LEFT JOIN ".PRFX."CAT c ON (c.ID = sc.CAT)
+	  LEFT JOIN ".PRFX."CAT child ON (child.ID = p.CAT_ID)
+	  LEFT JOIN ".PRFX."CAT parent ON (parent.ID = child.PARENT_ID)
 	  $where
 	  ORDER BY p.PRODUCT_NAME";
 if(!$rs = $db->execute($q)) {
