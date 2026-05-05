@@ -240,6 +240,25 @@ $smarty->assign('parts', $parts);
 $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 
 	$smarty->assign('CAT2', $VAR['CAT2']);
+
+	// Local product catalog listing (inventory module)
+	$cat2 = isset($VAR['CAT2']) ? trim((string)$VAR['CAT2']) : '';
+	$inventory_products = array();
+	if ($cat2 !== '') {
+		$q = "SELECT p.PRODUCT_ID, p.PRODUCT_SKU, p.PRODUCT_NAME, p.PRODUCT_DESCRIPTION, p.PRODUCT_PRICE,
+					COALESCE(m.MANUFACTURER_NAME,'') AS MANUFACTURER_NAME
+			  FROM ".PRFX."TABLE_PRODUCT p
+			  LEFT JOIN ".PRFX."TABLE_MANUFACTURER m ON (m.MANUFACTURER_ID = p.MANUFACTURER_ID)
+			  WHERE p.PRODUCT_ACTIVE=1
+			    AND p.CAT_ID=".$db->qstr($cat2)."
+			  ORDER BY p.PRODUCT_NAME";
+		if(!$rs = $db->execute($q)) {
+			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+			exit;
+		}
+		$inventory_products = $rs->GetArray();
+	}
+	$smarty->assign('inventory_products', $inventory_products);
 }
 ###############################
 # Add Part							#
