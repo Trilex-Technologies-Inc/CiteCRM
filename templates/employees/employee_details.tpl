@@ -11,11 +11,11 @@
 <!-- Main Content Container -->
 <div class="container-fluid p-3">
     <!-- Page Header -->
-    <div class="card mb-3">
-        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">{$translate_employee_details_for} {$employee_details[i].EMPLOYEE_DISPLAY_NAME}</h5>
-            <img src="images/icons/16x16/help.gif" border="0" alt="Help">
-        </div>
+	    <div class="card mb-3">
+	        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+	            <h5 class="mb-0">{$translate_employee_details_for} {$employee_details[i].EMPLOYEE_DISPLAY_NAME}</h5>
+	            <i class="bi bi-question-circle-fill fs-5 text-white" aria-hidden="true"></i>
+	        </div>
         
         <div class="card-body">
             {if $error_msg != ""}
@@ -144,26 +144,37 @@
                         {section name=a loop=$open_work_orders}
                         <tr ondblclick="window.location='?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&page_title={$translate_employee_work_order_id}{$open_work_orders[a].WORK_ORDER_ID},';" style="cursor: pointer;">
                             <td>{$open_work_orders[a].WORK_ORDER_ID}</td>
-                            <td>{$open_work_orders[a].WORK_ORDER_OPEN_DATE|date_format:"%m/%d/%Y"}</td>
-                            <td>
-                                <img src="images/icons/16x16/view+.gif" border="0" class="me-1" onMouseOver="ddrivetip('<center><b>Customer Contact</b><hr></center><b>Home: </b>{$open_work_orders[a].CUSTOMER_PHONE}<br><b>Work: </b>{$open_work_orders[a].CUSTOMER_WORK_PHONE}<br><b>Mobile: </b>{$open_work_orders[a].CUSTOMER_MOBILE_PHONE}')"
-                                    onMouseOut="hideddrivetip()">
-                                {$open_work_orders[a].CUSTOMER_DISPLAY_NAME}
-                            </td>
-                            <td>
-                                <img src="images/icons/16x16/view+.gif" border="0" class="me-1" onMouseOver="ddrivetip('<center><b>Description</b><hr></center>{$open_work_orders[a].WORK_ORDER_DESCRIPTION}')" onMouseOut="hideddrivetip()">
-                                {$open_work_orders[a].WORK_ORDER_SCOPE}
-                            </td>
+	                            <td>{$open_work_orders[a].WORK_ORDER_OPEN_DATE|date_format:"%m/%d/%Y"}</td>
+	                            <td>
+	                                <i class="bi bi-info-circle-fill text-primary me-1 fs-5"
+	                                   aria-hidden="true"
+	                                   onMouseOver="ddrivetip('<center><b>Customer Contact</b><hr></center><b>Home: </b>{$open_work_orders[a].CUSTOMER_PHONE}<br><b>Work: </b>{$open_work_orders[a].CUSTOMER_WORK_PHONE}<br><b>Mobile: </b>{$open_work_orders[a].CUSTOMER_MOBILE_PHONE}')"
+	                                   onMouseOut="hideddrivetip()"></i>
+	                                {$open_work_orders[a].CUSTOMER_DISPLAY_NAME}
+	                            </td>
+	                            <td>
+	                                <i class="bi bi-info-circle-fill text-primary me-1 fs-5"
+	                                   aria-hidden="true"
+	                                   onMouseOver="ddrivetip('<center><b>Description</b><hr></center>{$open_work_orders[a].WORK_ORDER_DESCRIPTION}')"
+	                                   onMouseOut="hideddrivetip()"></i>
+	                                {$open_work_orders[a].WORK_ORDER_SCOPE}
+	                            </td>
                             <td>{$open_work_orders[a].CONFIG_WORK_ORDER_STATUS}</td>
-                            <td>{$open_work_orders[a].EMPLOYEE_DISPLAY_NAME}</td>
-                            <td class="text-center">
-                                <a href="?page=workorder:print&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
-                                    <img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('Print The Work Order')" onMouseOut="hideddrivetip()">
-                                </a>
-                                <a href="?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}" class="text-decoration-none">
-                                    <img src="images/icons/16x16/viewmag.gif" border="0" onMouseOver="ddrivetip('View The Work Order')" onMouseOut="hideddrivetip()">
-                                </a>
-                            </td>
+	                            <td>{$open_work_orders[a].EMPLOYEE_DISPLAY_NAME}</td>
+	                            <td class="text-center">
+	                                <a href="?page=workorder:print&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
+	                                    <i class="bi bi-printer-fill text-secondary  fs-5"
+	                                       aria-hidden="true"
+	                                       onMouseOver="ddrivetip('Print The Work Order')"
+	                                       onMouseOut="hideddrivetip()"></i>
+	                                </a>
+	                                <a href="?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}" class="text-decoration-none">
+	                                    <i class="bi bi-eye-fill text-secondary  fs-5"
+	                                       aria-hidden="true"
+	                                       onMouseOver="ddrivetip('View The Work Order')"
+	                                       onMouseOut="hideddrivetip()"></i>
+	                                </a>
+	                            </td>
                         </tr>
                         {/section}
                     </tbody>

@@ -6,7 +6,7 @@
 			   class="btn btn-sm btn-outline-secondary"
 			   data-bs-toggle="tooltip"
 			   title="Edit Description">
-				<img src="images/icons/16x16/small_edit.gif" alt="Edit">
+				<i class="bi bi-pencil-square" aria-hidden="true"></i>
 			</a>
 		{/if}
 	</div>

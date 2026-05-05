@@ -204,7 +204,7 @@ function checkZip($zip){
 #	Duplicate						#
 #####################################
 	
-function check_customer_ex($db, $displayName) {
+	function check_customer_ex($db, $displayName) {
 	$sql = "SELECT COUNT(*) AS num_users FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME=".$db->qstr($displayName);
 	
 	if(!$result = $db->Execute($sql)) {
@@ -219,20 +219,54 @@ function check_customer_ex($db, $displayName) {
 	} else {
 		return true;
 	}
-}
+	}
 
-#####################################
-#	Add								#
-#####################################
+	function _get_customer_zip_maxlen($db) {
+		static $max_len = null;
+		if ($max_len !== null) {
+			return $max_len;
+		}
 
-function insert_new_customer($db,$VAR) {
+		// Default to the historical schema width (prevents "Data too long..." errors).
+		$max_len = 8;
+		$q = "SHOW COLUMNS FROM ".PRFX."TABLE_CUSTOMER LIKE 'CUSTOMER_ZIP'";
+		if ($rs = $db->Execute($q)) {
+			$row = $rs->FetchRow();
+			if (isset($row['Type'])) {
+				if (preg_match('/varchar\\((\\d+)\\)/i', $row['Type'], $m)) {
+					$max_len = (int)$m[1];
+				}
+			}
+		}
 
-	$sql = "INSERT INTO ".PRFX."TABLE_CUSTOMER SET
-			CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]  ).",
-			CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]      ).", 
-			CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]         ).", 
-			CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]        ).", 
-			CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]          ).",
+		if ($max_len < 1) {
+			$max_len = 8;
+		}
+		return $max_len;
+	}
+
+	function _normalize_customer_zip($db, $zip) {
+		$zip = isset($zip) ? trim((string)$zip) : '';
+		$max_len = _get_customer_zip_maxlen($db);
+		if (strlen($zip) > $max_len) {
+			$zip = substr($zip, 0, $max_len);
+		}
+		return $zip;
+	}
+
+	#####################################
+	#	Add								#
+	#####################################
+	
+	function insert_new_customer($db,$VAR) {
+		$VAR["zip"] = _normalize_customer_zip($db, isset($VAR["zip"]) ? $VAR["zip"] : '');
+	
+		$sql = "INSERT INTO ".PRFX."TABLE_CUSTOMER SET
+				CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]  ).",
+				CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]      ).", 
+				CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]         ).", 
+				CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]        ).", 
+				CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]          ).",
 			CUSTOMER_PHONE			= ". $db->qstr( $VAR["homePhone"]    ).",
 			CUSTOMER_WORK_PHONE	= ". $db->qstr( $VAR["workPhone"]    ).",
 			CUSTOMER_MOBILE_PHONE	= ". $db->qstr( $VAR["mobilePhone"]  ).",
@@ -274,14 +308,15 @@ function edit_info($db, $customer_id){
 #	Update							#
 #####################################
 
-function update_customer($db,$VAR) {
-
-	$sql = "UPDATE ".PRFX."TABLE_CUSTOMER SET
-			CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]	).",
-			CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]		).", 
-			CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]			).", 
-			CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]			).", 
-			CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]				).",
+	function update_customer($db,$VAR) {
+		$VAR["zip"] = _normalize_customer_zip($db, isset($VAR["zip"]) ? $VAR["zip"] : '');
+	
+		$sql = "UPDATE ".PRFX."TABLE_CUSTOMER SET
+				CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]	).",
+				CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]		).", 
+				CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]			).", 
+				CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]			).", 
+				CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]				).",
 			CUSTOMER_PHONE			= ". $db->qstr( $VAR["homePhone"]		).",
 			CUSTOMER_WORK_PHONE	= ". $db->qstr( $VAR["workPhone"]		).",
 			CUSTOMER_MOBILE_PHONE	= ". $db->qstr( $VAR["mobilePhone"]	).",

@@ -30,6 +30,11 @@ function check_acl($db,$module,$page	) {
 		$gid = $rs->fields['TYPE_NAME'];
 	}
 
+	// Role names are used as column identifiers. Keep them safe.
+	if (!preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $gid)) {
+		return false;
+	}
+
 	/* check page to see if we have access */
 	if(!isset($module)) {
 		$page= "core:main";
@@ -37,7 +42,48 @@ function check_acl($db,$module,$page	) {
 		$page= $module.":".$page;
 	}
 
-	$q = 'SELECT '.$gid.' as ACL FROM '.PRFX.'ACL WHERE page='.$db->qstr($page);
+	// Ensure the role column exists (older installs or role changes).
+	$q = "SHOW COLUMNS FROM ".PRFX."ACL LIKE ".$db->qstr($gid);
+	if(!$rs = $db->execute($q)) {
+		force_page('core','error&error_msg=Could not validate Role ACL Column');
+		exit;
+	}
+	if($rs->EOF) {
+		return false;
+	}
+
+	// Ensure the page row exists (new pages). Default: deny for all roles except Admin.
+	$q = 'SELECT ACL_ID FROM '.PRFX.'ACL WHERE page='.$db->qstr($page).' LIMIT 1';
+	if(!$rs = $db->execute($q)) {
+		force_page('core','error&error_msg=Could not get Page ACL');
+		exit;
+	}
+	if($rs->EOF) {
+		$cols = array();
+		$q = "SHOW COLUMNS FROM ".PRFX."ACL";
+		if($cols_rs = $db->execute($q)) {
+			$cols = $cols_rs->GetArray();
+		}
+		$sets = array();
+		foreach($cols as $col) {
+			if(!isset($col['Field'])) {
+				continue;
+			}
+			$field = $col['Field'];
+			if($field === 'ACL_ID' || $field === 'page') {
+				continue;
+			}
+			$default_allow = in_array($field, array('Admin', 'Manager', 'Supervisor'), true) ? 1 : 0;
+			$sets[] = "`".str_replace('`','``',$field)."`=".$default_allow;
+		}
+		$q = "INSERT INTO ".PRFX."ACL SET page=".$db->qstr($page);
+		if(!empty($sets)) {
+			$q .= ", ".implode(',', $sets);
+		}
+		$db->execute($q);
+	}
+
+	$q = 'SELECT `'.$gid.'` as ACL FROM '.PRFX.'ACL WHERE page='.$db->qstr($page);
 
 	if(!$rs = $db->execute($q)) {
 		force_page('core','error&error_msg=Could not get Page ACL');

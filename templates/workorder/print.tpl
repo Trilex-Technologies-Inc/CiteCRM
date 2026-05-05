@@ -5,7 +5,7 @@
 		<td valign="top" width="20%"><img src="images/logo.jpg"></td>
 		<!-- middle column -->
 		<td valign="top" align="center" width="60%">
-			<font size="+3">TECHNICIAN COPY</font><br>
+			<font size="+3">Sale person COPY</font><br>
 			Work Order ID# {$single_workorder_array[i].WORK_ORDER_ID}
 		</td>
 		<!-- right column -->

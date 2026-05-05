@@ -13,31 +13,31 @@
 ##################################
 # create_billing_options				#
 ##################################
-if(!create_billing_options($db)) {
-	echo("<tr>\n
-					<td>create table ".PRFX."BILLING_OPTIONS</td>\n
-					<td><font color=\"red\"><b>Failed </b> </font> ".$db->ErrorMsg() ."</td>\n
+if (!create_billing_options($db)) {
+	echo ("<tr>\n
+					<td>Create table " . PRFX . "BILLING_OPTIONS</td>\n
+					<td><span class=\"badge bg-danger\">Failed</span> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
-			$error_flag = true;
+	$error_flag = true;
 } else {
-	echo("<tr>\n
-					<td>Create table ".PRFX."BILLING_OPTIONS</td>\n
-					<td><font color=\"green\"><b>OK</b></font></td>\n
+	echo ("<tr>\n
+					<td>Create table " . PRFX . "BILLING_OPTIONS</td>\n
+					<td><span class=\"badge bg-success\">OK</span></td>\n
 			<tr>\n");
 }
 
 ##################################
 # create_config_cc_cards				#
 ##################################
-if(!create_config_cc_cards($db)) {
-	echo("<tr>\n
-				<td>create table ".PRFX."CONFIG_CC_CARDS</td>\n
-				<td><font color=\"red\"><b>Failed</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_config_cc_cards($db)) {
+	echo ("<tr>\n
+				<td>create table " . PRFX . "CONFIG_CC_CARDS</td>\n
+				<td><font color=\"red\"><b>Failed</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
-			$error_flag = true;
+	$error_flag = true;
 } else {
-	echo("<tr>\n
-			<td>Create table ".PRFX."CONFIG_CC_CARDS</td>\n
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "CONFIG_CC_CARDS</td>\n
 			<td><font color=\"green\"><b>OK</b></font></td>\n
 		</tr>\n");
 }
@@ -45,15 +45,15 @@ if(!create_config_cc_cards($db)) {
 ##################################
 # create_config_work_order_status	#
 ##################################
-if(!create_config_work_order_status($db)) {
-	echo("<tr>\n
-				<td>Create table ".PRFX."CONFIG_WORK_ORDER_STATUS</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_config_work_order_status($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "CONFIG_WORK_ORDER_STATUS</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>");
-			$error_flag = true;
+	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."CONFIG_WORK_ORDER_STATUS</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "CONFIG_WORK_ORDER_STATUS</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -61,15 +61,15 @@ if(!create_config_work_order_status($db)) {
 ##################################
 # insert_workorder_status			#
 ##################################
-if(!insert_workorder_status($db)){
-	echo("<tr>\n
-				<td>Insert values for ".PRFX."CONFIG_WORK_ORDER_STATUS</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!insert_workorder_status($db)) {
+	echo ("<tr>\n
+				<td>Insert values for " . PRFX . "CONFIG_WORK_ORDER_STATUS</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>");
 	$error_flag = true;
-}else {
-	echo("<tr>\n
-				<td>Insert values for ".PRFX."CONFIG_WORK_ORDER_STATUS</td>\n
+} else {
+	echo ("<tr>\n
+				<td>Insert values for " . PRFX . "CONFIG_WORK_ORDER_STATUS</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			<tr>\n");
 }
@@ -77,15 +77,15 @@ if(!insert_workorder_status($db)){
 ##################################
 # create_table_company				#
 ##################################
-if(!create_table_company($db)){
-	echo("<tr>\n
-				<td>Create table ".PRFX."TABLE_COMPANY</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_company($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_COMPANY</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>");
-	$error_flag = true;	
+	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."TABLE_COMPANY</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_COMPANY</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -93,28 +93,28 @@ if(!create_table_company($db)){
 ##################################
 # create_table_customer				#
 ##################################
-if(!create_table_customer($db)){
-	echo("<tr>\n
-			<td>Create table ".PRFX."TABLE_CUSTOMER</td>
-			<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_customer($db)) {
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "TABLE_CUSTOMER</td>
+			<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 		</tr>");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."TABLE_CUSTOMER</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_CUSTOMER</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
 
-if(!create_table_customer_memo($db)){
-	echo("<tr>\n
-			<td>Create table ".PRFX."CUSTOMER_MEMO</td>
-			<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_customer_memo($db)) {
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "CUSTOMER_MEMO</td>
+			<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 		</tr>");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."CUSTOMER_MEMO</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "CUSTOMER_MEMO</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -123,15 +123,15 @@ if(!create_table_customer_memo($db)){
 ##################################
 # create_table_employee				#
 ##################################
-if(!create_table_employee($db)){
-	echo("<tr>\n
-				<td>Create table ".PRFX."TABLE_CUSTOMER</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_employee($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_CUSTOMER</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>");
 	$error_flag = true;
-}else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."TABLE_CUSTOMER</td>\n
+} else {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_CUSTOMER</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -139,15 +139,15 @@ if(!create_table_employee($db)){
 ###############################
 # create_table_invoice			#
 ###############################
-if(!create_table_invoice($db)){
-	echo("<tr>\n
-				<td>Create table ".PRFX."INVOICE</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_invoice($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "INVOICE</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
-}else {
-	echo("<tr>\n
-			<td>Create table ".PRFX."INVOCIE</td>\n
+} else {
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "INVOCIE</td>\n
 			<td><font color=\"green\"><b>OK</b></font></td>\n
 		</tr>\n");
 }
@@ -155,15 +155,15 @@ if(!create_table_invoice($db)){
 ##################################
 # create_table_invoice_labor		#
 ##################################
-if(!create_table_invoice_labor($db)){
-	echo("<tr>\n
-			<td>Create table ".PRFX."INVOICE_LOABOR</td>\n
-			<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_invoice_labor($db)) {
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "INVOICE_LOABOR</td>\n
+			<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 		</tr>");
 	$error_flag = true;
-}else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."INVOICE_LABOR</td>\n
+} else {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "INVOICE_LABOR</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -171,15 +171,15 @@ if(!create_table_invoice_labor($db)){
 ##################################
 # create_table_invoice_parts		#
 ##################################
-if(!create_table_invoice_parts($db)){
-	echo("<tr>\n
-				<td>Create table ".PRFX."INVOCIE_PARTS</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_invoice_parts($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "INVOCIE_PARTS</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
-}else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."INVOICE_PARTS</td>\n
+} else {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "INVOICE_PARTS</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>");
 }
@@ -187,15 +187,15 @@ if(!create_table_invoice_parts($db)){
 ###############################
 # create_labor_rate				#
 ###############################
-if(!create_labor_rate($db)) {
-	echo("<tr>\n
-			<td>Create table ".PRFX."LABOR_RATE</td>\n
-			<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_labor_rate($db)) {
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "LABOR_RATE</td>\n
+			<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 		</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-			<td>Create table ".PRFX."LABOR_RATE</td>
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "LABOR_RATE</td>
 			<td><font color=\"green\"><b>OK</b></font></td>\n
 		</tr>\n");
 }
@@ -204,15 +204,15 @@ if(!create_labor_rate($db)) {
 ##################################
 # create_table_schedual				#
 ##################################
-if(!create_table_schedual($db)){
-	echo("<tr>\n
-				<td>Create table ".PRFX."SCHEDUAL</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_schedual($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "SCHEDUAL</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>");
 	$error_flag = true;
-}else {
-	echo("<tr>\n
-			<td>Create table ".PRFX."SCHEDUAL</td>\n
+} else {
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "SCHEDUAL</td>\n
 			<td><font color=\"green\"><b>OK</b></font></td>\n
 		</tr>\n");
 }
@@ -220,15 +220,15 @@ if(!create_table_schedual($db)){
 ##################################
 # create_table_transactions			#
 ##################################
-if(!create_table_transactions($db)) {
-	echo("<tr>\n
-				<td>Create table ".PRFX."TRANSACTIONS</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_transactions($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TRANSACTIONS</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."TRANSACTIONS</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TRANSACTIONS</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -236,15 +236,15 @@ if(!create_table_transactions($db)) {
 ##################################
 # create_table_workorder				#
 ##################################
-if(!create_table_workorder($db)){
-	echo("<tr>
-				<td>create table ".PRFX."WORKORDER</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_workorder($db)) {
+	echo ("<tr>
+				<td>create table " . PRFX . "WORKORDER</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 		</tr>\n");
 	$error_flag = true;
-}else {
-	echo("<tr>
-			<td>create table ".PRFX."WORKORDER</td>\n
+} else {
+	echo ("<tr>
+			<td>create table " . PRFX . "WORKORDER</td>\n
 			<td><font color=\"green\"><b>OK</b></font></td>\n
 		</tr>\n");
 }
@@ -252,15 +252,15 @@ if(!create_table_workorder($db)){
 ##################################
 # create_workorder_notes				#
 ##################################
-if(!create_workorder_notes($db)){
-	echo("<tr>\n
-				<td>Create table ".PRFX."WORK_ORDER_NOTES</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_workorder_notes($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "WORK_ORDER_NOTES</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
-}else {
-	echo("<tr>\n
-			<td>Create table ".PRFX."WORK_ORDER_NOTES</td>\n
+} else {
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "WORK_ORDER_NOTES</td>\n
 			<td><font color=\"green\"><b>OK</b></font></td>\n
 		</tr>\n");
 }
@@ -268,15 +268,15 @@ if(!create_workorder_notes($db)){
 ##################################
 # creat_workorder_status				#
 ##################################
-if(!creat_workorder_status($db)){
-	echo("<tr>\n
-				<td>Create table ".PRFX."WORKORDER_STATUS</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!creat_workorder_status($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "WORKORDER_STATUS</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
-}else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."WORKORDER_STATUS</td>\n
+} else {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "WORKORDER_STATUS</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -284,15 +284,15 @@ if(!creat_workorder_status($db)){
 ##################################
 # create_table_tracker				#
 ##################################
-if(!create_table_tracker($db)) {
-	echo("<tr>\n
-				<td>Create table ".PRFX."TRACKER</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_table_tracker($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TRACKER</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 		</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."TRACKER</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TRACKER</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -300,15 +300,15 @@ if(!create_table_tracker($db)) {
 ##################################
 # create_setup							#
 ##################################
-if(!create_setup($db) ) {
-echo("<tr>\n
-			<td>Create table ".PRFX."SETUP</td>\n
-			<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_setup($db)) {
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "SETUP</td>\n
+			<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 		</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."SETUP</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "SETUP</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -317,31 +317,31 @@ echo("<tr>\n
 ##################################
 # create_acl								#
 ##################################
-if(!create_acl($db) ) {
-echo("<tr>\n
-			<td>Create table ".PRFX."ACL</td>\n
-			<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_acl($db)) {
+	echo ("<tr>\n
+			<td>Create table " . PRFX . "ACL</td>\n
+			<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 		</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."ACL</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "ACL</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
-}	
+}
 
 ##################################
 # create_employee_type				#
 ##################################
-if(!create_employee_type($db) ) {
-	echo("<tr>\n
-				<td>Create table ".PRFX."EMPLOYEE_TYPE</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_employee_type($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "EMPLOYEE_TYPE</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."EMPLOYEE_TYPE</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "EMPLOYEE_TYPE</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -349,15 +349,15 @@ if(!create_employee_type($db) ) {
 ##################################
 # create_cart							#
 ##################################
-if(!create_cart($db)) {
-echo("<tr>\n
-				<td>Create table ".PRFX."CART</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_cart($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "CART</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."CART</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "CART</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -365,15 +365,15 @@ echo("<tr>\n
 ##################################
 # create_cat								#
 ##################################
-if(!create_cat($db)) {
-echo("<tr>\n
-				<td>Create table ".PRFX."CAT</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_cat($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."CAT</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "CAT</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -381,15 +381,15 @@ echo("<tr>\n
 ##################################
 # create_orders							#
 ##################################
-if(!create_orders($db)) {
-echo("<tr>\n
-				<td>Create table ".PRFX."ORDERS</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_orders($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "ORDERS</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."ORDERS</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "ORDERS</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -397,15 +397,15 @@ echo("<tr>\n
 ##################################
 # create_order_details				#
 ##################################
-if(!create_order_details($db)) {
-echo("<tr>\n
-				<td>Create table ".PRFX."ORDERS_DETAILS</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_order_details($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "ORDERS_DETAILS</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."ORDERS_DETAILS</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "ORDERS_DETAILS</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -413,40 +413,40 @@ echo("<tr>\n
 ##################################
 # create_sub_cat						#
 ##################################
-if(!create_sub_cat($db)) {
-echo("<tr>\n
-				<td>Create table ".PRFX."SUB_CAT</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_sub_cat($db)) {
+	echo ("<tr>\n
+				<td>Seed category children (CAT.PARENT_ID)</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."SUB_CAT</td>\n
+	echo ("<tr>\n
+				<td>Seed category children (CAT.PARENT_ID)</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
 
-if(!create_country($db)) {
-echo("<tr>\n
-				<td>Create table ".PRFX."COUNTRY</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_country($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "COUNTRY</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."COUNTRY</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "COUNTRY</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
-if(!create_gift($db)) {
-echo("<tr>\n
-				<td>Create table ".PRFX."GIFT_CERT</td>\n
-				<td><font color=\"red\"><b>Failed:</b></font> ". $db->ErrorMsg() ."</td>\n
+if (!create_gift($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "GIFT_CERT</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
 			</tr>\n");
 	$error_flag = true;
 } else {
-	echo("<tr>\n
-				<td>Create table ".PRFX."GIFT_CERT</td>\n
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "GIFT_CERT</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -455,8 +455,9 @@ echo("<tr>\n
 ##################################
 # Functions								#
 ##################################
-function create_gift($db) {
-	$q="CREATE TABLE `".PRFX."GIFT_CERT` (
+function create_gift($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "GIFT_CERT` (
 	`GIFT_ID` int(20) NOT NULL auto_increment,
 	`MEMO` text NOT NULL,
 	`DATE_CREATE` int(20) NOT NULL default '0',
@@ -470,31 +471,32 @@ function create_gift($db) {
 	PRIMARY KEY  (`GIFT_ID`),
 	KEY `GIFT_CODE` (`GIFT_CODE`,`CUSTOMER_ID`,`ACTIVE`)
 	) ENGINE=MyISAM ";
-	if(!$rs = $db->execute($q)) {
-			return false;
+	if (!$rs = $db->execute($q)) {
+		return false;
 	} else {
 		return true;
 	}
 }
 
 
-function create_billing_options($db) {
+function create_billing_options($db)
+{
 
-$q = "CREATE TABLE `".PRFX."CONFIG_BILLING_OPTIONS` (
+	$q = "CREATE TABLE `" . PRFX . "CONFIG_BILLING_OPTIONS` (
 		`ID` int(11) NOT NULL auto_increment,
 		`BILLING_OPTION` varchar(64) NOT NULL default '',
 		`BILLING_NAME` varchar(64) NOT NULL default '',
 		`ACTIVE` int(1) NOT NULL default '1',
 		PRIMARY KEY  (`ID`)
 	) ENGINE=MyISAM ";
-	
-	if(!$rs = $db->execute($q)) {
+
+	if (!$rs = $db->execute($q)) {
 		return false;
 	} else {
-	
-		$q = "INSERT INTO `".PRFX."CONFIG_BILLING_OPTIONS` VALUES (1,'cc_billing','Credit Card',0),(2,'check_billing','Check',1),(3,'cash_billing','Cash',1),(4,'gift_billing','Gift Certificate',0),(5,'paypal_billing','Pay Pal',0)";
-	
-		if(!$rs = $db->execute($q) ) {
+
+		$q = "INSERT INTO `" . PRFX . "CONFIG_BILLING_OPTIONS` VALUES (1,'cc_billing','Credit Card',0),(2,'check_billing','Check',1),(3,'cash_billing','Cash',1),(4,'gift_billing','Gift Certificate',0),(5,'paypal_billing','Pay Pal',0)";
+
+		if (!$rs = $db->execute($q)) {
 			return false;
 		} else {
 			return true;
@@ -502,82 +504,82 @@ $q = "CREATE TABLE `".PRFX."CONFIG_BILLING_OPTIONS` (
 	}
 }
 
-function create_config_cc_cards($db){
+function create_config_cc_cards($db)
+{
 
-	$q="CREATE TABLE `".PRFX."CONFIG_CC_CARDS` (
+	$q = "CREATE TABLE `" . PRFX . "CONFIG_CC_CARDS` (
 		`ID` int(11) NOT NULL auto_increment,
 		`CARD_TYPE` varchar(64) NOT NULL default '',
 		`CARD_NAME` varchar(64) NOT NULL default '',
 		`ACTIVE` int(1) NOT NULL default '0',
 		PRIMARY KEY  (`ID`)
 		) ENGINE=MyISAM ";
-		
-	if(!$rs = $db->execute($q)) {
+
+	if (!$rs = $db->execute($q)) {
 		return false;
-	} else { 
-		$q="INSERT INTO `".PRFX."CONFIG_CC_CARDS` VALUES (1,'visa','Visa',1),(2,'mc','Master Card',1),(3,'amex','Amex',0),(4,'discover','Discover',1),(5,'delta','Delta',0),(6,'solo','Solo',0),(7,'switch','Switch',0),(8,'jcb','JCB',0),(9,'diners','Diners',0),(10,'carteblanche','Carta Blanche',0),(11,'enroute','Enroute',0)";
-		if(!$rs=$db->execute($q)) {
+	} else {
+		$q = "INSERT INTO `" . PRFX . "CONFIG_CC_CARDS` VALUES (1,'visa','Visa',1),(2,'mc','Master Card',1),(3,'amex','Amex',0),(4,'discover','Discover',1),(5,'delta','Delta',0),(6,'solo','Solo',0),(7,'switch','Switch',0),(8,'jcb','JCB',0),(9,'diners','Diners',0),(10,'carteblanche','Carta Blanche',0),(11,'enroute','Enroute',0)";
+		if (!$rs = $db->execute($q)) {
 			return false;
 		} else {
 			return true;
-		}	
+		}
 	}
-
 }
 
 function create_config_work_order_status($db)
 {
-	$q="CREATE TABLE `".PRFX."CONFIG_WORK_ORDER_STATUS` (
+	$q = "CREATE TABLE `" . PRFX . "CONFIG_WORK_ORDER_STATUS` (
 		`CONFIG_WORK_ORDER_STATUS_ID` int(11) NOT NULL auto_increment,
 		`CONFIG_WORK_ORDER_STATUS` varchar(64) NOT NULL default '',
 		`DISPLAY` int(1) NOT NULL default '0',
 		PRIMARY KEY  (`CONFIG_WORK_ORDER_STATUS_ID`)
 		) ENGINE=MyISAM ";
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
 }
 
-function create_employee_type($db) {
-	$q = "CREATE TABLE `".PRFX."CONFIG_EMPLOYEE_TYPE` (
+function create_employee_type($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "CONFIG_EMPLOYEE_TYPE` (
 	`TYPE_ID` int(11) NOT NULL auto_increment,
 	`TYPE_NAME` varchar(255) NOT NULL default '',
 	PRIMARY KEY  (`TYPE_ID`),
 	KEY `TYPE_NAME` (`TYPE_NAME`)
 	) ENGINE=MyISAM ";
-	if(!$rs = $db->Execute($q)) {
+	if (!$rs = $db->Execute($q)) {
 		return false;
 	} else {
-		$q = "INSERT INTO `".PRFX."CONFIG_EMPLOYEE_TYPE` VALUES (1, 'Manager'),(2, 'Supervisor'),(3, 'Technician'),(4, 'Admin')";
-		if(!$rs = $db->execute($q)) {
+		$q = "INSERT INTO `" . PRFX . "CONFIG_EMPLOYEE_TYPE` VALUES (1, 'Manager'),(2, 'Supervisor'),(3, 'Sale person'),(4, 'Admin')";
+		if (!$rs = $db->execute($q)) {
 			return false;
 		} else {
 			return true;
 		}
 	}
-
 }
 
-function insert_workorder_status($db) 
+function insert_workorder_status($db)
 {
-	$q="
-		INSERT INTO `".PRFX."CONFIG_WORK_ORDER_STATUS` VALUES (1,'Created',0),(2,'Assigned',1),(3,'Waiting For Parts',1),(6,'Closed',0),(7,'Awaiting Payment',0),(8,'Payment Made',0),(9,'Pending',0),(10,'Open',0)";
+	$q = "
+		INSERT INTO `" . PRFX . "CONFIG_WORK_ORDER_STATUS` VALUES (1,'Created',0),(2,'Assigned',1),(3,'Waiting For Parts',1),(6,'Closed',0),(7,'Awaiting Payment',0),(8,'Payment Made',0),(9,'Pending',0),(10,'Open',0)";
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
 }
 
 
 
 function create_table_company($db)
 {
-	$q="CREATE TABLE `".PRFX."TABLE_COMPANY` (
+	$q = "CREATE TABLE `" . PRFX . "TABLE_COMPANY` (
   `COMPANY_NAME` varchar(60) NOT NULL default '',
   `COMPANY_ADDRESS` varchar(60) NOT NULL default '',
   `COMPANY_CITY` varchar(60) NOT NULL default '',
@@ -592,22 +594,23 @@ function create_table_company($db)
 ) ENGINE=MyISAM;";
 
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
 }
 
-function create_table_customer($db){
+function create_table_customer($db)
+{
 
-	$q="CREATE TABLE `".PRFX."TABLE_CUSTOMER` (
+	$q = "CREATE TABLE `" . PRFX . "TABLE_CUSTOMER` (
 		`CUSTOMER_ID` int(11) NOT NULL auto_increment,
 		`CUSTOMER_DISPLAY_NAME` varchar(80) NOT NULL default '',
 		`CUSTOMER_ADDRESS` varchar(30) default NULL,
 		`CUSTOMER_CITY` varchar(20) default NULL,
 		`CUSTOMER_STATE` varchar(20) default NULL,
-		`CUSTOMER_ZIP` varchar(8) default NULL,
+			`CUSTOMER_ZIP` varchar(20) default NULL,
 		`CUSTOMER_PHONE` varchar(13) default NULL,
 		`CUSTOMER_WORK_PHONE` varchar(13) NOT NULL default '',
 		`CUSTOMER_MOBILE_PHONE` varchar(13) NOT NULL default '',
@@ -619,18 +622,19 @@ function create_table_customer($db){
 		`LAST_ACTIVE` int(20) NOT NULL default '0',
 		`DISCOUNT`  decimal(3,2) NOT NULL default '0.00',
 		PRIMARY KEY  (`CUSTOMER_ID`)
-		) ENGINE=MyISAM " ;
+		) ENGINE=MyISAM ";
 
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
 }
 
-function create_table_customer_memo($db) {
-	$q="CREATE TABLE `".PRFX."CUSTOMER_NOTES` (
+function create_table_customer_memo($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "CUSTOMER_NOTES` (
 	`ID` INT( 20 ) NOT NULL AUTO_INCREMENT ,
 	`CUSTOMER_ID` INT( 20 ) NOT NULL ,
 	`DATE` INT( 20 ) NOT NULL ,
@@ -639,17 +643,17 @@ function create_table_customer_memo($db) {
 	INDEX ( `CUSTOMER_ID` )
 	) ENGINE = MYISAM";
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
-
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
 }
 
-function create_table_employee($db) {
+function create_table_employee($db)
+{
 
-	$q="CREATE TABLE `".PRFX."TABLE_EMPLOYEE` (
+	$q = "CREATE TABLE `" . PRFX . "TABLE_EMPLOYEE` (
 		`EMPLOYEE_ID` int(11) NOT NULL auto_increment,
 		`EMPLOYEE_LOGIN` varchar(50) NOT NULL default '',
 		`EMPLOYEE_PASSWD` varchar(50) NOT NULL default '',
@@ -670,20 +674,20 @@ function create_table_employee($db) {
 		`EMPLOYEE_STATUS` varchar(20) NOT NULL default '',
 		PRIMARY KEY  (`EMPLOYEE_ID`),
 		UNIQUE KEY `EMPLOYEE_LOGIN` (`EMPLOYEE_LOGIN`)
-		) ENGINE=MyISAM " ;
+		) ENGINE=MyISAM ";
 
-	
+
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
-} 
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
 
 function create_table_invoice($db)
 {
-	$q="CREATE TABLE `".PRFX."TABLE_INVOICE` (
+	$q = "CREATE TABLE `" . PRFX . "TABLE_INVOICE` (
   `INVOICE_ID` int(11) NOT NULL auto_increment,
   `INVOICE_DATE` varchar(30) default NULL,
   `CUSTOMER_ID` int(11) NOT NULL default '0',
@@ -703,18 +707,18 @@ function create_table_invoice($db)
   KEY `EMPLOYEE_ID` (`EMPLOYEE_ID`),
   KEY `WORKORDER_ID` (`WORKORDER_ID`)
 ) ENGINE=MyISAM";
-	
+
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
-} 
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
 
 function create_table_invoice_labor($db)
 {
-	$q="CREATE TABLE `".PRFX."TABLE_INVOICE_LABOR` (
+	$q = "CREATE TABLE `" . PRFX . "TABLE_INVOICE_LABOR` (
 		`INVOICE_LABOR_ID` int(11) NOT NULL auto_increment,
 		`INVOICE_ID` int(11) NOT NULL default '0',
 		`EMPLOYEE_ID` int(11) NOT NULL default '0',
@@ -725,18 +729,18 @@ function create_table_invoice_labor($db)
 		PRIMARY KEY  (`INVOICE_LABOR_ID`),
 		KEY `INVOICE_ID` (`INVOICE_ID`)
 		) ENGINE=MyISAM ";
-	
+
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
-} 
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
 
 function create_table_invoice_parts($db)
 {
-	$q="CREATE TABLE `".PRFX."TABLE_INVOICE_PARTS` (
+	$q = "CREATE TABLE `" . PRFX . "TABLE_INVOICE_PARTS` (
   `INVOICE_PARTS_ID` int(11) NOT NULL auto_increment,
   `INVOICE_ID` int(11) NOT NULL default '0',
   `INVOICE_PARTS_MANUF` varchar(60) NOT NULL default '',
@@ -752,44 +756,44 @@ function create_table_invoice_parts($db)
 ) ENGINE=MyISAM ";
 
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
-} 
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
 
-function create_labor_rate($db) {
+function create_labor_rate($db)
+{
 
-	$q="CREATE TABLE `".PRFX."TABLE_LABOR_RATE` (
+	$q = "CREATE TABLE `" . PRFX . "TABLE_LABOR_RATE` (
 		`LABOR_RATE_ID` int(11) NOT NULL auto_increment,
 		`LOABOR_RATE_NAME` varchar(32) NOT NULL default '',
 		`LABOR_RATE_AMOUT` decimal(10,2) NOT NULL default '0',
 		`LABOR_RATE_ACTIVE` int(1) NOT NULL default '1',
 		PRIMARY KEY  (`LABOR_RATE_ID`)
 		) ENGINE=MyISAM ";
-		
-	 if(!$rs = $db->Execute($q)) {
+
+	if (!$rs = $db->Execute($q)) {
+		return false;
+	} else {
+
+		$q = "INSERT INTO `" . PRFX . "TABLE_LABOR_RATE` VALUES (1,'Basic Labor',45,1),(2,'Comercial',55,1),(3,'Virus Removal',65,1),(4,'PC Clean',35,1)";
+
+		if (!$rs = $db->Execute($q)) {
 			return false;
 		} else {
-		
-			$q="INSERT INTO `".PRFX."TABLE_LABOR_RATE` VALUES (1,'Basic Labor',45,1),(2,'Comercial',55,1),(3,'Virus Removal',65,1),(4,'PC Clean',35,1)";
-			
-			if(!$rs = $db->Execute($q)) {
-				return false;
-			} else {
-				return true;
-			}	
+			return true;
 		}
-		
-		
+	}
 }
 
 
 
 
-function create_table_schedual($db) {
-	$q="CREATE TABLE `".PRFX."TABLE_SCHEDUAL` (
+function create_table_schedual($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "TABLE_SCHEDUAL` (
   `SCHEDUAL_ID` int(11) NOT NULL auto_increment,
   `SCHEDUAL_START` int(20) NOT NULL default '0',
   `SCHEDUAL_END` int(20) NOT NULL default '0',
@@ -799,17 +803,18 @@ function create_table_schedual($db) {
   PRIMARY KEY  (`SCHEDUAL_ID`),
   KEY `WORK_ORDER_ID` (`WORK_ORDER_ID`,`EMPLOYEE_ID`)
 ) ENGINE=MyISAM";
-	
+
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
-} 	
-	
-function create_table_transactions($db) {
-	$q="CREATE TABLE `".PRFX."TABLE_TRANSACTION` (
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function create_table_transactions($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "TABLE_TRANSACTION` (
   `TRANSACTION_ID` int(11) NOT NULL auto_increment,
   `DATE` int(20) NOT NULL default '0',
   `TYPE` int(1) NOT NULL default '0',
@@ -825,17 +830,16 @@ function create_table_transactions($db) {
   FULLTEXT KEY `MEMO` (`MEMO`)
 ) ENGINE=MyISAM";
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
-
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
 }
 
 function create_table_workorder($db)
 {
-	$q="CREATE TABLE `".PRFX."TABLE_WORK_ORDER` (
+	$q = "CREATE TABLE `" . PRFX . "TABLE_WORK_ORDER` (
   `WORK_ORDER_ID` int(4) NOT NULL auto_increment,
   `CUSTOMER_ID` int(4) NOT NULL default '0',
   `WORK_ORDER_OPEN_DATE` int(20) NOT NULL default '0',
@@ -858,19 +862,19 @@ function create_table_workorder($db)
   KEY `WORK_ORDER_CLOSE_BY` (`WORK_ORDER_CLOSE_BY`),
   KEY `CUSTOMER_ID` (`CUSTOMER_ID`)
 ) ENGINE=MyISAM";
-	
+
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
-} 	
-	
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 
 function create_workorder_notes($db)
 {
-	$q="CREATE TABLE `".PRFX."TABLE_WORK_ORDER_NOTES` (
+	$q = "CREATE TABLE `" . PRFX . "TABLE_WORK_ORDER_NOTES` (
 		`WORK_ORDER_NOTES_ID` int(11) NOT NULL auto_increment,
 		`WORK_ORDER_ID` int(11) NOT NULL default '0',
 		`WORK_ORDER_NOTES_DESCRIPTION` text NOT NULL,
@@ -880,18 +884,18 @@ function create_workorder_notes($db)
 		KEY `WORK_ORDER_ID` (`WORK_ORDER_ID`),
 		KEY `WORK_ORDER_NOTES_ENTER_BY` (`WORK_ORDER_NOTES_ENTER_BY`)
 		) ENGINE=MyISAM ";
-	
+
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
-} 	
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
 
 function creat_workorder_status($db)
 {
-	$q="CREATE TABLE `".PRFX."TABLE_WORK_ORDER_STATUS` (
+	$q = "CREATE TABLE `" . PRFX . "TABLE_WORK_ORDER_STATUS` (
 		`WORK_ORDER_STATUS_ID` int(11) NOT NULL auto_increment,
 		`WORK_ORDER_ID` int(11) NOT NULL default '0',
 		`WORK_ORDER_STATUS_DATE` varchar(30) NOT NULL default '',
@@ -901,17 +905,18 @@ function creat_workorder_status($db)
 		KEY `WORK_ORDER_ID` (`WORK_ORDER_ID`),
 		KEY `WORK_ORDER_STATUS_ENTER_BY` (`WORK_ORDER_STATUS_ENTER_BY`)
 		) ENGINE=MyISAM ";
-	
-	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			return true;
-		}
-} 	
 
-function create_table_tracker($db) {
-	$q="CREATE TABLE `".PRFX."tracker` (
+	$rs = $db->Execute($q);
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function create_table_tracker($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "tracker` (
 		`id` int(20) NOT NULL auto_increment,
 		`date` int(20) NOT NULL default '0',
 		`ip` varchar(45) NOT NULL default '',
@@ -924,16 +929,17 @@ function create_table_tracker($db) {
 		KEY `date` (`date`,`ip`,`page`(100)),
 		KEY `module` (`module`,`full_page`)
 		) ENGINE=MyISAM";
-	
+
 	$rs = $db->Execute($q);
-	if(!$rs) {
+	if (!$rs) {
 		return false;
 	} else {
 		return true;
 	}
 }
-function create_setup($db) {
-	$q = "CREATE TABLE `".PRFX."SETUP` (
+function create_setup($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "SETUP` (
   `OFFICE_HOUR_START` int(2) NOT NULL default '0',
   `OFFICE_HOUR_END` int(2) NOT NULL default '0',
   `AN_LOGIN_ID` varchar(255) NOT NULL default '',
@@ -955,15 +961,15 @@ function create_setup($db) {
   `UPS_ACCESS_KEY` VARCHAR(50) NOT NULL default '',
   KEY `OFFICE_HOUR_START` (`OFFICE_HOUR_START`,`OFFICE_HOUR_END`)
 ) ENGINE=MyISAM;";
-	
+
 	$rs = $db->Execute($q);
-	if(!$rs) {
+	if (!$rs) {
 		return false;
 	} else {
-		
-		$q = "INSERT INTO `".PRFX."SETUP` VALUES (7, 19, '', '', '', '', 1, 0, 0.00, '', '', '', '', '', '03', 0.00, '', '', '')";
-		
-		if(!$rs = $db->Execute($q)) {
+
+		$q = "INSERT INTO `" . PRFX . "SETUP` VALUES (7, 19, '', '', '', '', 1, 0, 0.00, '', '', '', '', '', '03', 0.00, '', '', '')";
+
+		if (!$rs = $db->Execute($q)) {
 			return false;
 		} else {
 			return true;
@@ -971,23 +977,24 @@ function create_setup($db) {
 	}
 }
 
-function create_acl($db) {
-	$q="CREATE TABLE `".PRFX."ACL` (
+function create_acl($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "ACL` (
  		 `ACL_ID` int(20) NOT NULL auto_increment,
   		`page` varchar(100),
   `Manager` int(2) NOT NULL default '1',
   `Supervisor` int(2) NOT NULL default '1',
-  `Technician` int(2) NOT NULL default '1',
+  `Sale person` int(2) NOT NULL default '1',
   `Admin` int(2) NOT NULL default '1',
    PRIMARY KEY  (`ACL_ID`),
    KEY `page` (`page`)
    ) ENGINE=MyISAM";
 
 	$rs = $db->Execute($q);
-		if(!$rs) {
-			return false;
-		} else {
-			$q = "INSERT INTO `".PRFX."ACL` VALUES 
+	if (!$rs) {
+		return false;
+	} else {
+		$q = "INSERT INTO `" . PRFX . "ACL` VALUES 
 (1, 'core:main', 1, 1, 1, 1),
 (2, 'customer:view', 1, 1, 1, 1),
 (3, 'customer:customer_details', 1, 1, 1, 1),
@@ -1047,21 +1054,28 @@ function create_acl($db) {
 (58, 'workorder:edit_comment', 1, 1, 1, 1),
 (59, 'control:check_updates', 0, 0, 0, 1),
 (60, 'parts:print_results', 1, 1, 1, 1),
-(61, 'customer:memo ', 1, 1, 1, 1)";
+(61, 'customer:memo ', 1, 1, 1, 1),
+(62, 'cats:main', 1, 1, 1, 1),
+(63, 'cats:new', 1, 1, 1, 1),
+(64, 'cats:edit', 1, 1, 1, 1),
+(65, 'cats:delete', 0, 0, 0, 1),
+(66, 'cats:cat_details', 1, 1, 1, 1),
+(67, 'cats:subcat_new', 1, 1, 1, 1),
+(68, 'cats:subcat_edit', 1, 1, 1, 1),
+(69, 'cats:subcat_delete', 0, 0, 0, 1)";
 
-			$rs = $db->Execute($q);
-			if(!$rs) {
-				return false;
-			} else {
-				return true;
-			}
-
+		$rs = $db->Execute($q);
+		if (!$rs) {
+			return false;
+		} else {
+			return true;
 		}
-
+	}
 }
 
-function create_cart($db) {
-	$q="CREATE TABLE `".PRFX."CART` (
+function create_cart($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "CART` (
 		`ID` int(20) NOT NULL auto_increment,
 		`SKU` varchar(20) NOT NULL default '',
 		`AMOUNT` int(5) NOT NULL default '0',
@@ -1077,71 +1091,79 @@ function create_cart($db) {
 		PRIMARY KEY  (`ID`),
 		KEY `SKU` (`SKU`)
 		) ENGINE=MyISAM";
-	if(!$rs = $db->Execute($q)) {
+	if (!$rs = $db->Execute($q)) {
 		return false;
 	} else {
 		return true;
 	}
 }
 
-function create_cat($db) {
-	$q="CREATE TABLE `".PRFX."CAT` (
+function create_cat($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "CAT` (
 	`ID` varchar(10) NOT NULL default '',
 	`DESCRIPTION` varchar(100) NOT NULL default '',
+	`PARENT_ID` varchar(10) NOT NULL default '',
 	PRIMARY KEY  (`ID`),
-	KEY `DESCRIPTION` (`DESCRIPTION`)
+	KEY `DESCRIPTION` (`DESCRIPTION`),
+	KEY `PARENT_ID` (`PARENT_ID`)
 	) ENGINE=MyISAM";
-	if(!$rs = $db->Execute($q)) {
+	if (!$rs = $db->Execute($q)) {
 		return false;
 	} else {
-		$q="INSERT INTO ".PRFX."CAT VALUES
-			('AC', 'Accessories'),
-			('CB', 'Cables'),
-			('CC', 'ControllerCards'),
-			('CM', 'Cameras'),
-			('CP', 'CPUs'),
-			('CS', 'Cases'),
-			('FD', 'FloppyDrives'),
-			('FN', 'Fans'),
-			('GP', 'GPS'),
-			('HD', 'HardDrives'),
-			('KB', 'Keyboards'),
-			('MB', 'Motherboards'),
-			('MC', 'Mice'),
-			('MD', 'Modem'),
-			('ME', 'Memory'),
-			('MF', 'MemoryDevice'),
-			('MM', 'Multimedia/MP3'),
-			('MN', 'Monitors/LCD'),
-			('NB', 'Notebooks/PDA'),
-			('NT', 'Networking'),
-			('OD', 'OpticalDrive'),
-			('OM', 'OpticalMedia'),
-			('PO', 'POSEquipment'),
-			('PJ', 'Projector'),
-			('PR', 'Printers'),
-			('PS', 'PowerSupply'),
-			('RD', 'RemovableDriveBay'),
-			('RM', 'RemovableMedia'),
-			('SC', 'Scanners'),
-			('SF', 'Software'),
-			('SO', 'SoundCards'),
-			('SP', 'Speakers'),
-			('SY', 'BareboneSystems'),
-			('TB', 'TapeBack-up'),
-			('UP', 'UPS'),
-			('VC', 'VGACards'),
-			('ZP', 'ZipDrive')";
-			if(!$rs = $db->Execute($q)) {
-				return false;
-			} else {
+		$q = "INSERT INTO " . PRFX . "CAT (`ID`,`DESCRIPTION`,`PARENT_ID`) VALUES
+			('AC', 'Accessories', ''),
+			('CB', 'Cables', ''),
+			('CC', 'ControllerCards', ''),
+			('CM', 'Cameras', ''),
+			('CP', 'CPUs', ''),
+			('CS', 'Cases', ''),
+			('FD', 'FloppyDrives', ''),
+			('FN', 'Fans', ''),
+			('GP', 'GPS', ''),
+			('HD', 'HardDrives', ''),
+			('KB', 'Keyboards', ''),
+			('MB', 'Motherboards', ''),
+			('MC', 'Mice', ''),
+			('MD', 'Modem', ''),
+			('ME', 'Memory', ''),
+			('MF', 'MemoryDevice', ''),
+			('MM', 'Multimedia/MP3', ''),
+			('MN', 'Monitors/LCD', ''),
+			('NB', 'Notebooks/PDA', ''),
+			('NT', 'Networking', ''),
+			('OD', 'OpticalDrive', ''),
+			('OM', 'OpticalMedia', ''),
+			('PO', 'POSEquipment', ''),
+			('PJ', 'Projector', ''),
+			('PR', 'Printers', ''),
+			('PS', 'PowerSupply', ''),
+			('RD', 'RemovableDriveBay', ''),
+			('RM', 'RemovableMedia', ''),
+			('SC', 'Scanners', ''),
+			('SF', 'Software', ''),
+			('SO', 'SoundCards', ''),
+			('SP', 'Speakers', ''),
+			('SY', 'BareboneSystems', ''),
+			('TB', 'TapeBack-up', ''),
+			('UP', 'UPS', ''),
+			('VC', 'VGACards', ''),
+			('ZP', 'ZipDrive', ''),
+			('NW', 'NewCategory1', ''),
+			('NX', 'NewCategory2', ''),
+			('NY', 'NewCategory3', ''),
+			('NZ', 'NewCategory4', '')";
+		if (!$rs = $db->Execute($q)) {
+			return false;
+		} else {
 			return true;
-			}
+		}
 	}
 }
 
-function create_orders($db) {
-	$q="CREATE TABLE `".PRFX."ORDERS` (
+function create_orders($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "ORDERS` (
   `ORDER_ID` int(20) NOT NULL auto_increment,
   `INVOICE_ID` int(20) NOT NULL default '0',
   `WO_ID` int(20) NOT NULL default '0',
@@ -1157,15 +1179,16 @@ function create_orders($db) {
   PRIMARY KEY  (`ORDER_ID`),
   KEY `INVOICE_ID` (`INVOICE_ID`,`WO_ID`,`STATUS`)
 ) ENGINE=MyISAM";
-	if(!$rs = $db->Execute($q)) {
+	if (!$rs = $db->Execute($q)) {
 		return false;
 	} else {
 		return true;
 	}
 }
 
-function create_order_details($db) {
-	$q="CREATE TABLE `".PRFX."ORDERS_DETAILS` (
+function create_order_details($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "ORDERS_DETAILS` (
   `DETAILS_ID` int(20) NOT NULL auto_increment,
   `ORDER_ID` int(20) NOT NULL default '0',
   `SKU` varchar(40) NOT NULL default '',
@@ -1177,28 +1200,20 @@ function create_order_details($db) {
   PRIMARY KEY  (`DETAILS_ID`),
   KEY `ORDER_ID` (`ORDER_ID`,`SKU`)
 ) ENGINE=MyISAM";
-	if(!$rs = $db->Execute($q)) {
+	if (!$rs = $db->Execute($q)) {
 		return false;
 	} else {
 		return true;
 	}
 }
 
-function create_sub_cat($db) {
-	$q="CREATE TABLE `".PRFX."SUB_CAT` (
-  `ID` int(20) NOT NULL auto_increment,
-  `CAT` varchar(10) NOT NULL default '',
-  `DESCRIPTION` varchar(100) NOT NULL default '',
-  `SUB_CATEGORY` varchar(10) NOT NULL default '',
-  PRIMARY KEY  (`ID`),
-  KEY `CAT` (`CAT`),
-  KEY `SUB_CATEGORY` (`SUB_CATEGORY`)
-) ENGINE=MyISAM";
-	if(!$rs = $db->Execute($q)) {
-		return false;
-	} else {
-
-$q="INSERT INTO ".PRFX."SUB_CAT VALUES
+function create_sub_cat($db)
+{
+	// Subcategories are stored as child rows in CAT (PARENT_ID).
+	// This seed list is kept in the legacy SUB_CAT tuple format:
+	// (numeric_id, parent_cat_id, description, child_cat_id)
+	// We parse it and insert into CAT as (ID=child_cat_id, DESCRIPTION=description, PARENT_ID=parent_cat_id).
+	$seed = "
 (1, 'AC', 'PDADevice', 'PDA'),
 (2, 'AC', 'MemoryHeatsink', 'MEH'),
 (3, 'AC', 'PrinterAcces', 'PRA'),
@@ -1396,25 +1411,46 @@ $q="INSERT INTO ".PRFX."SUB_CAT VALUES
 (195, 'VC', 'VideoCard96MB', 'V96'),
 (196, 'VC', 'VideoCard64MB', 'V64'),
 (197, 'VC', 'TVTunerCard', 'TVT'),
-(198, 'ZP', 'IDEZipDrive', 'ZPI')";
-if(!$rs = $db->Execute($q)) {
-				return false;
-			} else {
-				return true;
-			}
+(198, 'ZP', 'IDEZipDrive', 'ZPI')
+";
+
+	$matches = array();
+	preg_match_all("/\\(\\s*\\d+\\s*,\\s*'([^']*)'\\s*,\\s*'([^']*)'\\s*,\\s*'([^']*)'\\s*\\)/", $seed, $matches, PREG_SET_ORDER);
+	if (!is_array($matches) || count($matches) === 0) {
+		return true;
 	}
+
+	$values = array();
+	for ($i = 0; $i < count($matches); $i++) {
+		$parent = $matches[$i][1];
+		$desc = $matches[$i][2];
+		$child = $matches[$i][3];
+		$values[] = "(".$db->qstr($child).",".$db->qstr($desc).",".$db->qstr($parent).")";
+	}
+
+	$chunk = 200;
+	for ($i = 0; $i < count($values); $i += $chunk) {
+		$part = array_slice($values, $i, $chunk);
+		$q = "INSERT IGNORE INTO " . PRFX . "CAT (`ID`,`DESCRIPTION`,`PARENT_ID`) VALUES ".implode(",", $part);
+		if (!$rs = $db->Execute($q)) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
-function create_country($db){
-	$q = "CREATE TABLE `".PRFX."COUNTRY` (
+function create_country($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "COUNTRY` (
 	`code` char(3) NOT NULL default '',
 	`name` varchar(80) NOT NULL default '',
 	PRIMARY KEY  (`code`)
 	) ENGINE=MyISAM";
-	if(!$rs = $db->Execute($q)) {
+	if (!$rs = $db->Execute($q)) {
 		return false;
 	} else {
-		$q="INSERT INTO `".PRFX."COUNTRY` VALUES
+		$q = "INSERT INTO `" . PRFX . "COUNTRY` VALUES
 		('AF', 'Afghanistan'),
 		('AL', 'Albania'),
 		('DZ', 'Algeria'),
@@ -1667,13 +1703,10 @@ function create_country($db){
 		('ZR', 'Zaire'), 
 		('ZM', 'Zambia'), 
 		('ZW', 'Zimbabwe')";
-		if(!$rs = $db->Execute($q)) {
+		if (!$rs = $db->Execute($q)) {
 			return false;
 		} else {
 			return true;
 		}
 	}
-
 }
-?>
-

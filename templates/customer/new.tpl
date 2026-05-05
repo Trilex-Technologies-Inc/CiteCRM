@@ -123,7 +123,7 @@
                         <label class="form-label">
                             <span class="text-danger">*</span> <b>{$translate_customer_zip}</b>
                         </label>
-                        <input type="text" name="zip" value="{$company_zip}" class="form-control">
+                        <input type="text" name="zip" value="{$company_zip}" maxlength="20" class="form-control">
                     </div>
                 </div>
 

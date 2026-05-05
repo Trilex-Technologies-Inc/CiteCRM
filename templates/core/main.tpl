@@ -1,31 +1,28 @@
 <!-- Main TPL -->
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-  <tr>
-    <td >
-      <table  cellpadding="2" cellspacing="2">
-        <tr>
-           {include file="core/tool_bar.tpl"}
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
+<div class="container-fluid mb-3">
+  {include file="core/tool_bar.tpl"}
+</div>
 
 <div class="card shadow-sm mb-3">
   <div class="card-header d-flex justify-content-between align-items-center">
     <div>
       {$translate_main_heading}
     </div>
-    <div>
-      <a href="http://www.citecrm.com/docs/" target="new" class="btn btn-sm btn-outline-light">
-        <img src="images/icons/16x16/help.gif" alt="Help" border="0">
-      </a>
-    </div>
+	    <div>
+	      <a href="http://www.citecrm.com/docs/" target="new" class="btn btn-sm btn-outline-light">
+	        <i class="bi bi-question-circle-fill" aria-hidden="true"></i>
+	      </a>
+	    </div>
   </div>
   <div class="card-body">
     {if $error_msg != ""}
       {include file="core/error.tpl"}
     {/if}
+
+    <!-- Dashboard summary -->
+    <div class="mb-4">
+      {include file="stats/summary_cards.tpl"}
+    </div>
 
     <!-- Company notes -->
     <div class="mb-4">

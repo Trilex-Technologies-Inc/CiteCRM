@@ -146,9 +146,11 @@
                         {$translate_employee_employee_type}
                     </label>
                     <select name="type" class="form-select">
-                        <option value="1">{$translate_employee_manager}</option>
-                        <option value="2">{$translate_employee_supervisor}</option>
-                        <option value="3">{$translate_employee_technician}</option>
+                        {section name=g loop=$employee_type}
+                            <option value="{$employee_type[g].TYPE_ID}">
+                                {$employee_type[g].TYPE_NAME}
+                            </option>
+                        {/section}
                     </select>
                 </div>
 

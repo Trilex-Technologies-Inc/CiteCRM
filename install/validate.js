@@ -1,230 +1,129 @@
 <script type="text/javascript">
 //<![CDATA[
-function validate_install(frm) {
-  var value = '';
-  var errFlag = new Array();
-  var _qfGroups = {};
-  _qfMsg = '';
+  function validate_install(frm) {
+  var errors = [];
+  var touched = { };
 
-  
-// Check DB settings 
-  value = frm.elements['db_user'].value;
-  if (value == '' && !errFlag['db_user']) {
-    errFlag['db_user'] = true;
-    _qfMsg = _qfMsg + '\n - Missing The Root Database User Name!';
-	frm.elements['db_user'].className = 'error';
+  function setError(name, message) {
+    if (!touched[name]) {
+    touched[name] = true;
+  errors.push(message);
+  if (frm.elements[name]) {
+    frm.elements[name].classList.add('is-invalid');
+      }
+    }
   }
 
-  value = frm.elements['db_password'].value;
-  if (value == '' && !errFlag['db_password']) {
-    errFlag['db_password'] = true;
-    _qfMsg = _qfMsg + '\n - Missing The Root Database User Password!';
-    frm.elements['db_password'].className = 'error';
+  function clearErrorClasses() {
+    var inputs = frm.querySelectorAll('.is-invalid');
+  for (var i = 0; i < inputs.length; i++) {
+    inputs[i].classList.remove('is-invalid');
+    }
   }
 
-  value = frm.elements['db_host'].value;
-  if (value == '' && !errFlag['db_host']) {
-    errFlag['db_host'] = true;
-    _qfMsg = _qfMsg + '\n - Missing The Database Name!';
-	frm.elements['db_host'].className = 'error';
-  }
-// Check The Default Admin settings
-	value = frm.elements['default_password'].value;
-  if (value != '' && value.length < 6 && !errFlag['default_password']) {
-    errFlag['default_password'] = true;
-    _qfMsg = _qfMsg + '\n - Admins Password must be at least 6 characters';
-	frm.elements['default_password'].className = 'error';
-  }
+  clearErrorClasses();
 
-  value = frm.elements['default_password'].value;
-  if (value != '' && value.length > 50 && !errFlag['default_password']) {
-    errFlag['default_password'] = true;
-    _qfMsg = _qfMsg + '\n - Admins Password cannot be more than 12 characters';
-	frm.elements['default_password'].className = 'error';
-  }
+  var value;
 
-  value = frm.elements['default_password'].value;
-  var regex = /^[a-zA-Z0-9]+$/;
-  if (value != '' && !regex.test(value) && !errFlag['default_password']) {
-    errFlag['default_password'] = true;
-    _qfMsg = _qfMsg + '\n - Admins Password can only contain letters and numbers';
-	frm.elements['password'].className = 'error';
-  }
+  // Database settings
+  value = frm.elements['db_user'].value.trim();
+  if (!value) {setError('db_user', 'Root database user is required.'); }
 
-  
+  value = frm.elements['db_password'].value.trim();
+  if (!value) {setError('db_password', 'Root database password is required.'); }
 
-  value = frm.elements['first_name'].value;
-  if (value == '' && !errFlag['first_name']) {
-    errFlag['first_name'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter the Admins First Name';
-	frm.elements['first_name'].className = 'error';
-  }
+  value = frm.elements['db_host'].value.trim();
+  if (!value) {setError('db_host', 'Database host is required.'); }
 
-  value = frm.elements['last_name'].value;
-  if (value == '' && !errFlag['last_name']) {
-    errFlag['last_name'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter the Admins Last Name';
-	frm.elements['last_name'].className = 'error';
-  }
-  
+  value = frm.elements['db_name'].value.trim();
+  if (!value) {setError('db_name', 'Database name is required.'); }
 
-  value = frm.elements['display_name'].value;
-  if (value == '' && !errFlag['display_name']) {
-    errFlag['display_name'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter the Admins Display Name';
-	frm.elements['display_name'].className = 'error';
+  value = frm.elements['db_prefix'].value.trim();
+  if (!value) {setError('db_prefix', 'Table prefix is required.'); }
+
+  value = frm.elements['crm_db_user'].value.trim();
+  if (!value) {setError('crm_db_user', 'CRM database user is required.'); }
+
+  value = frm.elements['crm_db_password'].value.trim();
+  if (!value) {setError('crm_db_password', 'CRM database password is required.'); }
+
+  // Admin settings
+  var password = frm.elements['default_password'].value;
+  var password2 = frm.elements['default_password2'].value;
+
+  if (!password) {
+    setError('default_password', 'Administrator password is required.');
+  } else {
+    if (password.length < 6) {setError('default_password', 'Password must be at least 6 characters.'); }
+    if (password.length > 50) {setError('default_password', 'Password cannot exceed 50 characters.'); }
+  if (!/^[A-Za-z0-9]+$/.test(password)) {setError('default_password', 'Password may only contain letters and numbers.'); }
   }
 
-	value = frm.elements['address'].value;
-  if (value == '' && !errFlag['address']) {
-    errFlag['address'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter the Admins Address';
-	frm.elements['address'].className = 'error';
+  if (!password2) {
+    setError('default_password2', 'Please confirm the administrator password.');
+  } else if (password && password !== password2) {
+    setError('default_password2', 'Passwords do not match.');
   }
 
-  value = frm.elements['address'].value;
-  if (value != '' && value.length > 50 && !errFlag['address']) {
-    errFlag['address'] = true;
-    _qfMsg = _qfMsg + '\n - Address cannot be more than 50 characters';
-	frm.elements['address'].className = 'error';
+  value = frm.elements['first_name'].value.trim();
+  if (!value) {setError('first_name', 'Administrator first name is required.'); }
+
+  value = frm.elements['last_name'].value.trim();
+  if (!value) {setError('last_name', 'Administrator last name is required.'); }
+
+  value = frm.elements['display_name'].value.trim();
+  if (!value) {setError('display_name', 'Administrator display name is required.'); }
+
+  value = frm.elements['address'].value.trim();
+  if (!value) {setError('address', 'Administrator address is required.'); }
+
+  value = frm.elements['city'].value.trim();
+  if (!value) {setError('city', 'Administrator city is required.'); }
+
+  value = frm.elements['state'].value.trim();
+  if (!value) {setError('state', 'Administrator state is required.'); }
+
+  value = frm.elements['zip'].value.trim();
+  if (!value) {setError('zip', 'Administrator ZIP code is required.'); }
+
+  value = frm.elements['default_email'].value.trim();
+  if (!value) {
+    setError('default_email', 'Administrator email address is required.');
+  } else {
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(value)) {setError('default_email', 'Enter a valid email address.'); }
+    if (value.length > 100) {setError('default_email', 'Email cannot exceed 100 characters.'); }
   }
 
-  value = frm.elements['city'].value;
-  if (value == '' && !errFlag['city']) {
-    errFlag['city'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter the Employees city';
-	frm.elements['city'].className = 'error';
-  }
-  
-  value = frm.elements['city'].value;
-  if (value != '' && value.length > 50 && !errFlag['city']) {
-    errFlag['city'] = true;
-    _qfMsg = _qfMsg + '\n - City cannot be more than 50 characters';
-	frm.elements['city'].className = 'error';
-  }
+  // Company settings
+  value = frm.elements['COMPANY_NAME'].value.trim();
+  if (!value) {setError('COMPANY_NAME', 'Company name is required.'); }
 
-  value = frm.elements['state'].value;
-  if (value == '' && !errFlag['state']) {
-    errFlag['state'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter the Admins state';
-	frm.elements['state'].className = 'error';
-  }
+  value = frm.elements['COMPANY_ADDRESS'].value.trim();
+  if (!value) {setError('COMPANY_ADDRESS', 'Company address is required.'); }
 
-  value = frm.elements['state'].value;
-  if (value != '' && value.length > 20 && !errFlag['state']) {
-    errFlag['state'] = true;
-    _qfMsg = _qfMsg + '\n - State cannot be more than 20 characters';
-	frm.elements['state'].className = 'error';
+  value = frm.elements['COMPANY_CITY'].value.trim();
+  if (!value) {setError('COMPANY_CITY', 'Company city is required.'); }
+
+  value = frm.elements['COMPANY_STATE'].value.trim();
+  if (!value) {setError('COMPANY_STATE', 'Company state is required.'); }
+
+  value = frm.elements['COMPANY_ZIP'].value.trim();
+  if (!value) {setError('COMPANY_ZIP', 'Company ZIP code is required.'); }
+
+  value = frm.elements['default_path'].value.trim();
+  if (!value) {setError('default_path', 'Installation path is required.'); }
+
+  value = frm.elements['default_site_name'].value.trim();
+  if (!value) {
+    setError('default_site_name', 'Site URL is required.');
+  } else if (!/^https?:\/\/.+/.test(value)) {
+    setError('default_site_name', 'Site URL must begin with http:// or https://');
   }
 
-  value = frm.elements['zip'].value;
-  if (value == '' && !errFlag['zip']) {
-    errFlag['zip'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter the Admins zip';
-	frm.elements['zip'].className = 'error';
-  }
-
-  value = frm.elements['zip'].value;
-  if (value != '' && value.length > 10 && !errFlag['zip']) {
-    errFlag['zip'] = true;
-    _qfMsg = _qfMsg + '\n - Zip cannot be more than 10 characters';
-	frm.elements['zip'].className = 'error';
-  }
-
-
-  value = frm.elements['home_phone'].value;
-  if (value == '' && !errFlag['home_phone']) {
-    errFlag['home_phone'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter the Admins Home Phone';
-	frm.elements['home_phone'].className = 'error';
-  }
-
-
-
-  value = frm.elements['default_email'].value;
-  if (value == '' && !errFlag['default_email']) {
-    errFlag['default_email'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter the Admins email address';
-	frm.elements['default_email'].className = 'error';
-  }
-
-  value = frm.elements['default_email'].value;
-  var regex = /^((\"[^\"\f\n\r\t\v\b]+\")|([\w\!\#\$\%\&'\*\+\-\~\/\^\`\|\{\}]+(\.[\w\!\#\$\%\&'\*\+\-\~\/\^\`\|\{\}]+)*))@((\[(((25[0-5])|(2[0-4][0-9])|([0-1]?[0-9]?[0-9]))\.((25[0-5])|(2[0-4][0-9])|([0-1]?[0-9]?[0-9]))\.((25[0-5])|(2[0-4][0-9])|([0-1]?[0-9]?[0-9]))\.((25[0-5])|(2[0-4][0-9])|([0-1]?[0-9]?[0-9])))\])|(((25[0-5])|(2[0-4][0-9])|([0-1]?[0-9]?[0-9]))\.((25[0-5])|(2[0-4][0-9])|([0-1]?[0-9]?[0-9]))\.((25[0-5])|(2[0-4][0-9])|([0-1]?[0-9]?[0-9]))\.((25[0-5])|(2[0-4][0-9])|([0-1]?[0-9]?[0-9])))|((([A-Za-z0-9\-])+\.)+[A-Za-z\-]+))$/;
-  if (value != '' && !regex.test(value) && !errFlag['email']) {
-    errFlag['email'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter a valid email address';
-	frm.elements['email'].className = 'error';
-  }
-
-  value = frm.elements['default_email'].value;
-  if (value != '' && value.length > 50 && !errFlag['email']) {
-    errFlag['email'] = true;
-    _qfMsg = _qfMsg + '\n - Email cannot be more than 50 characters';
-	frm.elements['email'].className = 'error';
-  }
-
-// Company Settings 
- value = frm.elements['COMPANY_NAME'].value;
-  if (value == '' && !errFlag['COMPANY_NAME']) {
-    errFlag['COMPANY_NAME'] = true;
-    _qfMsg = _qfMsg + '\n - Please Your Company Name';
-	frm.elements['COMPANY_NAME'].className = 'error';
-  }
-
- value = frm.elements['COMPANY_ADDRESS'].value;
-  if (value == '' && !errFlag['COMPANY_ADDRESS']) {
-    errFlag['homePhone'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter Your Company Address';
-	frm.elements['COMPANY_ADDRESS'].className = 'error';
-  }
-
- value = frm.elements['COMPANY_CITY'].value;
-  if (value == '' && !errFlag['COMPANY_CITY']) {
-    errFlag['COMPANY_CITY'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter Your Company City';
-	frm.elements['COMPANY_CITY'].className = 'error';
-  }
-
- value = frm.elements['COMPANY_STATE'].value;
-  if (value == '' && !errFlag['COMPANY_STATE']) {
-    errFlag['COMPANY_STATE'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter Your Company State';
-	frm.elements['COMPANY_STATE'].className = 'error';
-  }
-
- value = frm.elements['COMPANY_ZIP'].value;
-  if (value == '' && !errFlag['COMPANY_ZIP']) {
-    errFlag['COMPANY_ZIP'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter Your Company Zip ';
-	frm.elements['COMPANY_ZIP'].className = 'error';
-  }
-
-	value = frm.elements['COMPANY_PHONE'].value;
-  if (value == '' && !errFlag['COMPANY_PHONE']) {
-    errFlag['COMPANY_PHONE'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter Your Company Phone ';
-	frm.elements['COMPANY_PHONE'].className = 'error';
-  }
-
-// File PAth Settings
-value = frm.elements['default_path'].value;
-  if (value == '' && !errFlag['default_path']) {
-    errFlag['default_path'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter The File Path ';
-	frm.elements['default_path'].className = 'error';
-  }
-value = frm.elements['default_site_name'].value;
-  if (value == '' && !errFlag['default_site_name']) {
-    errFlag['default_site_name'] = true;
-    _qfMsg = _qfMsg + '\n - Please enter the web site URL ';
-	frm.elements['default_site_name'].className = 'error';
-  }
-
-  if (_qfMsg != '') {
-    _qfMsg = 'Invalid information entered.' + _qfMsg;
-    _qfMsg = _qfMsg + '\nPlease correct these fields.';
-    alert(_qfMsg);
-    return false;
+  if (errors.length) {
+    alert('Please fix the following fields:\n' + errors.join('\n'));
+  return false;
   }
   return true;
 }

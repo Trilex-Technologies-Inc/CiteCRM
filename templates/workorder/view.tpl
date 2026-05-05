@@ -19,9 +19,10 @@
 			<div class="card-header d-flex justify-content-between align-items-center">
 				<span>{$translate_workorder_page_title} {$single_workorder_array[i].WORK_ORDER_ID}</span>
 				<a href="http://www.citecrm.com/docs/#work_orders" target="_blank">
-					<img src="images/icons/16x16/help.gif" alt="Help"
-						 onMouseOver="ddrivetip('<b>Work Orders</b><hr><p>You can edit the Work order commments, notes, and set schedule by clicking the icon on the right of each window.<br><br>You can navigate to the customer by clicking their name. Hover over the Magnifying glass by the customer name to view Quick Contact Information.<br><br>If you need to edit the Customers Contact Information click the Edit Icon by their contact details.<br><br>Click on the Employee name to go to the employees details. Hover over the Magnifying glass to view the employees Quick Contact Information.<br><br>Click the Print link on the Quick Bar to generate a printable PDF of this work order. Click the Close link on the Quick Bar to complete the order and start the invoicing processes</p>')"
-						 onMouseOut="hideddrivetip()">
+					<i class="bi bi-question-circle-fill fs-5 text-secondary"
+					   aria-label="Help"
+					   onMouseOver="ddrivetip('<b>Work Orders</b><hr><p>You can edit the Work order commments, notes, and set schedule by clicking the icon on the right of each window.<br><br>You can navigate to the customer by clicking their name. Hover over the Magnifying glass by the customer name to view Quick Contact Information.<br><br>If you need to edit the Customers Contact Information click the Edit Icon by their contact details.<br><br>Click on the Employee name to go to the employees details. Hover over the Magnifying glass to view the employees Quick Contact Information.<br><br>Click the Print link on the Quick Bar to generate a printable PDF of this work order. Click the Close link on the Quick Bar to complete the order and start the invoicing processes</p>')"
+					   onMouseOut="hideddrivetip()"></i>
 				</a>
 			</div>
 

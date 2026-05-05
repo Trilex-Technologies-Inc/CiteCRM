@@ -17,7 +17,7 @@
 		<employee_type>Employee Type</employee_type>
 		<employee_manager>Manager</employee_manager>
 		<employee_supervisor>Supervisor</employee_supervisor>
-		<employee_technician>Technician</employee_technician>
+		<employee_Sale person>Sale person</employee_Sale person>
 		<employee_email_address>Email Address</employee_email_address>
 		<employee_submit>Submit</employee_submit>
 		<employee_search>Employee Search</employee_search>

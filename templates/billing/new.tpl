@@ -2,12 +2,8 @@
 <div class="container-fluid">
 
     <!-- Toolbar -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <table class="table-borderless m-0">
-            <tr>
-                {include file="core/tool_bar.tpl"}
-            </tr>
-        </table>
+    <div class="mb-3">
+        {include file="core/tool_bar.tpl"}
     </div>
 
     {if $error_msg != ""}
@@ -17,13 +13,14 @@
     {/if}
 
     <div class="container" style="max-width: 700px;">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="fw-bold">&nbsp;{$translate_billing_title}{$wo_id}</span>
-                <img src="images/icons/16x16/help.gif" border="0"
-                     onMouseOver="ddrivetip('<b>New Invoice</b><hr><p></p>')"
-                     onMouseOut="hideddrivetip()">
-            </div>
+	        <div class="card">
+	            <div class="card-header d-flex justify-content-between align-items-center">
+	                <span class="fw-bold">&nbsp;{$translate_billing_title}{$wo_id}</span>
+	                <i class="bi bi-question-circle-fill fs-5 text-secondary"
+	                   aria-hidden="true"
+	                   onMouseOver="ddrivetip('<b>New Invoice</b><hr><p></p>')"
+	                   onMouseOut="hideddrivetip()"></i>
+	            </div>
 
             <div class="card-body">
 

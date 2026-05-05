@@ -13,7 +13,7 @@
 			   class="btn btn-sm btn-outline-secondary"
 			   onMouseOver="ddrivetip('<b>Navigation</b><hr><p>Double Click on an empty space in each row to go directly to the work order. <br><br>Hover over the magnifying glass under Customer to view the Quick Contact Information. Click on the Customers name to view the customers details.<br><br>Click on the status of each work order listed to update the current work order status.<br><br>Hover over the Magnifying Glass under the Employee to view the Quick Contact Information for the assigned employee. Click on the employees name to view the details.<br><br>Under Action click the Printer Icon to print the work order. Click the Magnifying Glass to view the work order. Click the Red Stop sign to close the work order and start the invoicing.</p>')"
 			   onMouseOut="hideddrivetip()">
-				<img src="images/icons/16x16/help.gif" alt="Help">
+				<i class="bi bi-question-circle-fill" aria-hidden="true"></i>
 			</a>
 		</div>
 	</div>

@@ -1,17 +1,8 @@
 <!-- invoice view -->
-<table  class="toolbar" border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td>
-		
-			<table  cellpadding="2" cellspacing="2">
-				<tr>
-		    		{include file="core/tool_bar.tpl"}
-				</tr>
-			</table>
-			
-		</td>
-	</tr>
-</table>
+<!-- Toolbar -->
+<div class="container-fluid mb-3">
+	{include file="core/tool_bar.tpl"}
+</div>
 
 <table width="100%" border="0" cellpadding="20" cellspacing="5">
 	<tr>
@@ -20,7 +11,9 @@
 				<tr>
 					<td class="menuhead2" width="80%">&nbsp;{$translate_invoice_for} {$wo_id}</td>
 					<td class="menuhead2" width="20%" align="right" valign="middle">
-						<a href="http://www.citecrm.com/docs/#billing" target="new"><img src="images/icons/16x16/help.gif" border="0"></a>
+						<a href="http://www.citecrm.com/docs/#billing" target="new">
+							<i class="bi bi-question-circle-fill text-secondary" aria-hidden="true"></i>
+						</a>
 						</td>
 					</tr><tr>
 					<td class="menutd2" colspan="2">

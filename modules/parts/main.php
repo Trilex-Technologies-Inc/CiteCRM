@@ -108,9 +108,24 @@ if($count > 0) {
 # Load Category							#
 ##################################
 
+$supports_parent_id = false;
+$chk = "SELECT COUNT(*) AS cnt
+		FROM information_schema.COLUMNS
+		WHERE TABLE_SCHEMA = DATABASE()
+		  AND TABLE_NAME = ".$db->qstr(PRFX."CAT")."
+		  AND COLUMN_NAME = 'PARENT_ID'";
+$chk_rs = $db->Execute($chk);
+if ($chk_rs && (int)$chk_rs->fields['cnt'] > 0) {
+	$supports_parent_id = true;
+}
 
+if (!$supports_parent_id) {
+	force_page('core', 'error&error_msg=Database upgrade required: CAT.PARENT_ID missing.&menu=1&type=validation');
+	exit;
+}
 
-$q = "SELECT * FROM ".PRFX."CAT";
+// Parent categories (top-level)
+$q = "SELECT * FROM ".PRFX."CAT WHERE (PARENT_ID = '' OR PARENT_ID IS NULL) ORDER BY DESCRIPTION";
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 		exit;
@@ -119,13 +134,21 @@ $q = "SELECT * FROM ".PRFX."CAT";
 	$arr = $rs->GetArray();
 	$smarty->assign( 'CAT', $arr );
 	
-$q = "SELECT * FROM ".PRFX."SUB_CAT";
-	if(!$rs = $db->execute($q)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;
-	}
-	$arr = $rs->GetArray();
-	$smarty->assign( 'SUB_CAT', $arr );	
+// Child categories, mapped to legacy SUB_CAT keys expected by templates
+$q = "SELECT ID, DESCRIPTION, PARENT_ID
+	  FROM ".PRFX."CAT
+	  WHERE PARENT_ID <> '' AND PARENT_ID IS NOT NULL
+	  ORDER BY PARENT_ID, DESCRIPTION";
+if(!$rs = $db->execute($q)) {
+	force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+	exit;
+}
+$arr = $rs->GetArray();
+for ($i = 0; $i < count($arr); $i++) {
+	$arr[$i]['CAT'] = $arr[$i]['PARENT_ID'];
+	$arr[$i]['SUB_CATEGORY'] = $arr[$i]['ID'];
+}
+$smarty->assign('SUB_CAT', $arr);
 
 
 ##################################
@@ -217,6 +240,25 @@ $smarty->assign('parts', $parts);
 $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 
 	$smarty->assign('CAT2', $VAR['CAT2']);
+
+	// Local product catalog listing (inventory module)
+	$cat2 = isset($VAR['CAT2']) ? trim((string)$VAR['CAT2']) : '';
+	$inventory_products = array();
+	if ($cat2 !== '') {
+		$q = "SELECT p.PRODUCT_ID, p.PRODUCT_SKU, p.PRODUCT_NAME, p.PRODUCT_DESCRIPTION, p.PRODUCT_PRICE,
+					COALESCE(m.MANUFACTURER_NAME,'') AS MANUFACTURER_NAME
+			  FROM ".PRFX."TABLE_PRODUCT p
+			  LEFT JOIN ".PRFX."TABLE_MANUFACTURER m ON (m.MANUFACTURER_ID = p.MANUFACTURER_ID)
+			  WHERE p.PRODUCT_ACTIVE=1
+			    AND p.CAT_ID=".$db->qstr($cat2)."
+			  ORDER BY p.PRODUCT_NAME";
+		if(!$rs = $db->execute($q)) {
+			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+			exit;
+		}
+		$inventory_products = $rs->GetArray();
+	}
+	$smarty->assign('inventory_products', $inventory_products);
 }
 ###############################
 # Add Part							#
