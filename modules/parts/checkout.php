@@ -54,146 +54,68 @@ $q = "SELECT SKU,AMOUNT FROM ".PRFX."CART";
 		   force_page('parts', 'main&error_msg=You  have no parts in your Cart. Please select the parts you whish to order and click add.&wo_id='.$VAR['wo_id'].'&page_title=Order%20Parts');
 			exit;
 	}
-	
-	$cc = "
-		<CRMPARTSREQUEST>
-			<ACCOUNT>
-				<LOGIN>$login</LOGIN>
-				<PASSWORD>$passwd</PASSWORD>
-				<FROMZIP>$from_zip</FROMZIP>
-				<LOCAL>$local</LOCAL>
-				<SERVICECODE>$service_code</SERVICECODE>
-				<WORKORDER>$workorder_id</WORKORDER>
-			</ACCOUNT>";
-$count=0;
-while ($arr = $rs->FetchRow()) {
-	$cc .= "<ITEM>";
-	$cc .= "<SKU>".  $arr['SKU'].   "</SKU>";
-	$cc .=	 "<COUNT>".$arr['AMOUNT']."</COUNT>";
-	$cc .= "</ITEM>";
-$count++;
-}
 
-
-	$cc .="</CRMPARTSREQUEST>" ;
-	
-	
-	 $ch = curl_init();
-	 curl_setopt($ch, CURLOPT_URL, INCITCRM);
-	 curl_setopt ($ch, CURLOPT_POST, 1);
-	 curl_setopt ($ch, CURLOPT_POSTFIELDS, http_build_query(array(
-	 	'page'   => 'parts:processes',
-	 	'xml'    => $cc,
-	 	'escape' => 1,
-	 )));
-	 curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-	 curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 10);
-	 curl_setopt ($ch, CURLOPT_TIMEOUT, 30);
-	 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-	 $content = curl_exec ($ch); # This returns HTML
-	 $curl_errno = curl_errno($ch);
-	 $curl_error = curl_error($ch);
-	 curl_close ($ch); 
-
-/*
-print_r($content);
-die;
-*/
-	
-	if($content === false || $content === '') {
-		echo "No response from server";
-		if ($curl_errno) {
-			echo " (cURL $curl_errno: $curl_error)";
-		}
-		exit;
-	} else if($content == '0') {
-		echo "Error 0 -- Failed login";
-		exit;
-	} else if ($content == '1'){
-	echo "Error 1 -- Could Not Get Warehouse Location";	
-	exit;
-} else if ($content == '2'){
-	echo "Error 2 -- Could not get Shipping Service Type";
-	exit;
-} else if ($content == '3'){	
-	echo "Error 3 -- Could get Shipping information";
-	exit;
-} else if ($content == '4'){
-	echo "Error 4 -- Server Error Could not complete request";
-	exit;
-} else if ($content == '5'){
-	echo "Error 5 -- No response from UPS Server";
-	exit;
-} else if ($content == '6'){
-	echo "Error 6 -- Credit Card On file Declined. Please Update your Account Information";
-	exit;
-} if ($content == '7') {
-	echo "Error 7 -- Error with Credit Card On file Declined. Please Update your Account Information";
-	exit;
-}	else {
-	$parser = xml_parser_create();
-   xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
-   xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
-   xml_parse_into_struct($parser, $content, $values, $tags);
-   xml_parser_free($parser);
-
-
-	foreach($values as $xml){
-		if($xml['tag'] == "ORDER_ID" && $xml['value'] != ""){
-			$crm_invoice_id = $xml['value'];
-		}
-
-		if($xml['tag'] == "CART_TOTAL" && $xml['value'] != ""){
-			$cart_total = number_format( ($xml['value'] * $mark_up) + $xml['value'], 2,'.', '');
-		}
-		
-		if($xml['tag'] == "SHIPPING" && $xml['value'] != ""){
-			$shipping = $xml['value'];
-		}
-
-		if($xml['tag'] == "WEIGHT" && $xml['value'] != ""){
-			$weight = $xml['value'];
-		}
-		if($xml['tag'] == "TOTAL_ITEMS" && $xml['value'] != ""){
-			$total_items = $xml['value'];
-		}
-		
-		if($xml['tag'] == "WORKORDER" && $xml['value'] != ""){
-			$wo_id = $xml['value'];
-		}
-	
-		/* get order details */
-		if($xml['tag'] == "SKU" && $xml['value'] != ""){
-			$sku= array('SKU'=> $xml['value']);
-		}
-
-		if($xml['tag'] == "COUNT" && $xml['value'] != ""){
-			$count= array('COUNT'=> $xml['value']);
-		}
-
-		if($xml['tag'] == "PRICE" && $xml['value'] != ""){
-			$price= array('PRICE'=>  number_format( ($xml['value'] * $mark_up) + $xml['value'], 2,'.', '') );
-		}
-
-		if($xml['tag'] == "SUB_TOTAL" && $xml['value'] != ""){
-			$sub_total= array('SUB_TOTAL'=> number_format( ($xml['value'] * $mark_up) + $xml['value'], 2,'.', '') );
-		}
-		
-		if($xml['tag'] == "VENDOR" && $xml['value'] != ""){
-			$vendor= array('VENDOR'=>   $xml['value']);
-		}
-		
-		if($xml['tag'] == "DESCRIPTION" && $xml['value'] != ""){
-			$description= array('DESCRIPTION'=> $xml['value']);
-		}
-
-		
-		if($xml['tag'] == "ITEM" && $xml['type'] == "close" ){
-			$details[] = array_merge($sku,$count,$price,$sub_total,$vendor,$description);	
-		}
+	/*
+	 * Local-only checkout: build the order from the local CART table
+	 * instead of calling external APIs.
+	 */
+	$cart_where = '';
+	$wo_id = $workorder_id;
+	if ($workorder_id !== '' && (int)$workorder_id > 0) {
+		$cart_where = " WHERE WO_ID=".$db->qstr((int)$workorder_id);
 	}
-	
-	$total = $cart_total + $shipping;
+
+	$q = "SELECT SKU, AMOUNT, DESCRIPTION, VENDOR, PRICE, SUB_TOTAL, Weight
+		  FROM ".PRFX."CART".$cart_where;
+	if(!$rs = $db->execute($q)) {
+		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+		exit;
+	}
+
+	$cart_rows = $rs->GetArray();
+	if (!is_array($cart_rows) || count($cart_rows) === 0) {
+		force_page('parts', 'main&error_msg=You  have no parts in your Cart. Please select the parts you whish to order and click add.&wo_id='.$VAR['wo_id'].'&page_title=Order%20Parts');
+		exit;
+	}
+
+	$details = array();
+	$cart_total = 0.00;
+	$shipping = 0.00; // no external shipping quote; can be adjusted locally if desired
+	$weight = 0.00;
+	$total_items = 0;
+
+	foreach($cart_rows as $row) {
+		$qty = (int)$row['AMOUNT'];
+		$price_each = (float)$row['PRICE'];
+		$line_sub_total = (float)$row['SUB_TOTAL'];
+
+		// If SUB_TOTAL isn't populated correctly, fall back to qty * price.
+		if ($line_sub_total <= 0 && $qty > 0) {
+			$line_sub_total = $qty * $price_each;
+		}
+
+		$cart_total += $line_sub_total;
+		$total_items += $qty;
+		$weight += ((float)$row['Weight']) * $qty;
+
+		$details[] = array(
+			'SKU' => $row['SKU'],
+			'COUNT' => $qty,
+			'PRICE' => number_format($price_each, 2, '.', ''),
+			'SUB_TOTAL' => number_format($line_sub_total, 2, '.', ''),
+			'VENDOR' => $row['VENDOR'],
+			'DESCRIPTION' => $row['DESCRIPTION'],
+		);
+	}
+
+	$cart_total = number_format($cart_total, 2, '.', '');
+	$shipping = number_format($shipping, 2, '.', '');
+	$weight = number_format($weight, 2, '.', '');
+	$total = number_format(((float)$cart_total + (float)$shipping), 2, '.', '');
+
+	// Local invoice id (int) used in ORDERS.INVOICE_ID and for messages.
+	// Keep within signed 32-bit INT range.
+	$crm_invoice_id = (int)time() + (int)mt_rand(0, 999);
 	/* Insert Order */
 	$q= "INSERT INTO ".PRFX."ORDERS SET
 			INVOICE_ID	=".$db->qstr($crm_invoice_id								).",
@@ -324,8 +246,9 @@ die;
 
 	$i = 0;
 	foreach($details as $val) {
-		$q = "INSERT INTO ".PRFX."ORDERS_DETAILS (DETAILS_ID ,ORDER_ID ,SKU,DESCRIPTION,VENDOR,COUNT,PRICE,SUB_TOTAL) 
-		VALUES ('',".$db->qstr($order_id).",".$db->qstr($details[$i]['SKU']).",".$db->qstr($details[$i]['DESCRIPTION']).",".$db->qstr($details[$i]['VENDOR']).",".$db->qstr($details[$i]['COUNT']).",".$db->qstr($details[$i]['PRICE']).",".$db->qstr($details[$i]['SUB_TOTAL']).")";
+		// DETAILS_ID is AUTO_INCREMENT; omit it to avoid strict-mode errors inserting ''.
+		$q = "INSERT INTO ".PRFX."ORDERS_DETAILS (ORDER_ID,SKU,DESCRIPTION,VENDOR,COUNT,PRICE,SUB_TOTAL)
+		VALUES (".$db->qstr($order_id).",".$db->qstr($details[$i]['SKU']).",".$db->qstr($details[$i]['DESCRIPTION']).",".$db->qstr($details[$i]['VENDOR']).",".$db->qstr($details[$i]['COUNT']).",".$db->qstr($details[$i]['PRICE']).",".$db->qstr($details[$i]['SUB_TOTAL']).")";
 	
 		if(!$rs = $db->execute($q)) {
 			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
@@ -353,12 +276,15 @@ die;
 
 	
 	
-	/* clear cart */
-	$q = "TRUNCATE TABLE ".PRFX."CART";
-	$rs = $db->execute($q);
+	/* clear cart (scope to this work order when available) */
+	if ($workorder_id !== '' && (int)$workorder_id > 0) {
+		$q = "DELETE FROM ".PRFX."CART WHERE WO_ID=".$db->qstr((int)$workorder_id);
+	} else {
+		$q = "TRUNCATE TABLE ".PRFX."CART";
+	}
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;	
+		exit;
 	}
 	/* assign smarty and display page */
 
@@ -393,6 +319,4 @@ die;
 	$smarty->assign('details',$details);
 
 	$smarty->display('parts'.SEP.'results.tpl');
-}
-
 ?>
