@@ -50,21 +50,21 @@ $q = "SELECT SKU,AMOUNT FROM ".PRFX."CART";
 		exit;
 	}
 
-if($rs->fields['SKU'] == ''){
-	   force_page('parts', 'main&error_msg=You  have no parts in your Cart. Please select the parts you whish to order and click add.&wo_id='.$VAR['wo_id'].'&page_title=Order%20Parts');
-		exit;
-}
-
-$cc .= "
-	<CRMPARTSREQUEST>
-		<ACCOUNT>
-			<LOGIN>$login</LOGIN>
-			<PASSWORD>$passwd</PASSWORD>
-			<FROMZIP>$from_zip</FROMZIP>
-			<LOCAL>$local</LOCAL>
-			<SERVICECODE>$service_code</SERVICECODE>
-			<WORKORDER>$workorder_id</WORKORDER>
-		</ACCOUNT>";
+	if($rs->fields['SKU'] == ''){
+		   force_page('parts', 'main&error_msg=You  have no parts in your Cart. Please select the parts you whish to order and click add.&wo_id='.$VAR['wo_id'].'&page_title=Order%20Parts');
+			exit;
+	}
+	
+	$cc = "
+		<CRMPARTSREQUEST>
+			<ACCOUNT>
+				<LOGIN>$login</LOGIN>
+				<PASSWORD>$passwd</PASSWORD>
+				<FROMZIP>$from_zip</FROMZIP>
+				<LOCAL>$local</LOCAL>
+				<SERVICECODE>$service_code</SERVICECODE>
+				<WORKORDER>$workorder_id</WORKORDER>
+			</ACCOUNT>";
 $count=0;
 while ($arr = $rs->FetchRow()) {
 	$cc .= "<ITEM>";
@@ -75,30 +75,41 @@ $count++;
 }
 
 
-$cc .="</CRMPARTSREQUEST>" ;
-
-
- $ch = curl_init();
- curl_setopt($ch, CURLOPT_URL, INCITCRM);
- curl_setopt ($ch, CURLOPT_POST, 1);
- curl_setopt ($ch, CURLOPT_POSTFIELDS, "page=parts:processes&xml=".$cc."&escape=1");
- curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
- curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
- $content = curl_exec ($ch); # This returns HTML
- curl_close ($ch); 
+	$cc .="</CRMPARTSREQUEST>" ;
+	
+	
+	 $ch = curl_init();
+	 curl_setopt($ch, CURLOPT_URL, INCITCRM);
+	 curl_setopt ($ch, CURLOPT_POST, 1);
+	 curl_setopt ($ch, CURLOPT_POSTFIELDS, http_build_query(array(
+	 	'page'   => 'parts:processes',
+	 	'xml'    => $cc,
+	 	'escape' => 1,
+	 )));
+	 curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+	 curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 10);
+	 curl_setopt ($ch, CURLOPT_TIMEOUT, 30);
+	 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+	 $content = curl_exec ($ch); # This returns HTML
+	 $curl_errno = curl_errno($ch);
+	 $curl_error = curl_error($ch);
+	 curl_close ($ch); 
 
 /*
 print_r($content);
 die;
 */
 	
-if($content == '') {
-	echo "No response from server";
-	exit;
-} else if($content == '0') {
-	echo "Error 0 -- Failed login";
-	exit;
-} else if ($content == '1'){
+	if($content === false || $content === '') {
+		echo "No response from server";
+		if ($curl_errno) {
+			echo " (cURL $curl_errno: $curl_error)";
+		}
+		exit;
+	} else if($content == '0') {
+		echo "Error 0 -- Failed login";
+		exit;
+	} else if ($content == '1'){
 	echo "Error 1 -- Could Not Get Warehouse Location";	
 	exit;
 } else if ($content == '2'){
