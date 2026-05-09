@@ -232,17 +232,17 @@ function confirmSubmit(){
                                             Not Assigned
                                         {/if}
                                     </td>
-                                    <td class="text-center">
-                                        <a href="?page=workorder:print&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
-                                            <i class="bi bi-printer-fill fs-5" aria-hidden="true" >l text-secondary"
-                                               aria-hidden="true"
-                                               onMouseOver="ddrivetip('{$translate_customer_print}')"
-                                               onMouseOut="hideddrivetip()"></i>
-                                        </a>
-                                        <a href="?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}" class="text-decoration-none">
-                                            <i class="bi bi-eye-fill text-secondary  fs-5"
-                                               aria-hidden="true"
-                                               onMouseOver="ddrivetip('{$translate_customer_view_wo}')"
+	                                    <td class="text-center">
+	                                        <a href="?page=workorder:print&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}&escape=1" target="new" class="text-decoration-none me-2">
+	                                            <i class="bi bi-printer-fill text-secondary fs-5"
+	                                               aria-hidden="true"
+	                                               onMouseOver="ddrivetip('{$translate_customer_print}')"
+	                                               onMouseOut="hideddrivetip()"></i>
+	                                        </a>
+	                                        <a href="?page=workorder:view&wo_id={$open_work_orders[a].WORK_ORDER_ID}&customer_id={$open_work_orders[a].CUSTOMER_ID}" class="text-decoration-none">
+	                                            <i class="bi bi-eye-fill text-secondary  fs-5"
+	                                               aria-hidden="true"
+	                                               onMouseOver="ddrivetip('{$translate_customer_view_wo}')"
                                                onMouseOut="hideddrivetip()"></i>
                                         </a>
                                     </td>

@@ -288,33 +288,48 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 		}
 	}
 
-##################################
-# Remove part From Cart				#
-##################################
-	/* if parts where removed */
-	if(isset($VAR['update_cart'])) {
+	##################################
+	# Remove part From Cart				#
+	##################################
+		/* if parts where removed */
+		if(isset($VAR['update_cart'])) {
+			$current_wo_id = 0;
+			if (isset($VAR['wo_id']) && (int)$VAR['wo_id'] > 0) {
+				$current_wo_id = (int)$VAR['wo_id'];
+			}
+			if(isset($VAR['remove']) && is_array($VAR['remove'])) {
+				foreach($VAR['remove'] as $SKU){
+					$SKU = trim((string)$SKU);
+					if($SKU === '') {
+						continue;
+					}
+					$q = "DELETE FROM ".PRFX."CART WHERE SKU=".$db->qstr($SKU);
+					if ($current_wo_id > 0) {
+						$q .= " AND WO_ID=".$db->qstr($current_wo_id);
+					}
+					if(!$rs = $db->execute($q)) {
+						force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+						exit;
+					}
+				}
+			}
+		}
 	
-		foreach($VAR['remove'] as $SKU){
-			$q = "DELETE FROM ".PRFX."CART WHERE SKU=".$db->qstr($SKU);
+	##################################
+	# Check Out								#
+	##################################
+		/* if checkout selected */
+	if(isset($VAR['check_out'])) {
+			$cart_where = '';
+			if (isset($VAR['wo_id']) && (int)$VAR['wo_id'] > 0) {
+				$cart_where = " WHERE WO_ID=".$db->qstr((int)$VAR['wo_id']);
+			}
+			$q = "SELECT * FROM ".PRFX."CART".$cart_where;
 			if(!$rs = $db->execute($q)) {
 				force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 				exit;
 			}
-			
-		}
-	}
-	
-##################################
-# Check Out								#
-##################################
-	/* if checkout selected */
-if(isset($VAR['check_out'])) {
-		$q = "SELECT * FROM ".PRFX."CART";
-		if(!$rs = $db->execute($q)) {
-			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-			exit;
-		}
-		$arr = $rs->GetArray();
+			$arr = $rs->GetArray();
 		
 		// Initialize totals before accumulating
 		$sub_total         = 0;
@@ -416,16 +431,19 @@ if(isset($VAR['check_out'])) {
 
 
 
-##################################
-# Get Cart Contents					#
-##################################
-
-$q = "SELECT * FROM ".PRFX."CART";
-	if(!$rs = $db->execute($q)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;
+	##################################
+	# Get Cart Contents					#
+	##################################
+	$cart_where = '';
+	if (isset($VAR['wo_id']) && (int)$VAR['wo_id'] > 0) {
+		$cart_where = " WHERE WO_ID=".$db->qstr((int)$VAR['wo_id']);
 	}
-$arr = $rs->GetArray();
+	$q = "SELECT * FROM ".PRFX."CART".$cart_where;
+		if(!$rs = $db->execute($q)) {
+			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+			exit;
+		}
+	$arr = $rs->GetArray();
 //print_r($arr);
 
 // Initialize cart subtotal before accumulating

@@ -61,54 +61,7 @@ function setOptions(chosen) {
 									<span>{$crm_msg}</span>
 								</div>
 							{/if}
-							{if $parts != ''}
-								<div class="table-responsive mb-4">
-									<table class="table table-striped table-hover">
-										<thead class="table-dark">
-											<tr>
-												<th class="text-center">{$translate_parts_amount}</th>
-												<th class="text-center">{$translate_parts_sku}</th>
-												<th class="text-center">{$translate_parts_item_id}</th>
-												<th>{$translate_parts_description}</th>
-												<th>{$translate_parts_vendor}</th>
-												<th class="text-center">{$translate_parts_weight}</th>
-												<th class="text-center">{$translate_parts_price}</th>
-												<th class="text-center">{$translate_parts_add}</th>
-											</tr>
-										</thead>
-										<tbody>
-											{section name=p loop=$parts}
-												<tr>
-													<td class="text-center align-middle">
-														<form method="post" action="?page=parts:main" class="d-inline">
-															<input type="text" class="form-control form-control-sm d-inline-block text-center" name="AMOUNT" size="2" maxlength="4" style="width: 60px;">
-															<input type="hidden" name="SKU" value="{$parts[p].SKU}">
-															<input type="hidden" name="DESCRIPTION" value="{$parts[p].DESCRIPTION}">
-															<input type="hidden" name="VENDOR" value="{$parts[p].VENDOR}">
-															<input type="hidden" name="ITEMID" value="{$parts[p].ITEMID}">
-															<input type="hidden" name="Weight" value="{$parts[p].Weight}">
-															<input type="hidden" name="PRICE" value="{$parts[p].PRICE|string_format:"%.2f"}">
-															<input type="hidden" name="CAT2" value="{$CAT2}">
-															<input type="hidden" name="add_part" value="1">
-															<input type="hidden" name="wo_id" value="{$wo_id}">
-															<input type="hidden" name="from_zip" value="{$from_zip}">
-													</td>
-													<td class="text-center align-middle">{$parts[p].SKU}</td>
-													<td class="text-center align-middle">{$parts[p].ITEMID}</td>
-													<td class="align-middle">{$parts[p].DESCRIPTION}</td>
-													<td class="align-middle">{$parts[p].VENDOR}</td>
-													<td class="text-center align-middle">{$parts[p].Weight} {$parts[p].UNIT}</td>
-													<td class="text-center align-middle">${$parts[p].PRICE}</td>
-													<td class="text-center align-middle">
-														<input type="submit" class="btn btn-sm btn-primary" name="submit" value="Add">
-														</form>
-													</td>
-												</tr>
-											{/section}
-										</tbody>
-									</table>
-								</div>
-							{/if}
+							
 							{if $inventory_products|@count > 0}
 								<div class="table-responsive mb-4">
 									<h5 class="mb-3">Products</h5>
@@ -252,44 +205,41 @@ function setOptions(chosen) {
 									<strong>{$translate_parts_cart}</strong>
 								</div>
 								<div class="card-body">
-									<p class="mb-2">{$translate_parts_total_items} {$cart_count}</p>
-									{if $cart|@count > 0}
-										<div class="table-responsive mb-3">
-											<table class="table table-sm table-striped">
-												<thead>
-													<tr>
-														<th>{$translate_parts_remove}</th>
-														<th>{$translate_parts_sku}</th>
-														<th class="text-center">{$translate_parts_amount}</th>
-														<th class="text-end">{$translate_parts_sub_total}</th>
-													</tr>
-												</thead>
-												<tbody>
-													{section name=c loop=$cart}
-														<tr>
-															<td><input type="checkbox" name="remove[{$smarty.section.c.index}]" value="{$cart[c].SKU}" class="form-check-input"></td>
-															<td>{$cart[c].SKU}</td>
-															<td class="text-center">{$cart[c].AMOUNT}</td>
-															<td class="text-end">${$cart[c].PRICE|string_format:"%.2f"}</td>
-														</tr>
-													{/section}
-												</tbody>
-											</table>
-										</div>
-										<form method="post" action="?page=parts:main">
-											<input type="hidden" name="wo_id" value="{$wo_id}">
-											<input type="hidden" name="CAT2" value="{$CAT2}">
-											<input type="hidden" name="update_cart" value="1">
-											{section name=c loop=$cart}
-												<input type="hidden" name="remove[{$smarty.section.c.index}]" value="">
-											{/section}
-											<button type="submit" class="btn btn-secondary btn-sm w-100 mb-2" name="submit" value="{$translate_parts_update}">{$translate_parts_update}</button>
-										</form>
-										<hr>
-										<div class="d-flex justify-content-between">
-											<strong>{$translate_parts_cart_total}</strong>
-											<strong>${$cart_total|string_format:"%.2f"}</strong>
-										</div>
+										<p class="mb-2">{$translate_parts_total_items} {$cart_count}</p>
+										{if $cart|@count > 0}
+											<form method="post" action="?page=parts:main">
+												<input type="hidden" name="wo_id" value="{$wo_id}">
+												<input type="hidden" name="CAT2" value="{$CAT2}">
+												<input type="hidden" name="update_cart" value="1">
+												<div class="table-responsive mb-3">
+													<table class="table table-sm table-striped">
+														<thead>
+															<tr>
+																<th>{$translate_parts_remove}</th>
+																<th>{$translate_parts_sku}</th>
+																<th class="text-center">{$translate_parts_amount}</th>
+																<th class="text-end">{$translate_parts_sub_total}</th>
+															</tr>
+														</thead>
+														<tbody>
+															{section name=c loop=$cart}
+																<tr>
+																	<td><input type="checkbox" name="remove[{$smarty.section.c.index}]" value="{$cart[c].SKU}" class="form-check-input"></td>
+																	<td>{$cart[c].SKU}</td>
+																	<td class="text-center">{$cart[c].AMOUNT}</td>
+																	<td class="text-end">${$cart[c].PRICE|string_format:"%.2f"}</td>
+																</tr>
+															{/section}
+														</tbody>
+													</table>
+												</div>
+												<button type="submit" class="btn btn-secondary btn-sm w-100 mb-2" name="submit" value="{$translate_parts_update}">{$translate_parts_update}</button>
+											</form>
+											<hr>
+											<div class="d-flex justify-content-between">
+												<strong>{$translate_parts_cart_total}</strong>
+												<strong>${$cart_total|string_format:"%.2f"}</strong>
+											</div>
 									{else}
 										<p class="text-muted">Your cart is empty.</p>
 									{/if}
