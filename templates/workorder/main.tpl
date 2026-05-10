@@ -19,6 +19,9 @@
 	</div>
 
 	<div class="card-body">
+		{if isset($reassign_msg) && $reassign_msg != ""}
+			<div class="alert alert-success py-2 mb-3">{$reassign_msg}</div>
+		{/if}
 		<!-- New Work Orders -->
 		<div class="mb-4" id="new">
 			{include file="workorder/blocks/new_work_order.tpl"}

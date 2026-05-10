@@ -1,137 +1,148 @@
-<!-- Status tpl -->
+<!-- Parts Orders Status -->
 {literal}
-<script language="JavaScript">
-        function go()
-        {
-                box = document.forms[1].page_no;
-                destination = box.options[box.selectedIndex].value;
-                if (destination) location.href = destination;
-        }
-        </script>
+<script type="text/javascript">
+	function partsStatusGo(sel) {
+		if (sel && sel.value) window.location = sel.value;
+	}
+</script>
 {/literal}
 
-<!-- Toolbar -->
-<div class="container-fluid mb-3">
-	{include file="core/tool_bar.tpl"}
-</div>
-<table width="100%" border="0" cellpadding="20" cellspacing="5">
-	<tr>
-		<td>
+<div class="container-fluid my-3">
+	<div class="mb-3">
+		{include file="core/tool_bar.tpl"}
+	</div>
 
-			<table width="700" cellpadding="4" cellspacing="0" border="0" >
-					<tr>
-						<td class="menuhead2" width="80%">&nbsp;{$or_status} Orders</td>
-						<td class="menuhead2" width="20%" align="right" valign="middle">
-								<i class="bi bi-question-circle-fill text-secondary"
-								   aria-hidden="true"
-								   onMouseOver="ddrivetip('<b>Employee Search</b><hr><p>You can search by the employees full display name or just their first name. If you wish to see all the employees for just one letter like A enter the letter a only.</p> <p>To find employees whos name starts with Ja enter just ja. The system will intelegently look for the corect employee that matches.</p>')"
-								   onMouseOut="hideddrivetip()"></i>
-						</td>
-					</tr><tr>
-					<td class="menutd2" colspan="2">
-						<table class="olotable" width="100%" border="0" cellpadding="5" cellspacing="0">
-							<tr>
-								<td class="menutd">
-						{if $error_msg != ""}
-							<br>
-							{include file="core/error.tpl"}
-							<br>
+	<div class="card shadow-sm">
+		<div class="card-header d-flex justify-content-between align-items-center">
+			<div class="fw-bold">{$or_status} Orders</div>
+			<div class="text-muted small">
+				{if $total_results != ""}{$total_results} {$translate_parts_records_found}{/if}
+			</div>
+		</div>
+
+		<div class="card-body">
+			{if $error_msg != ""}
+				<div class="alert alert-danger mb-3">
+					{include file="core/error.tpl"}
+				</div>
+			{/if}
+
+			<div class="row g-3 align-items-end mb-3">
+				<div class="col-12 col-md-5 col-lg-4">
+					<form method="post" action="?page=parts:view" class="d-flex gap-2 align-items-end">
+						<div class="flex-grow-1">
+							<label class="form-label mb-1">{$translate_parts_inc_inv}</label>
+							<input class="form-control form-control-sm" name="ORDER_ID" type="text"/>
+						</div>
+						<button class="btn btn-sm btn-primary" name="submit" value="Search" type="submit">Search</button>
+					</form>
+				</div>
+
+				<div class="col-12 col-md-7 col-lg-8 text-md-end">
+					<div class="d-inline-flex flex-wrap gap-2 align-items-center">
+						<a class="btn btn-sm btn-outline-secondary"
+						   href="?page=parts:status&status={$status}&submit=submit&page_no=1&page_title={$smarty.request.page_title|default:''|escape:'url'}">
+							First
+						</a>
+
+						{if $previous != ''}
+							<a class="btn btn-sm btn-outline-secondary"
+							   href="?page=parts:status&status={$status}&submit=submit&page_no={$previous}&page_title={$smarty.request.page_title|default:''|escape:'url'}">
+								Prev
+							</a>
 						{/if}
-						<!-- Content -->
-					
-						<table class="menutable" width="100%" border="0" cellpadding="5" cellspacing="0">
-							<tr>
-								<td>
-									<form method="POST" action="?page=parts:view">
-									<table border="0">
-									
-										<tr>
-											<td align="right" valign="top"><b>{$translate_parts_inc_inv}</b></td>
-											<td valign="top" align="left"><input class="olotd4" name="order_id" type="text" /></td>
-										</tr><tr>
-											<td align="right" valign="top"><b></b></td>
-											<td valign="top" align="left"><input class="olotd4" name="submit" value="Search" type="submit" /></td>
-										</tr>
-									</table>
-									
-									</form>
 
-								</td>
-								<td valign="top">
-								<form id="1"><a href="?page=parts:status&submit=submit&page_no=1">
-									<input type="hidden" name="status" value="{$status}">
-									<img src="images/rewnd_24.gif" border="0"></a>&nbsp;
-									{if $previous != ''}
-										<a href="?page=parts:status&submit=submit&page_no={$previous}"><img src="images/back_24.gif" border="0"></a>&nbsp;
-									{/if}
-									<select name="page_no" onChange="go()">
-									{section name=page loop=$total_pages start=1}
-										<option value="?page=parts:status&submit=submit&page_no={$smarty.section.page.index}" {if $page_no == $smarty.section.page.index } Selected {/if}>
-											{$translate_parts_page} {$smarty.section.page.index} {$translate_parts_of} {$total_pages}
-										</option>
-									{/section}
-										<option value="?page=parts:status&submit=submit&page_no={$total_pages}" {if $page_no == $total_pages} selected {/if}>
-											{$translate_parts_page} {$total_pages} {$translate_parts_of} {$total_pages}
-										</option>
-									</select>
-									{if $next != ''}
-									<a href="?page=parts:status&submit=submit&page_no={$next}"><img src="images/forwd_24.gif" border="0"></a>
-									{/if}
-									
-									<a href="?page=pafile:///srv/www/htdocs/citecrm/templates/parts/status.tplrts:status&submit=submit&page_no={$total_pages}"><img src="images/fastf_24.gif" border="0"></a>
-									<br>
-									{$total_results} {$translate_parts_records_found}
-								</td>
-							</tr><tr>
-								<td valign="top" colspan="2">
-								</td>
-							</tr><tr>
-								<td valign="top" colspan="2">
-									<table class="olotable" width="100%" cellpadding="5" celspacing="0" border="0" summary="Work order display">
-							<tr>
-								<td class="olohead">{$translate_parts_id}</td>
-								<td class="olohead">{$translate_parts_created}</td>
-								<td class="olohead">{$translate_parts_invoice}</td>
-								<td class="olohead">{$translate_parts_wo}</td>
-								<td class="olohead">{$translate_parts_sub_total}</td>
-								<td class="olohead">{$translate_parts_shipping}</td>
-								<td class="olohead">{$translate_parts_total}</td>
-								<td class="olohead">{$translate_parts_update}</td>
-								<td class="olohead">{$translate_parts_tracking}</td>
-								<td class="olohead">{$translate_parts_status}</td>
-							</tr>
-							{section name=i loop=$order}
-							<tr onmouseover="this.className='row2'" onmouseout="this.className='row1'" onDblClick="window.location='index.php?page=parts:view&ORDER_ID={$order[i].ORDER_ID}&page_title={$translate_parts_order_details} {$order[i].ORDER_ID}';" class="row1">
-								<td class="olotd4"><a href="index.php?page=parts:view&ORDER_ID={$order[i].ORDER_ID}&page_title={$translate_parts_order_details} {$order[i].ORDER_ID}">{$order[i].ORDER_ID}</a>
-								</td>
-								<td class="olotd4">{$order[i].DATE_CREATE|date_format:"%m-%d-%Y"}</td>
-								<td class="olotd4">{$order[i].INVOICE_ID}</td>
-								<td class="olotd4"><a href ="?page=workorder:view&wo_id={$order[i].WO_ID}&page_title={$translate_parts_wo_id} {$order[i].WO_ID}">{$order[i].WO_ID}</td>
-								<td class="olotd4">${$order[i].SUB_TOTAL|string_format:"%.2f"}</td>
-								<td class="olotd4">${$order[i].SHIPPING|string_format:"%.2f"}</td>
-								<td class="olotd4">${$order[i].TOTAL|string_format:"%.2f"}</td>
-								<td class="olotd4">{$order[i].DATE_LAST|date_format:"%m-%d-%Y"}</td>
-								<td class="olotd4">{if $order[i].TRACKING_NO == '0'}
-															<a href="?page=parts:tracking&invoice_id={$order[i].INVOICE_ID}&order_id={$order[i].ORDER_ID}">Get Tracking</a>{else}
-															{$order[i].TRACKING_NO}
-														{/if}
-															
-								</td>
-								<td class="olotd4">{if $order[i].STATUS == 1} <a href="?page=parts:update&wo_id={$order[i].WO_ID}">{$translate_parts_set_recv}</a>{else}{$translate_parts_rcv}{/if}</td>
-							</tr>
+						<select class="form-select form-select-sm" style="width: 210px;"
+								name="page_no"
+								onchange="partsStatusGo(this)">
+							{section name=page loop=$total_pages start=1}
+								<option value="?page=parts:status&status={$status}&submit=submit&page_no={$smarty.section.page.index}&page_title={$smarty.request.page_title|default:''|escape:'url'}"
+										{if $page_no == $smarty.section.page.index } selected{/if}>
+									{$translate_parts_page} {$smarty.section.page.index} {$translate_parts_of} {$total_pages}
+								</option>
 							{/section}
-						</table>
+							<option value="?page=parts:status&status={$status}&submit=submit&page_no={$total_pages}&page_title={$smarty.request.page_title|default:''|escape:'url'}"
+									{if $page_no == $total_pages} selected{/if}>
+								{$translate_parts_page} {$total_pages} {$translate_parts_of} {$total_pages}
+							</option>
+						</select>
+
+						{if $next != ''}
+							<a class="btn btn-sm btn-outline-secondary"
+							   href="?page=parts:status&status={$status}&submit=submit&page_no={$next}&page_title={$smarty.request.page_title|default:''|escape:'url'}">
+								Next
+							</a>
+						{/if}
+
+						<a class="btn btn-sm btn-outline-secondary"
+						   href="?page=parts:status&status={$status}&submit=submit&page_no={$total_pages}&page_title={$smarty.request.page_title|default:''|escape:'url'}">
+							Last
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="table-responsive">
+				<table class="table table-sm table-striped table-hover align-middle mb-0">
+					<thead class="table-secondary">
+					<tr>
+						<th>{$translate_parts_id}</th>
+						<th>{$translate_parts_created}</th>
+						<th>{$translate_parts_invoice}</th>
+						<th>{$translate_parts_wo}</th>
+						<th class="text-end">{$translate_parts_sub_total}</th>
+						<th class="text-end">{$translate_parts_shipping}</th>
+						<th class="text-end">{$translate_parts_total}</th>
+						<th>{$translate_parts_update}</th>
+						<th>{$translate_parts_tracking}</th>
+						<th>{$translate_parts_status}</th>
+					</tr>
+					</thead>
+					<tbody>
+					{if $order}
+						{section name=i loop=$order}
+							<tr style="cursor:pointer;"
+								ondblclick="window.location='index.php?page=parts:view&ORDER_ID={$order[i].ORDER_ID}&page_title={$translate_parts_order_details|escape:'url'}%20{$order[i].ORDER_ID}';">
+								<td>
+									<a href="index.php?page=parts:view&ORDER_ID={$order[i].ORDER_ID}&page_title={$translate_parts_order_details|escape:'url'}%20{$order[i].ORDER_ID}">
+										{$order[i].ORDER_ID}
+									</a>
+								</td>
+								<td>{$order[i].DATE_CREATE|date_format:"%m-%d-%Y"}</td>
+								<td>{$order[i].INVOICE_ID}</td>
+								<td>
+									<a href="?page=workorder:view&wo_id={$order[i].WO_ID}&page_title={$translate_parts_wo_id|escape:'url'}%20{$order[i].WO_ID}">
+										{$order[i].WO_ID}
+									</a>
+								</td>
+								<td class="text-end">${$order[i].SUB_TOTAL|string_format:"%.2f"}</td>
+								<td class="text-end">${$order[i].SHIPPING|string_format:"%.2f"}</td>
+								<td class="text-end fw-semibold">${$order[i].TOTAL|string_format:"%.2f"}</td>
+								<td>{$order[i].DATE_LAST|date_format:"%m-%d-%Y"}</td>
+								<td>
+									{if $order[i].TRACKING_NO == '0'}
+										<a href="?page=parts:tracking&invoice_id={$order[i].INVOICE_ID}&order_id={$order[i].ORDER_ID}">Get Tracking</a>
+									{else}
+										{$order[i].TRACKING_NO}
+									{/if}
+								</td>
+								<td>
+									{if $order[i].STATUS == 1}
+										<a href="?page=parts:update&wo_id={$order[i].WO_ID}">{$translate_parts_set_recv}</a>
+									{else}
+										{$translate_parts_rcv}
+									{/if}
 								</td>
 							</tr>
-							</tr>
-						</table>
-
-					</td>
-				</tr>
-			</table>
-				</td>
-			</tr>
-		</table>
-		</td>
-	</tr>
-</table>
+						{/section}
+					{else}
+						<tr>
+							<td colspan="10" class="text-center text-muted py-4">No orders found.</td>
+						</tr>
+					{/if}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

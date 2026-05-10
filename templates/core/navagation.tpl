@@ -372,14 +372,14 @@
                             var m = date.getMonth() + 1;
                             var d = date.getDate();
 
-                            window.location =
-                                "?page=schedual:main&y=" + y +
-                                "&m=" + m +
-                                "&d=" + d +
-                                "&wo_id={/literal}{$wo_id}{literal}" +
-                                "&page_title={/literal}{$translate_core_schedule}{literal}";
-                        }
-                    });
+	                            window.location =
+	                                "?page=schedual:main&y=" + y +
+	                                "&m=" + m +
+	                                "&d=" + d +
+	                                "&wo_id={/literal}{$wo_id}{literal}" +
+	                                "&page_title={/literal}{$translate_core_schedule|escape:'url'}{literal}";
+	                        }
+	                    });
 
                     calendar.render();
                 });

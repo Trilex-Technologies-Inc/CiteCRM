@@ -1,141 +1,158 @@
-<!-- parts order-->
-<!-- Toolbar -->
-<div class="container-fluid mb-3">
-	{include file="core/tool_bar.tpl"}
-</div>
-<table width="100%" border_details="0" cellpadding="20" cellspacing="5">
-	<tr>
-		<td>
-			{section name=q loop=$order}
-			<table width="700" cellpadding="4" cellspacing="0" border_details="0" >
-				<tr>
-					<td class="menuhead2" width="80%">&nbsp;{$translate_part_order_num} {$order[q].ORDER_ID}</td>
-					<td class="menuhead2" width="20%" align="right" valign="middle"></td>
-				</tr><tr>
-					<td class="menutd2" colspan="2">
-						
-						<table width="100%" class="olotable" cellpadding="5" cellspacing="0" border_details="0" >
-							<tr>
-								<td class="menutd" valign="top" >
-										<table  width="700" border_details="0" cellpadding="0" cellspacing="0" >
-											<tr>
-												<td valign="top">
-													<!-- Left Column -->
-													<font size="+2">Cite CRM</font><br>
-													323 SE Riverside AV<br>
-													Grants Pass, Oregon 97526<br>
-													1-866-471-1343<br>
-													<a href="?page=parts:print_results&wo_id={$order[q].WO_ID}&escape=1" target="new">{$translate_parts_print}</a>
-												</td>
-												<td valign="top" align="right" width="205">
-												<!-- Right Column -->
-												
-												<table width="205" border_details="1" cellpadding="3" cellspacing="0" class="olotd5">
-													<tr>
-														<td><b>{$translate_parts_crm_order_id}</b> {$order[q].INVOICE_ID}<br>
-															<b>{$translate_parts_date}</b> {$order[q].DATE_CREATE|date_format:"%m-%d-%y"}<br>
-															<b>{$translate_parts_total}</b> ${$order[q].TOTAL}<br>
-															<b>{$translate_parts_total_items}</b> {$order[q].ITEMS}<br>
-															<b>{$translate_parts_weight}</b> {$order[q].WEIGHT} lbs<br>
-															<b>{$translate_parts_tracking}</b>{if $order[q].TRACKING_NO == '0'}
-															<a href="?page=parts:tracking&invoice_id={$order[q].INVOICE_ID}&order_id={$order[q].ORDER_ID}">Get Tracking</a>{else}
-															{$order[q].TRACKING_NO}
-														{/if}
-														</td>
-													</tr>
-												</table>
-											</td>
-										</tr>
-									</table>
-									<br>
-									<table  width="700" border_details="0" cellpadding="3" cellspacing="0" >
-										<tr>
-											<td valign="top" width="10%" align="right"><b>{$translate_parts_ship_to}</b></td>
-											<td valign="top">
-													<font size="+2">{$company_name}</font><br>
-													{$company_address}<br>
-													{$company_city}, {$company_state} {$company_zip}<br>
-													{$company_phone}<br>
-											</td>
-											<td valign="top" align="right" width="200">
-												<table width="200" border_details="1" cellpadding="5" cellspacing="0" class="olotd5">
-													<tr>
-														<td>
-															<b>{$translate_parts_wo_id}</b> {$order[q].WO_ID}<br>
-															<b>{$translate_parts_tech}</b> {$display_login}
-														</td>
-													</tr>
-												</table>
-										</tr>
-									</table>
-									<br>
-									<table width="700" border_details="1" cellpadding="0" cellspacing="0" class="olotd5">
-										<tr>
-											<td align="center"><font size="+2">{$translate_parts_cap_invoice}</font></td>
-										</tr>
-									</table>
-									<br>
-									<b>Parts</b>
-									<table width="700" border_details="1" cellpadding="3" cellspacing="0" class="olotable">
-										<tr>
-											<td class="olohead" width="40"><b>{$translate_parts_sku}</b></td>
-											<td class="olohead" width="40"><b>{$translate_parts_count}</b></td>
-											<td class="olohead"><b>{$translate_parts_description}</b></td>
-											<td class="olohead" width="40"><b>{$translate_parts_vendor}</b></td>
-											<td class="olohead" width="40"><b>{$translate_parts_amount}</b></td>	
-											<td class="olohead" width="80"><b>{$translate_parts_sub_total}</b></td>
-										</tr>
-											{section name=w loop=$order_details}		
-											<tr >
-												<td class="olotd4" width="40"><b>{$order_details[w].SKU}</b></td>
-												<td class="olotd4">{$order_details[w].COUNT}</td>
-												<td class="olotd4">{$order_details[w].INVOICE_PARTS_DESCRIPTION}</td>
-												<td class="olotd4">{$order_details[w].INVOICE_PARTS_MANUF}</td>
-												<td class="olotd4" align="right">${$order_details[w].PRICE|string_format:"%.2f"}</td>
-												<td class="olotd4" align="right">${$order_details[w].SUB_TOTAL|string_format:"%.2f"}</td>
-											</tr>	
-										{/section}
-									</table>
-									<br>
-									<table width="700" border_details="0" cellpadding="3" cellspacing="0" >
-										<tr>
-											<td align="right">
-												<table width="200" border_details="1" cellpadding="3" cellspacing="0" class="olotd4">
-													<tr>
-												
-															<td><b>{$translate_parts_sub_total}</b></td>
-															<td width="80" align="right">$<b>{$order[q].SUB_TOTAL|string_format:"%.2f"}</b></td>
-													</tr><tr>
-															<td><b>{$translate_parts_shipping}</b></td>
-															<td width="80" align="right">$<b>{$order[q].SHIPPING|string_format:"%.2f"}</b></td>
-													</tr><t>
-															<td><b>{$translate_parts_tax}</b></td>
-															<td width="80" align="right"><b>${$invoice_details.TAX|string_format:"%.2f"}</b></td>
-													</tr><t>
-															<td><b>{$translate_parts_total}</b></td>
-															<td width="80" align="right">$<b>{$order[q].TOTAL|string_format:"%.2f"}</b></td>
-													</tr>
-												</table>
-											</td>
-										</tr>
-									</table>
-									<br>
-									<table width="700" border_details="1" cellpadding="3" cellspacing="0" class="olotd5">
-										<tr>
-											<td ><font size="-1">{$translate_parts_msg_11}</font></td>
-										</tr>
-									</table>
-									<br>
-									<br>
-								</td>
-							</tr>
-						</table>
-					{/section}
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
+<!-- Parts Order View -->
+<div class="container-fluid my-3">
+	<div class="mb-3">
+		{include file="core/tool_bar.tpl"}
+	</div>
 
+	{section name=q loop=$order}
+		<div class="card shadow-sm mb-3">
+			<div class="card-header d-flex justify-content-between align-items-center">
+				<div class="fw-bold">
+					{$translate_part_order_num} {$order[q].ORDER_ID}
+				</div>
+				<div class="d-flex gap-2 align-items-center">
+					<a class="btn btn-sm btn-outline-secondary"
+					   href="?page=parts:print_results&wo_id={$order[q].WO_ID}&escape=1"
+					   target="new">
+						{$translate_parts_print}
+					</a>
+				</div>
+			</div>
+
+			<div class="card-body">
+				<div class="row g-3">
+					<div class="col-lg-7">
+						<div class="border rounded p-3 h-100">
+							<div class="fs-5 fw-bold mb-2">Cite CRM</div>
+							<div>323 SE Riverside AV</div>
+							<div>Grants Pass, Oregon 97526</div>
+							<div>1-866-471-1343</div>
+						</div>
+					</div>
+
+					<div class="col-lg-5">
+						<div class="border rounded p-3 h-100">
+							<div class="row mb-1">
+								<div class="col-6 text-muted">{$translate_parts_crm_order_id}</div>
+								<div class="col-6 text-end fw-semibold">{$order[q].INVOICE_ID}</div>
+							</div>
+							<div class="row mb-1">
+								<div class="col-6 text-muted">{$translate_parts_date}</div>
+								<div class="col-6 text-end fw-semibold">{$order[q].DATE_CREATE|date_format:"%m-%d-%y"}</div>
+							</div>
+							<div class="row mb-1">
+								<div class="col-6 text-muted">{$translate_parts_total_items}</div>
+								<div class="col-6 text-end fw-semibold">{$order[q].ITEMS}</div>
+							</div>
+							<div class="row mb-1">
+								<div class="col-6 text-muted">{$translate_parts_weight}</div>
+								<div class="col-6 text-end fw-semibold">{$order[q].WEIGHT} lbs</div>
+							</div>
+							<div class="row mb-1">
+								<div class="col-6 text-muted">{$translate_parts_tracking}</div>
+								<div class="col-6 text-end">
+									{if $order[q].TRACKING_NO == '0'}
+										<a href="?page=parts:tracking&invoice_id={$order[q].INVOICE_ID}&order_id={$order[q].ORDER_ID}">Get Tracking</a>
+									{else}
+										<span class="fw-semibold">{$order[q].TRACKING_NO}</span>
+									{/if}
+								</div>
+							</div>
+							<hr class="my-2">
+							<div class="row">
+								<div class="col-6 text-muted">{$translate_parts_total}</div>
+								<div class="col-6 text-end fw-bold">${$order[q].TOTAL|string_format:"%.2f"}</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-12">
+						<div class="border rounded p-3">
+							<div class="row g-3 align-items-start">
+								<div class="col-lg-8">
+									<div class="text-muted fw-semibold mb-1">{$translate_parts_ship_to}</div>
+									<div class="fs-5 fw-bold">{$company_name}</div>
+									<div>{$company_address}</div>
+									<div>{$company_city}, {$company_state} {$company_zip}</div>
+									<div>{$company_phone}</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="text-muted fw-semibold mb-1">{$translate_parts_wo_id}</div>
+									<div class="fw-semibold mb-2">{$order[q].WO_ID}</div>
+									<div class="text-muted fw-semibold mb-1">{$translate_parts_tech}</div>
+									<div class="fw-semibold">{$display_login}</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-12">
+						<div class="d-flex justify-content-between align-items-center mb-2">
+							<div class="fw-bold">{$translate_parts_cap_invoice}</div>
+						</div>
+
+						<div class="table-responsive">
+							<table class="table table-sm table-striped table-hover align-middle mb-0">
+								<thead class="table-secondary">
+								<tr>
+									<th style="width: 90px;">{$translate_parts_sku}</th>
+									<th style="width: 80px;">{$translate_parts_count}</th>
+									<th>{$translate_parts_description}</th>
+									<th style="width: 140px;">{$translate_parts_vendor}</th>
+									<th class="text-end" style="width: 110px;">{$translate_parts_amount}</th>
+									<th class="text-end" style="width: 130px;">{$translate_parts_sub_total}</th>
+								</tr>
+								</thead>
+								<tbody>
+								{section name=w loop=$order_details}
+									<tr>
+										<td class="fw-semibold">{$order_details[w].SKU}</td>
+										<td>{$order_details[w].COUNT}</td>
+										<td>{$order_details[w].INVOICE_PARTS_DESCRIPTION}</td>
+										<td>{$order_details[w].INVOICE_PARTS_MANUF}</td>
+										<td class="text-end">${$order_details[w].PRICE|string_format:"%.2f"}</td>
+										<td class="text-end">${$order_details[w].SUB_TOTAL|string_format:"%.2f"}</td>
+									</tr>
+								{/section}
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<div class="col-12">
+						<div class="row justify-content-end">
+							<div class="col-12 col-md-6 col-lg-4">
+								<div class="border rounded p-3">
+									<div class="row mb-1">
+										<div class="col-6 fw-semibold">{$translate_parts_sub_total}</div>
+										<div class="col-6 text-end fw-semibold">$<span>{$order[q].SUB_TOTAL|string_format:"%.2f"}</span></div>
+									</div>
+									<div class="row mb-1">
+										<div class="col-6 fw-semibold">{$translate_parts_shipping}</div>
+										<div class="col-6 text-end fw-semibold">$<span>{$order[q].SHIPPING|string_format:"%.2f"}</span></div>
+									</div>
+									<div class="row mb-1">
+										<div class="col-6 fw-semibold">{$translate_parts_tax}</div>
+										<div class="col-6 text-end fw-semibold">${$invoice_details.TAX|string_format:"%.2f"}</div>
+									</div>
+									<hr class="my-2">
+									<div class="row">
+										<div class="col-6 fw-bold">{$translate_parts_total}</div>
+										<div class="col-6 text-end fw-bold">$<span>{$order[q].TOTAL|string_format:"%.2f"}</span></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-12">
+						<div class="alert alert-secondary mb-0">
+							{$translate_parts_msg_11}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{/section}
+</div>
 

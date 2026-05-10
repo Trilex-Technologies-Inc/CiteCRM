@@ -50,6 +50,17 @@
 										{$awaiting.EMPLOYEE_DISPLAY_NAME}
 									</a>
 								{/if}
+								<form method="post" action="?page=workorder:main&page_title={$translate_workorder_title}#awaiting" class="mt-1 d-flex gap-1 align-items-center">
+									<input type="hidden" name="reassign" value="1"/>
+									<input type="hidden" name="wo_id" value="{$awaiting.WORK_ORDER_ID}"/>
+									<select name="employee_id" class="form-select form-select-sm" style="width: 170px;">
+										<option value="0"{if $awaiting.WORK_ORDER_ASSIGN_TO == "" || $awaiting.WORK_ORDER_ASSIGN_TO == 0} selected{/if}>{$translate_workorder_not_assigned}</option>
+										{foreach from=$employee_list item=emp}
+											<option value="{$emp.EMPLOYEE_ID}"{if $awaiting.WORK_ORDER_ASSIGN_TO == $emp.EMPLOYEE_ID} selected{/if}>{$emp.EMPLOYEE_DISPLAY_NAME}</option>
+										{/foreach}
+									</select>
+									<button type="submit" class="btn btn-sm btn-outline-primary">Assign</button>
+								</form>
 							</td>
 							<td class="text-center" nowrap>
 								<a href="?page=workorder:print&wo_id={$awaiting.WORK_ORDER_ID}&customer_id={$awaiting.CUSTOMER_ID}&page_title={$translate_workorder_print_title} {$awaiting.WORK_ORDER_ID}&escape=1" target="new">

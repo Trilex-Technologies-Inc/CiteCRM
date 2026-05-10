@@ -274,7 +274,107 @@ $q = "SELECT SKU,AMOUNT FROM ".PRFX."CART";
 		$i++;
 	}
 
-	
+	/*
+	 * Email customer order confirmation (simple PHP mail()).
+	 * Uses CUSTOMER_EMAIL from TABLE_CUSTOMER and COMPANY_EMAIL as From:.
+	 */
+	$customer_email = '';
+	$customer_name = '';
+	if ($customer_id !== '' && (int)$customer_id > 0) {
+		$q = "SELECT CUSTOMER_EMAIL, CUSTOMER_DISPLAY_NAME, CUSTOMER_FIRST_NAME, CUSTOMER_LAST_NAME
+			  FROM ".PRFX."TABLE_CUSTOMER
+			  WHERE CUSTOMER_ID=".$db->qstr((int)$customer_id);
+		$rs = $db->Execute($q);
+		if ($rs) {
+			$customer_email = (string)$rs->fields['CUSTOMER_EMAIL'];
+			$customer_name = trim((string)$rs->fields['CUSTOMER_DISPLAY_NAME']);
+			if ($customer_name === '') {
+				$customer_name = trim((string)$rs->fields['CUSTOMER_FIRST_NAME'].' '.(string)$rs->fields['CUSTOMER_LAST_NAME']);
+			}
+		}
+	}
+
+	$company_email = '';
+	$company_name = 'CiteCRM';
+	$q = "SELECT COMPANY_EMAIL, COMPANY_NAME FROM ".PRFX."TABLE_COMPANY";
+	$rs = $db->Execute($q);
+	if ($rs) {
+		$company_email = (string)$rs->fields['COMPANY_EMAIL'];
+		if (trim((string)$rs->fields['COMPANY_NAME']) !== '') {
+			$company_name = (string)$rs->fields['COMPANY_NAME'];
+		}
+	}
+
+	$customer_email = trim($customer_email);
+	if ($customer_email !== '' && filter_var($customer_email, FILTER_VALIDATE_EMAIL)) {
+		$subject = 'Parts Order Confirmation #'.$crm_invoice_id;
+
+		$lines = array();
+		$lines[] = $company_name.' - Parts Order Confirmation';
+		$lines[] = '';
+		if ($customer_name !== '') {
+			$lines[] = 'Customer: '.$customer_name;
+		}
+		$lines[] = 'Order ID: '.$crm_invoice_id;
+		if ($wo_id !== '' && (int)$wo_id > 0) {
+			$lines[] = 'Work Order: '.$wo_id;
+		}
+		$lines[] = 'Date: '.date('Y-m-d H:i:s');
+		$lines[] = '';
+		$lines[] = 'Items:';
+		foreach ($details as $item) {
+			$qty = isset($item['COUNT']) ? (int)$item['COUNT'] : 0;
+			$sku = isset($item['SKU']) ? (string)$item['SKU'] : '';
+			$desc = isset($item['DESCRIPTION']) ? (string)$item['DESCRIPTION'] : '';
+			$line_total = isset($item['SUB_TOTAL']) ? (string)$item['SUB_TOTAL'] : '0.00';
+			$lines[] = '- '.$qty.' x '.$sku.' '.$desc.' ($'.$line_total.')';
+		}
+		$lines[] = '';
+		$lines[] = 'Sub Total: $'.$cart_total;
+		$lines[] = 'Shipping: $'.$shipping;
+		$lines[] = 'Total: $'.$total;
+		$lines[] = '';
+		$lines[] = 'Thank you.';
+		$message = implode("\r\n", $lines);
+
+		$headers = array();
+		$headers[] = 'MIME-Version: 1.0';
+		$headers[] = 'Content-Type: text/plain; charset=UTF-8';
+		if ($company_email !== '' && filter_var(trim($company_email), FILTER_VALIDATE_EMAIL)) {
+			$headers[] = 'From: '.$company_name.' <'.trim($company_email).'>';
+			$headers[] = 'Reply-To: '.trim($company_email);
+		}
+
+		$sendmail_path = (string)ini_get('sendmail_path');
+		$sendmail_bin = trim(strtok($sendmail_path, " \t"));
+		$has_sendmail = ($sendmail_bin !== '' && @file_exists($sendmail_bin));
+
+		$sent = false;
+		if ($has_sendmail) {
+			$sent = @mail($customer_email, $subject, $message, implode("\r\n", $headers));
+		}
+		if ($sent && $wo_id !== '' && (int)$wo_id > 0) {
+			$msg = "Parts order confirmation email sent to ".$customer_email." (Order ID: ".$crm_invoice_id.")";
+			$sql = "INSERT INTO ".PRFX."TABLE_WORK_ORDER_STATUS SET
+					WORK_ORDER_ID					=".$db->qstr($wo_id).",
+					WORK_ORDER_STATUS_DATE			=".$db->qstr(time()).",
+					WORK_ORDER_STATUS_NOTES		=".$db->qstr($msg).",
+					WORK_ORDER_STATUS_ENTER_BY 	=".$db->qstr($_SESSION['login_id']);
+			$db->Execute($sql);
+		} else if ($wo_id !== '' && (int)$wo_id > 0) {
+			$reason = $has_sendmail ? 'mail() failed' : ('sendmail missing (sendmail_path='.$sendmail_path.')');
+			$msg = "Parts order confirmation email NOT sent to ".$customer_email." (Order ID: ".$crm_invoice_id.") - ".$reason;
+			$sql = "INSERT INTO ".PRFX."TABLE_WORK_ORDER_STATUS SET
+					WORK_ORDER_ID					=".$db->qstr($wo_id).",
+					WORK_ORDER_STATUS_DATE			=".$db->qstr(time()).",
+					WORK_ORDER_STATUS_NOTES		=".$db->qstr($msg).",
+					WORK_ORDER_STATUS_ENTER_BY 	=".$db->qstr($_SESSION['login_id']);
+			$db->Execute($sql);
+
+			@error_log('['.date('c').'] '.$msg."\n", 3, 'log/mail.log');
+		}
+	}
+
 	
 	/* clear cart (scope to this work order when available) */
 	if ($workorder_id !== '' && (int)$workorder_id > 0) {

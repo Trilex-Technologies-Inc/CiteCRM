@@ -22,10 +22,16 @@ $q = "SELECT * FROM ".PRFX."ORDERS WHERE ORDER_ID=".$db->qstr($order_id);
 $arr = $rs->GetArray();
 
 if(count($arr) > 0) {
-	$q = "SELECT ".PRFX."ORDERS_DETAILS . * , ".PRFX."TABLE_INVOICE_PARTS.INVOICE_PARTS_DESCRIPTION, ".PRFX."TABLE_INVOICE_PARTS.INVOICE_PARTS_MANUF
-		FROM ".PRFX."ORDERS_DETAILS, ".PRFX."TABLE_INVOICE_PARTS
-		WHERE ORDER_ID = INVOICE_ID
-		AND ORDER_ID =".$db->qstr($arr[0]['ORDER_ID']);
+	// Order line-items are stored in ORDERS_DETAILS at checkout time.
+	// The previous join to TABLE_INVOICE_PARTS incorrectly matched ORDER_ID=INVOICE_ID,
+	// which can produce an empty result set even when items exist.
+	// Keep template compatibility by aliasing DESCRIPTION/VENDOR to the expected keys.
+	$q = "SELECT ".PRFX."ORDERS_DETAILS.*,
+	             ".PRFX."ORDERS_DETAILS.DESCRIPTION AS INVOICE_PARTS_DESCRIPTION,
+	             ".PRFX."ORDERS_DETAILS.VENDOR AS INVOICE_PARTS_MANUF
+	      FROM ".PRFX."ORDERS_DETAILS
+	      WHERE ORDER_ID = ".$db->qstr($arr[0]['ORDER_ID'])."
+	      ORDER BY DETAILS_ID ASC";
 } else {
 	force_page('core', 'error&error_msg=Order not found&menu=1&type=warning');
 	exit;
@@ -36,5 +42,6 @@ $details = $rs->GetArray();
 
 $smarty->assign('order_details', $details);
 $smarty->assign('order', $arr);
+$smarty->assign('invoice_details', array('TAX' => '0.00'));
 $smarty->display('parts'.SEP.'view.tpl');
 ?>

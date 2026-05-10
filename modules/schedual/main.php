@@ -450,17 +450,19 @@ while ($start < $business_end) {
         /* AVAILABLE */
         if ($is_available) {
 
+            $new_url = '?page=schedual:new'
+                . '&starttime=' . rawurlencode(date("h:i a", $slot_time))
+                . '&day=' . rawurlencode($cur_date)
+                . '&wo_id=' . rawurlencode((string)$wo_id)
+                . '&tech=' . rawurlencode((string)$tech);
+
             $calendar .= '
 
             <div class="gc-slot">
 
                 <div
                     class="gc-free"
-                    onclick="window.location=\'?page=schedual:new
-                    &starttime=' . date("h:i a", $slot_time) . '
-                    &day=' . $cur_date . '
-                    &wo_id=' . $wo_id . '
-                    &tech=' . $tech . '\'"
+                    onclick="window.location=\'' . $new_url . '\'"
                 >
 
                     <div class="gc-circle gc-green"></div>
@@ -480,12 +482,14 @@ while ($start < $business_end) {
 
             if ($slot_time == $scheduled_info['SCHEDUAL_START']) {
 
+                $view_url = '?page=schedual:view'
+                    . '&sch_id=' . rawurlencode((string)$scheduled_info['SCHEDUAL_ID'])
+                    . '&y=' . rawurlencode((string)$y)
+                    . '&m=' . rawurlencode((string)$m)
+                    . '&d=' . rawurlencode((string)$d);
+
                 $onclick = '
-                onclick="window.location=\'?page=schedual:view
-                &sch_id=' . $scheduled_info['SCHEDUAL_ID'] . '
-                &y=' . $y . '
-                &m=' . $m . '
-                &d=' . $d . '\'"
+                onclick="window.location=\'' . $view_url . '\'"
                 ';
 
                 $notes_html = sanitize_schedual_notes($scheduled_info['SCHEDUAL_NOTES']);
