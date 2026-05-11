@@ -11,7 +11,6 @@ $settings = crm_get_captcha_settings($db);
 		$site_key = isset($VAR['site_key']) ? trim((string)$VAR['site_key']) : '';
 		$secret_key = isset($VAR['secret_key']) ? trim((string)$VAR['secret_key']) : '';
 
-	crm_ensure_captcha_settings_table($db);
 	$q = "REPLACE INTO ".PRFX."TABLE_CAPTCHA_SETTINGS
 			(SETTINGS_ID, PROVIDER, ENABLED, SITE_KEY, SECRET_KEY, UPDATED_AT)
 		  VALUES

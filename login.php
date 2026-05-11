@@ -26,15 +26,6 @@ $captcha_enabled = 0;
 $captcha_provider = 'turnstile';
 $captcha_site_key = '';
 if (isset($db) && defined('PRFX')) {
-	@ $db->Execute("CREATE TABLE IF NOT EXISTS `".PRFX."TABLE_CAPTCHA_SETTINGS` (
-		`SETTINGS_ID` int(11) NOT NULL,
-		`PROVIDER` varchar(32) NOT NULL default 'turnstile',
-		`ENABLED` tinyint(1) NOT NULL default '0',
-		`SITE_KEY` varchar(255) NOT NULL default '',
-		`SECRET_KEY` varchar(255) NOT NULL default '',
-		`UPDATED_AT` int(20) NOT NULL default '0',
-		PRIMARY KEY (`SETTINGS_ID`)
-	) ENGINE=MyISAM");
 	$rs = @$db->Execute("SELECT PROVIDER, ENABLED, SITE_KEY FROM ".PRFX."TABLE_CAPTCHA_SETTINGS WHERE SETTINGS_ID=1");
 	if ($rs && !$rs->EOF) {
 		$captcha_enabled = (int)$rs->fields['ENABLED'];

@@ -7,25 +7,6 @@ $token = isset($_REQUEST['token']) ? trim((string)$_REQUEST['token']) : '';
 $msg = '';
 $error_msg = '';
 
-function crm_ensure_password_reset_table($db) {
-	$q = "CREATE TABLE IF NOT EXISTS `".PRFX."TABLE_PASSWORD_RESET` (
-		`RESET_ID` int(11) NOT NULL auto_increment,
-		`EMPLOYEE_ID` int(11) NOT NULL,
-		`TOKEN_HASH` char(64) NOT NULL,
-		`EXPIRES_AT` int(20) NOT NULL,
-		`USED_AT` int(20) NOT NULL default '0',
-		`CREATED_AT` int(20) NOT NULL,
-		`REQUEST_IP` varchar(45) NOT NULL default '',
-		PRIMARY KEY (`RESET_ID`),
-		KEY `EMPLOYEE_ID` (`EMPLOYEE_ID`),
-		KEY `TOKEN_HASH` (`TOKEN_HASH`),
-		KEY `EXPIRES_AT` (`EXPIRES_AT`)
-	) ENGINE=MyISAM";
-	$db->Execute($q);
-}
-
-crm_ensure_password_reset_table($db);
-
 $reset_row = null;
 if ($token !== '' && ctype_xdigit($token) && strlen($token) >= 32) {
 	$token_hash = hash('sha256', $token);
@@ -87,4 +68,3 @@ $smarty->assign('valid_link', ($reset_row && $reset_row['USED_AT'] == 0 && $rese
 $smarty->display('core'.SEP.'reset_password.tpl');
 
 ?>
-

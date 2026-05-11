@@ -209,19 +209,6 @@ class Auth {
     }
 }
 
-function crm_ensure_captcha_settings_table($db) {
-	$q = "CREATE TABLE IF NOT EXISTS `".PRFX."TABLE_CAPTCHA_SETTINGS` (
-		`SETTINGS_ID` int(11) NOT NULL,
-		`PROVIDER` varchar(32) NOT NULL default 'turnstile',
-		`ENABLED` tinyint(1) NOT NULL default '0',
-		`SITE_KEY` varchar(255) NOT NULL default '',
-		`SECRET_KEY` varchar(255) NOT NULL default '',
-		`UPDATED_AT` int(20) NOT NULL default '0',
-		PRIMARY KEY (`SETTINGS_ID`)
-	) ENGINE=MyISAM";
-	@$db->Execute($q);
-}
-
 function crm_get_captcha_settings($db) {
 	static $cached = null;
 	if ($cached !== null) {
@@ -231,7 +218,6 @@ function crm_get_captcha_settings($db) {
 	if (!defined('PRFX')) {
 		return $cached;
 	}
-	crm_ensure_captcha_settings_table($db);
 	$q = "SELECT * FROM ".PRFX."TABLE_CAPTCHA_SETTINGS WHERE SETTINGS_ID=1";
 	$rs = @$db->Execute($q);
 	if ($rs && !$rs->EOF) {

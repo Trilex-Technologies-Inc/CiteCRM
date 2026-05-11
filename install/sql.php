@@ -75,6 +75,22 @@ if (!insert_workorder_status($db)) {
 }
 
 ##################################
+# create_table_captcha_settings	#
+##################################
+if (!create_table_captcha_settings($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_CAPTCHA_SETTINGS</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
+			</tr>");
+	$error_flag = true;
+} else {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_CAPTCHA_SETTINGS</td>\n
+				<td><font color=\"green\"><b>OK</b></font></td>\n
+			</tr>\n");
+}
+
+##################################
 # create_table_company				#
 ##################################
 if (!create_table_company($db)) {
@@ -132,6 +148,22 @@ if (!create_table_employee($db)) {
 } else {
 	echo ("<tr>\n
 				<td>Create table " . PRFX . "TABLE_CUSTOMER</td>\n
+				<td><font color=\"green\"><b>OK</b></font></td>\n
+			</tr>\n");
+}
+
+##################################
+# create_table_password_reset		#
+##################################
+if (!create_table_password_reset($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_PASSWORD_RESET</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
+			</tr>");
+	$error_flag = true;
+} else {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_PASSWORD_RESET</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -543,6 +575,25 @@ function create_config_work_order_status($db)
 	}
 }
 
+function create_table_captcha_settings($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "TABLE_CAPTCHA_SETTINGS` (
+		`SETTINGS_ID` int(11) NOT NULL,
+		`PROVIDER` varchar(32) NOT NULL default 'turnstile',
+		`ENABLED` tinyint(1) NOT NULL default '0',
+		`SITE_KEY` varchar(255) NOT NULL default '',
+		`SECRET_KEY` varchar(255) NOT NULL default '',
+		`UPDATED_AT` int(20) NOT NULL default '0',
+		PRIMARY KEY (`SETTINGS_ID`)
+	) ENGINE=MyISAM";
+	$rs = $db->Execute($q);
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 function create_employee_type($db)
 {
 	$q = "CREATE TABLE `" . PRFX . "CONFIG_EMPLOYEE_TYPE` (
@@ -676,6 +727,30 @@ function create_table_employee($db)
 		UNIQUE KEY `EMPLOYEE_LOGIN` (`EMPLOYEE_LOGIN`)
 		) ENGINE=MyISAM ";
 
+
+	$rs = $db->Execute($q);
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function create_table_password_reset($db)
+{
+	$q = "CREATE TABLE `" . PRFX . "TABLE_PASSWORD_RESET` (
+		`RESET_ID` int(11) NOT NULL auto_increment,
+		`EMPLOYEE_ID` int(11) NOT NULL,
+		`TOKEN_HASH` char(64) NOT NULL,
+		`EXPIRES_AT` int(20) NOT NULL,
+		`USED_AT` int(20) NOT NULL default '0',
+		`CREATED_AT` int(20) NOT NULL,
+		`REQUEST_IP` varchar(45) NOT NULL default '',
+		PRIMARY KEY (`RESET_ID`),
+		KEY `EMPLOYEE_ID` (`EMPLOYEE_ID`),
+		KEY `TOKEN_HASH` (`TOKEN_HASH`),
+		KEY `EXPIRES_AT` (`EXPIRES_AT`)
+	) ENGINE=MyISAM";
 
 	$rs = $db->Execute($q);
 	if (!$rs) {

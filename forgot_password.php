@@ -65,30 +65,11 @@ function crm_build_base_url() {
 	return $scheme.'://'.$host.$forwarded_prefix.$dir;
 }
 
-function crm_ensure_password_reset_table($db) {
-	$q = "CREATE TABLE IF NOT EXISTS `".PRFX."TABLE_PASSWORD_RESET` (
-		`RESET_ID` int(11) NOT NULL auto_increment,
-		`EMPLOYEE_ID` int(11) NOT NULL,
-		`TOKEN_HASH` char(64) NOT NULL,
-		`EXPIRES_AT` int(20) NOT NULL,
-		`USED_AT` int(20) NOT NULL default '0',
-		`CREATED_AT` int(20) NOT NULL,
-		`REQUEST_IP` varchar(45) NOT NULL default '',
-		PRIMARY KEY (`RESET_ID`),
-		KEY `EMPLOYEE_ID` (`EMPLOYEE_ID`),
-		KEY `TOKEN_HASH` (`TOKEN_HASH`),
-		KEY `EXPIRES_AT` (`EXPIRES_AT`)
-	) ENGINE=MyISAM";
-	$db->Execute($q);
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$login_or_email = isset($_POST['login_or_email']) ? trim((string)$_POST['login_or_email']) : '';
 	if ($login_or_email === '') {
 		$error_msg = 'Please enter your login or email.';
 	} else {
-		crm_ensure_password_reset_table($db);
-
 		$employee_id = 0;
 		$employee_email = '';
 		$employee_login = '';
