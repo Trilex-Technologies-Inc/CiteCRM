@@ -56,6 +56,10 @@
                     required
                   >
                 </div>
+				
+				<div class="d-flex justify-content-end mb-3">
+                  <a class="small text-decoration-none" href="forgot_password.php">Forgot password?</a>
+                </div>
 
                 {if $error_msg != ""}
                   <div class="alert alert-danger py-2 small" role="alert">
