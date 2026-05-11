@@ -19,10 +19,12 @@
 	    <!-- App theme overrides -->
 	    <link href="css/default.css" rel="stylesheet" type="text/css">
 
-	    {if $captcha_enabled == 1 && $captcha_provider == 'turnstile' && $captcha_site_key != ""}
-	      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-	    {/if}
-	  </head>
+		    {if $captcha_enabled == 1 && $captcha_provider == 'turnstile' && $captcha_site_key != ""}
+		      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+		    {elseif $captcha_enabled == 1 && $captcha_provider == 'recaptcha' && $captcha_site_key != ""}
+		      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+		    {/if}
+		  </head>
   <body class="bg-light d-flex align-items-center min-vh-100">
     <div class="container">
       <div class="row justify-content-center">
@@ -61,11 +63,15 @@
 	                  >
 	                </div>
 
-	                {if $captcha_enabled == 1 && $captcha_provider == 'turnstile' && $captcha_site_key != ""}
-	                  <div class="mb-3">
-	                    <div class="cf-turnstile" data-sitekey="{$captcha_site_key|escape}"></div>
-	                  </div>
-	                {/if}
+		                {if $captcha_enabled == 1 && $captcha_provider == 'turnstile' && $captcha_site_key != ""}
+		                  <div class="mb-3">
+		                    <div class="cf-turnstile" data-sitekey="{$captcha_site_key|escape}"></div>
+		                  </div>
+		                {elseif $captcha_enabled == 1 && $captcha_provider == 'recaptcha' && $captcha_site_key != ""}
+		                  <div class="mb-3">
+		                    <div class="g-recaptcha" data-sitekey="{$captcha_site_key|escape}"></div>
+		                  </div>
+		                {/if}
 					
 					<div class="d-flex justify-content-end mb-3">
 	                  <a

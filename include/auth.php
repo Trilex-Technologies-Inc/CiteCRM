@@ -48,20 +48,32 @@ class Auth {
       $password = $_POST[USER_PASSW_VAR];
     }
 	
-	// Optional captcha gate (Cloudflare Turnstile) for login.
-	$captcha = crm_get_captcha_settings($this->db);
-	if (!empty($captcha['ENABLED']) && (int)$captcha['ENABLED'] === 1 && (string)$captcha['PROVIDER'] === 'turnstile') {
-		$secret = isset($captcha['SECRET_KEY']) ? trim((string)$captcha['SECRET_KEY']) : '';
-		$response = isset($_POST['cf-turnstile-response']) ? trim((string)$_POST['cf-turnstile-response']) : '';
-		$remoteip = isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : '';
+		// Optional captcha gate (Cloudflare Turnstile / Google reCAPTCHA) for login.
+		$captcha = crm_get_captcha_settings($this->db);
+		if (!empty($captcha['ENABLED']) && (int)$captcha['ENABLED'] === 1) {
+			$provider = isset($captcha['PROVIDER']) ? (string)$captcha['PROVIDER'] : 'turnstile';
+			$secret = isset($captcha['SECRET_KEY']) ? trim((string)$captcha['SECRET_KEY']) : '';
+			$remoteip = isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : '';
 
-		if ($secret === '' || $response === '' || !crm_verify_turnstile($secret, $response, $remoteip)) {
-			$login_raw_fail = isset($_POST[USER_LOGIN_VAR]) ? (string)$_POST[USER_LOGIN_VAR] : '';
-			$this->writeLog('Captcha Failed', $login_raw_fail);
-			$this->force_page('login.php?error_msg=Captcha Failed');
-			exit;
+			$response = '';
+			$ok = false;
+			if ($provider === 'turnstile') {
+				$response = isset($_POST['cf-turnstile-response']) ? trim((string)$_POST['cf-turnstile-response']) : '';
+				$ok = ($secret !== '' && $response !== '' && crm_verify_turnstile($secret, $response, $remoteip));
+			} else if ($provider === 'recaptcha') {
+				$response = isset($_POST['g-recaptcha-response']) ? trim((string)$_POST['g-recaptcha-response']) : '';
+				$ok = ($secret !== '' && $response !== '' && crm_verify_recaptcha($secret, $response, $remoteip));
+			} else {
+				$ok = false;
+			}
+
+			if (!$ok) {
+				$login_raw_fail = isset($_POST[USER_LOGIN_VAR]) ? (string)$_POST[USER_LOGIN_VAR] : '';
+				$this->writeLog('Captcha Failed', $login_raw_fail);
+				$this->force_page('login.php?error_msg=Captcha Failed');
+				exit;
+			}
 		}
-	}
 
     // Use the database abstraction layer to safely quote values
     $login_raw     = isset($_POST[USER_LOGIN_VAR]) ? $_POST[USER_LOGIN_VAR] : '';
@@ -278,6 +290,51 @@ function crm_verify_turnstile($secret, $response, $remoteip = '') {
 	}
 	$data = json_decode($json, true);
 	return (is_array($data) && !empty($data['success']));
+}
+
+function crm_verify_recaptcha($secret, $response, $remoteip = '') {
+	$secret = trim((string)$secret);
+	$response = trim((string)$response);
+	if ($secret === '' || $response === '') {
+		return false;
+	}
+
+	$payload = http_build_query(array(
+		'secret' => $secret,
+		'response' => $response,
+		'remoteip' => $remoteip,
+	), '', '&');
+
+	$json = '';
+	if (function_exists('curl_init')) {
+		$ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+		$json = (string)curl_exec($ch);
+		curl_close($ch);
+	} else {
+		$opts = array(
+			'http' => array(
+				'method' => 'POST',
+				'header' => "Content-Type: application/x-www-form-urlencoded\r\n".
+							"Content-Length: ".strlen($payload)."\r\n",
+				'content' => $payload,
+				'timeout' => 5,
+			),
+		);
+		$ctx = stream_context_create($opts);
+		$json = (string)@file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, $ctx);
+	}
+
+	if ($json === '') {
+		return false;
+	}
+	$data = json_decode($json, true);
+	return (is_array($data) && !empty($data['success'])) ? true : false;
 }
 
 function force_page($module, $cur_page) {

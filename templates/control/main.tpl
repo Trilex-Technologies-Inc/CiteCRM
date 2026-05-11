@@ -108,7 +108,7 @@
 	                            </div>
 	                            <div class="flex-grow-1">
 	                                <h5 class="card-title mb-1">Captcha Settings</h5>
-	                                <small class="text-secondary-emphasis">Cloudflare Turnstile on login</small>
+	                                <small class="text-secondary-emphasis">Turnstile / reCAPTCHA on login</small>
 	                            </div>
 	                            {if $current_module == 'control' && $current_page == 'captcha'}
 	                                <i class="bi bi-check-circle-fill text-primary fs-5"></i>

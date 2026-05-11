@@ -2,14 +2,14 @@
 
 $settings = crm_get_captcha_settings($db);
 
-if (isset($VAR['submit'])) {
-	$enabled = isset($VAR['enabled']) && (string)$VAR['enabled'] === '1' ? 1 : 0;
-	$provider = isset($VAR['provider']) ? trim((string)$VAR['provider']) : 'turnstile';
-	if ($provider !== 'turnstile') {
-		$provider = 'turnstile';
-	}
-	$site_key = isset($VAR['site_key']) ? trim((string)$VAR['site_key']) : '';
-	$secret_key = isset($VAR['secret_key']) ? trim((string)$VAR['secret_key']) : '';
+	if (isset($VAR['submit'])) {
+		$enabled = isset($VAR['enabled']) && (string)$VAR['enabled'] === '1' ? 1 : 0;
+		$provider = isset($VAR['provider']) ? trim((string)$VAR['provider']) : 'turnstile';
+		if ($provider !== 'turnstile' && $provider !== 'recaptcha') {
+			$provider = 'turnstile';
+		}
+		$site_key = isset($VAR['site_key']) ? trim((string)$VAR['site_key']) : '';
+		$secret_key = isset($VAR['secret_key']) ? trim((string)$VAR['secret_key']) : '';
 
 	crm_ensure_captcha_settings_table($db);
 	$q = "REPLACE INTO ".PRFX."TABLE_CAPTCHA_SETTINGS
@@ -29,4 +29,3 @@ $smarty->assign('captcha', $settings);
 $smarty->display('control'.SEP.'captcha.tpl');
 
 ?>
-

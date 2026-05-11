@@ -17,20 +17,21 @@
     </div>
     <div class="card-body">
       <form method="post" action="?page=control:captcha&page_title=Captcha%20Settings" class="row g-3">
-        <div class="col-12">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="enabled" name="enabled" value="1" {if $captcha.ENABLED == 1}checked{/if}>
-            <label class="form-check-label" for="enabled">Enable captcha on login</label>
-          </div>
-          <div class="form-text">Uses Cloudflare Turnstile.</div>
-        </div>
+	        <div class="col-12">
+	          <div class="form-check form-switch">
+	            <input class="form-check-input" type="checkbox" role="switch" id="enabled" name="enabled" value="1" {if $captcha.ENABLED == 1}checked{/if}>
+	            <label class="form-check-label" for="enabled">Enable captcha on login</label>
+	          </div>
+	          <div class="form-text">Choose Cloudflare Turnstile or Google reCAPTCHA.</div>
+	        </div>
 
-        <div class="col-12 col-md-6">
-          <label class="form-label" for="provider">Provider</label>
-          <select class="form-select" id="provider" name="provider" disabled>
-            <option value="turnstile" selected>Cloudflare Turnstile</option>
-          </select>
-        </div>
+	        <div class="col-12 col-md-6">
+	          <label class="form-label" for="provider">Provider</label>
+	          <select class="form-select" id="provider" name="provider">
+	            <option value="turnstile" {if $captcha.PROVIDER == 'turnstile'}selected{/if}>Cloudflare Turnstile</option>
+	            <option value="recaptcha" {if $captcha.PROVIDER == 'recaptcha'}selected{/if}>Google reCAPTCHA (v2)</option>
+	          </select>
+	        </div>
 
         <div class="col-12 col-md-6"></div>
 
@@ -50,11 +51,10 @@
         </div>
       </form>
 
-      <hr>
-      <div class="small text-muted">
-        Create a Turnstile widget in Cloudflare, then paste the Site key + Secret key here.
-      </div>
-    </div>
-  </div>
-</div>
-
+	      <hr>
+	      <div class="small text-muted">
+	        For Turnstile: create a widget in Cloudflare and paste Site key + Secret key. For reCAPTCHA: create a reCAPTCHA v2 (Checkbox) key and paste Site key + Secret key.
+	      </div>
+	    </div>
+	  </div>
+	</div>
