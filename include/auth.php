@@ -22,7 +22,7 @@ class Auth {
         session_start();
     }
     
-    $this->session  = &new Session();
+    $this->session  = new Session();
     $this->login();
   }
    
@@ -47,6 +47,21 @@ class Auth {
     } else {
       $password = $_POST[USER_PASSW_VAR];
     }
+	
+	// Optional captcha gate (Cloudflare Turnstile) for login.
+	$captcha = crm_get_captcha_settings($this->db);
+	if (!empty($captcha['ENABLED']) && (int)$captcha['ENABLED'] === 1 && (string)$captcha['PROVIDER'] === 'turnstile') {
+		$secret = isset($captcha['SECRET_KEY']) ? trim((string)$captcha['SECRET_KEY']) : '';
+		$response = isset($_POST['cf-turnstile-response']) ? trim((string)$_POST['cf-turnstile-response']) : '';
+		$remoteip = isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : '';
+
+		if ($secret === '' || $response === '' || !crm_verify_turnstile($secret, $response, $remoteip)) {
+			$login_raw_fail = isset($_POST[USER_LOGIN_VAR]) ? (string)$_POST[USER_LOGIN_VAR] : '';
+			$this->writeLog('Captcha Failed', $login_raw_fail);
+			$this->force_page('login.php?error_msg=Captcha Failed');
+			exit;
+		}
+	}
 
     // Use the database abstraction layer to safely quote values
     $login_raw     = isset($_POST[USER_LOGIN_VAR]) ? $_POST[USER_LOGIN_VAR] : '';
@@ -180,6 +195,89 @@ class Auth {
                     //-->
                 </script>");
     }
+}
+
+function crm_ensure_captcha_settings_table($db) {
+	$q = "CREATE TABLE IF NOT EXISTS `".PRFX."TABLE_CAPTCHA_SETTINGS` (
+		`SETTINGS_ID` int(11) NOT NULL,
+		`PROVIDER` varchar(32) NOT NULL default 'turnstile',
+		`ENABLED` tinyint(1) NOT NULL default '0',
+		`SITE_KEY` varchar(255) NOT NULL default '',
+		`SECRET_KEY` varchar(255) NOT NULL default '',
+		`UPDATED_AT` int(20) NOT NULL default '0',
+		PRIMARY KEY (`SETTINGS_ID`)
+	) ENGINE=MyISAM";
+	@$db->Execute($q);
+}
+
+function crm_get_captcha_settings($db) {
+	static $cached = null;
+	if ($cached !== null) {
+		return $cached;
+	}
+	$cached = array('PROVIDER' => 'turnstile', 'ENABLED' => 0, 'SITE_KEY' => '', 'SECRET_KEY' => '', 'UPDATED_AT' => 0);
+	if (!defined('PRFX')) {
+		return $cached;
+	}
+	crm_ensure_captcha_settings_table($db);
+	$q = "SELECT * FROM ".PRFX."TABLE_CAPTCHA_SETTINGS WHERE SETTINGS_ID=1";
+	$rs = @$db->Execute($q);
+	if ($rs && !$rs->EOF) {
+		$cached = array(
+			'PROVIDER' => (string)$rs->fields['PROVIDER'],
+			'ENABLED' => (int)$rs->fields['ENABLED'],
+			'SITE_KEY' => (string)$rs->fields['SITE_KEY'],
+			'SECRET_KEY' => (string)$rs->fields['SECRET_KEY'],
+			'UPDATED_AT' => (int)$rs->fields['UPDATED_AT'],
+		);
+	}
+	return $cached;
+}
+
+function crm_verify_turnstile($secret, $response, $remoteip = '') {
+	$secret = trim((string)$secret);
+	$response = trim((string)$response);
+	if ($secret === '' || $response === '') {
+		return false;
+	}
+
+	$payload = http_build_query(array(
+		'secret' => $secret,
+		'response' => $response,
+		'remoteip' => $remoteip,
+	), '', '&');
+
+	$json = '';
+
+	if (function_exists('curl_init')) {
+		$ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+		$json = (string)curl_exec($ch);
+		curl_close($ch);
+	} else {
+		$opts = array(
+			'http' => array(
+				'method' => 'POST',
+				'header' => "Content-Type: application/x-www-form-urlencoded\r\n".
+							"Content-Length: ".strlen($payload)."\r\n",
+				'content' => $payload,
+				'timeout' => 5,
+			),
+		);
+		$ctx = stream_context_create($opts);
+		$json = (string)@file_get_contents('https://challenges.cloudflare.com/turnstile/v0/siteverify', false, $ctx);
+	}
+
+	if ($json === '') {
+		return false;
+	}
+	$data = json_decode($json, true);
+	return (is_array($data) && !empty($data['success']));
 }
 
 function force_page($module, $cur_page) {
