@@ -119,7 +119,7 @@ if($invocie_details['INVOICE_AMOUNT'] > $cash_amount){
 		force_page('billing', 'new&wo_id='.$workorder_id.'&customer_id='.$customer_id.'	&invoice_id='.$invoice_id.'&error_msg=You can not bill more than the amout of the invoice.');
 			exit;
 	} 
-	if($invocie_details['INVOICE_AMOUNT'] = $cash_amount){	
+	if($invocie_details['INVOICE_AMOUNT'] == $cash_amount){	
 		/* insert Transaction */
 		$memo = "Full Cash Payment Made of $$cash_amount, Memo: $cash_memo";
 	
