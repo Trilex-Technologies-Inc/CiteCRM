@@ -13,7 +13,7 @@
 if(isset($VAR['submit'])) {
 
 	/* update billing information */
-	if($VAR['cc_billing'] == 1 ) {
+	if(isset($VAR['cc_billing']) && $VAR['cc_billing'] == 1 ) {
 		$q = "UPDATE ".PRFX."CONFIG_BILLING_OPTIONS SET ACTIVE=1 WHERE  BILLING_OPTION='cc_billing'";
 		$rs = $db->execute($q);
 		
@@ -32,7 +32,7 @@ if(isset($VAR['submit'])) {
 		$rs = $db->execute($q);
 	}
 
-	if($VAR['check_billing'] == 1 ) {
+	if(isset($VAR['check_billing']) && $VAR['check_billing'] == 1 ) {
 		$q = "UPDATE ".PRFX."CONFIG_BILLING_OPTIONS SET ACTIVE=1 WHERE  BILLING_OPTION='check_billing'";
 		$rs = $db->execute($q);
 	} else {
@@ -40,7 +40,7 @@ if(isset($VAR['submit'])) {
 		$rs = $db->execute($q);
 	}
 
-	if($VAR['cash_billing'] == 1 ) {
+	if(isset($VAR['cash_billing']) && $VAR['cash_billing'] == 1 ) {
 		$q = "UPDATE ".PRFX."CONFIG_BILLING_OPTIONS SET ACTIVE=1 WHERE  BILLING_OPTION='cash_billing'";
 		$rs = $db->execute($q);
 	} else {
@@ -48,7 +48,7 @@ if(isset($VAR['submit'])) {
 		$rs = $db->execute($q);
 	}
 	
-	if($VAR['gift_billing'] == 1 ) {
+	if(isset($VAR['gift_billing']) && $VAR['gift_billing'] == 1 ) {
 		$q = "UPDATE ".PRFX."CONFIG_BILLING_OPTIONS SET ACTIVE=1 WHERE  BILLING_OPTION='gift_billing'";
 		$rs = $db->execute($q);
 	} else {
@@ -56,7 +56,7 @@ if(isset($VAR['submit'])) {
 		$rs = $db->execute($q);
 	}
 	
-	if($VAR['paypal_billing'] == 1 ) {
+	if(isset($VAR['paypal_billing']) && $VAR['paypal_billing'] == 1 ) {
 		$q = "UPDATE ".PRFX."CONFIG_BILLING_OPTIONS SET ACTIVE=1 WHERE  BILLING_OPTION='paypal_billing'";
 		$rs = $db->execute($q);
 		
