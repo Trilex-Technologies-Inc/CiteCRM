@@ -2,124 +2,113 @@
 <head>
 	<title>{$translate_parts_order_complete}</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 	<link href="css/default.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<table  width="700" border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
-	<tr>
-		<td valign="top">
-			<img src="images/cite_crm.jpg" border="0">
-		</td>
-	</tr>
-</table>
-<br>
-<table  width="700" border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
-	<tr>
-		<td valign="top">
-			<!-- Left Column -->
+<div class="container my-4">
+	<div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+		<div class="me-auto">
+			<img src="images/cite_crm.jpg" alt="CiteCRM" class="img-fluid" style="max-width: 240px;">
+		</div>
 
-				<font size="+2">Cite CRM</font><br>
-				323 SE Riverside AV<br>
-				Grants Pass, Oregon 97526<br>
-				1-866-471-1343<br>
-		</td>
-		<td valign="top" align="right" width="205">
-			<!-- Right Column -->
-			<table width="205" border="1" cellpadding="3" cellspacing="0" style="border-collapse: collapse;">
+		<div class="card border-dark" style="min-width: 260px;">
+			<div class="card-body p-3">
+				<div><b>{$translate_parts_crm_order_id}</b> {$order.INVOICE_ID}</div>
+				<div><b>{$translate_parts_date}</b> {$order.DATE_CREATE|date_format:"%m/%d/%y"}</div>
+				<div><b>{$translate_parts_total}</b> ${$order.TOTAL|string_format:"%.2f"}</div>
+				<div><b>{$translate_parts_total_items}</b> {$order.TOTAL_ITEMS}</div>
+				<div><b>{$translate_parts_weight}</b> {$order.WEIGHT} lbs</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row g-3 mt-1">
+		<div class="col-12 col-md-8">
+			<div class="card border-dark h-100">
+				<div class="card-body p-3">
+					<div class="fs-4 fw-bold">Cite CRM</div>
+					<div>323 SE Riverside AV</div>
+					<div>Grants Pass, Oregon 97526</div>
+					<div>1-866-471-1343</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12 col-md-4">
+			<div class="card border-dark h-100">
+				<div class="card-body p-3">
+					<div><b>{$translate_parts_wo_id}</b> {$order.WO_ID}</div>
+					<div><b>{$translate_parts_tech}</b> {$display_login}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row g-3 mt-1">
+		<div class="col-12">
+			<div class="card border-dark">
+				<div class="card-body p-3">
+					<div class="fw-bold mb-2">{$translate_parts_ship_to}</div>
+					<div class="fs-4 fw-bold">{$company_name}</div>
+					<div>{$company_address}</div>
+					<div>{$company_city}, {$company_state} {$company_zip}</div>
+					<div>{$company_phone}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<h2 class="text-center my-4">{$translate_parts_cap_invoice}</h2>
+
+	<div class="mb-2 fw-bold">Parts</div>
+	<div class="table-responsive">
+		<table class="table table-bordered align-middle">
+			<thead class="table-light">
 				<tr>
-					<td class="olotd5"><b>{$translate_parts_crm_order_id}</b> {$order.INVOICE_ID}<br>
-							<b>{$translate_parts_date}</b> {$order.DATE_CREATE|date_format:"%m/%d/%y"}<br>
-							<b>{$translate_parts_total}</b> ${$order.TOTAL}<br>
-							<b>{$translate_parts_total_items}</b> {$order.TOTAL_ITEMS}<br>
-							<b>{$translate_parts_weight}</b> {$order.WEIGHT} lbs
-					</td>
+					<th style="width: 120px;">{$translate_parts_sku}</th>
+					<th style="width: 90px;">{$translate_parts_count}</th>
+					<th>{$translate_parts_description}</th>
+					<th style="width: 140px;">{$translate_parts_vendor}</th>
+					<th class="text-end" style="width: 120px;">{$translate_parts_amount}</th>
+					<th class="text-end" style="width: 130px;">{$translate_parts_sub_total}</th>
 				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
-<br>
-<table  width="700" border="0" cellpadding="3" cellspacing="0" >
-	<tr>
-		<td valign="top" width="10%" align="right"><b>{$translate_parts_ship_to}</b></td>
-		<td valign="top" >
-			
-			
-				<font size="+2">{$company_name}</font><br>
-				{$company_address}<br>
-				{$company_city}, {$company_state {$company_zip}<br>
-				{$company_phone}<br>
-			
-		</td>
-		<td valign="top" align="right" width="200">
-			<table width="200" border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+			</thead>
+			<tbody>
+				{section name=q loop=$details}
 				<tr>
-					<td class="olotd5">
-						<b>{$translate_parts_wo_id}</b> {$order.WO_ID}<br>
-						<b>{$translate_parts_tech}</b>{$display_login}
-					</td>
+					<td><b>{$details[q].SKU}</b></td>
+					<td>{$details[q].COUNT}</td>
+					<td>{$details[q].DESCRIPTION}</td>
+					<td>{$details[q].VENDOR}</td>
+					<td class="text-end">${$details[q].PRICE|string_format:"%.2f"}</td>
+					<td class="text-end">${$details[q].SUB_TOTAL|string_format:"%.2f"}</td>
 				</tr>
-			</table>
-	</tr>
-</table>
-<br>
-<table width="700" border="1" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
-	<tr>
-		<td align="center" class="olotd5" ><font size="+2">{$translate_parts_cap_invoice}</font></td>
-	</tr>
-</table>
-<br>
-<b>Parts</b>
-<table width="700" border="1" cellpadding="3" cellspacing="0" style="border-collapse: collapse;">
-	<tr>
-		<td class="olohead" width="40"><b>{$translate_parts_sku}</b></td>
-		<td class="olohead" width="40"><b>{$translate_parts_count}</b></td>
-		<td class="olohead"><b>{$translate_parts_description}</b></td>
-		<td class="olohead" width="40"><b>{$translate_parts_vendor}</b></td>
-		<td class="olohead" width="40"><b>{$translate_parts_amount}</b></td>	
-		<td class="olohead" width="80"><b>{$translate_parts_sub_total}</b></td>
-	</tr>
-		{section name=q loop=$details}
-		<tr>
-			<td class="olotd4" width="40"><b>{$details[q].SKU}</b></td>
-			<td class="olotd4">{$details[q].COUNT}</td>
-			<td class="olotd4">{$details[q].DESCRIPTION}</td>
-			<td class="olotd4">{$details[q].VENDOR}</td>
-			<td class="olotd4" align="right">${$details[q].PRICE|string_format:"%.2f"}</td>
-			<td class="olotd4" align="right">${$details[q].SUB_TOTAL|string_format:"%.2f"}</td>
-		</tr>	
-	{/section}
-</table>
-<br>
-<table width="700" border="0" cellpadding="3" cellspacing="0" style="border-collapse: collapse;">
-	<tr>
-		<td align="right">
-			<table width="200" border="1" cellpadding="3" cellspacing="0" style="border-collapse: collapse;">
-				<tr>
-			
-						<td class="olotd4"><b>{$translate_parts_sub_total}</b></td>
-						<td width="80" align="right" class="olotd4">${$order.SUB_TOTAL|string_format:"%.2f"}</td>
-				</tr><tr>
-						<td class="olotd4"><b>{$translate_parts_shipping}</b></td>
-						<td width="80" align="right" class="olotd4">${$order.SHIPPING|string_format:"%.2f"}</td>
-				</tr><t>
-						<td class="olotd4"><b>{$translate_parts_tax}</b></td>
-						<td width="80" align="right" class="olotd4">${$order.TAX|string_format:"%.2f"}</td>
-				</tr><t>
-						<td><b>{$translate_parts_total}</b></td>
-						<td width="80" align="right" class="olotd4">${$order.TOTAL|string_format:"%.2f"}</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
-<br>
-<table width="700" border="1" cellpadding="3" cellspacing="0" style="border-collapse: collapse;">
-	<tr>
-		<td class="olotd5"><font size="-1">{$translate_parts_msg_11}</font></td>
-	</tr>
-</table>
-<br>
-<br>
+				{/section}
+			</tbody>
+		</table>
+	</div>
+
+	<div class="row justify-content-end">
+		<div class="col-12 col-sm-8 col-md-5 col-lg-4">
+			<div class="card border-dark">
+				<div class="card-body p-3">
+					<div class="d-flex justify-content-between"><div><b>{$translate_parts_sub_total}</b></div><div class="text-end">${$order.SUB_TOTAL|string_format:"%.2f"}</div></div>
+					<div class="d-flex justify-content-between"><div><b>{$translate_parts_shipping}</b></div><div class="text-end">${$order.SHIPPING|string_format:"%.2f"}</div></div>
+					<div class="d-flex justify-content-between"><div><b>{$translate_parts_tax}</b></div><div class="text-end">${$order.TAX|string_format:"%.2f"}</div></div>
+					<hr class="my-2">
+					<div class="d-flex justify-content-between fw-bold"><div>{$translate_parts_total}</div><div class="text-end">${$order.TOTAL|string_format:"%.2f"}</div></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card border-dark mt-3">
+		<div class="card-body p-3">
+			<small>{$translate_parts_msg_11}</small>
+		</div>
+	</div>
+</div>
 </body>
 </html>

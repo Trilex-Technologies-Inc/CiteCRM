@@ -42,19 +42,6 @@ $q = "SELECT CUSTOMER_ID FROM ".PRFX."TABLE_WORK_ORDER  WHERE WORK_ORDER_ID=".$d
 
 $customer_id = $rs->fields['CUSTOMER_ID'];
 
-
-
-$q = "SELECT SKU,AMOUNT FROM ".PRFX."CART";
-	if(!$rs = $db->execute($q)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;
-	}
-
-	if($rs->fields['SKU'] == ''){
-		   force_page('parts', 'main&error_msg=You  have no parts in your Cart. Please select the parts you whish to order and click add.&wo_id='.$VAR['wo_id'].'&page_title=Order%20Parts');
-			exit;
-	}
-
 	/*
 	 * Local-only checkout: build the order from the local CART table
 	 * instead of calling external APIs.
@@ -74,7 +61,7 @@ $q = "SELECT SKU,AMOUNT FROM ".PRFX."CART";
 
 	$cart_rows = $rs->GetArray();
 	if (!is_array($cart_rows) || count($cart_rows) === 0) {
-		force_page('parts', 'main&error_msg=You  have no parts in your Cart. Please select the parts you whish to order and click add.&wo_id='.$VAR['wo_id'].'&page_title=Order%20Parts');
+		force_page('parts', 'main&error_msg=You have no parts in your Cart. Please select the parts you wish to order and click add.&wo_id='.$VAR['wo_id'].'&page_title=Order%20Parts');
 		exit;
 	}
 
