@@ -49,7 +49,7 @@ if(isset($VAR['ups_password']) && $VAR['ups_password'] != '') {
 		exit;
 	}
 
-	print $q;
+
 
 
 unset($q);
