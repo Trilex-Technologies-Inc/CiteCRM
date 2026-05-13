@@ -1021,6 +1021,7 @@ function create_setup($db)
   `AN_PASSWORD` varchar(255) NOT NULL default '',
   `AN_TRANS_KEY` varchar(255) NOT NULL default '',
   `PP_ID` varchar(255) NOT NULL default '',
+  `PP_SANDBOX` int(1) NOT NULL default '0',
   `HTML_PRINT` int(1) NOT NULL default '0',
   `PDF_PRINT` int(1) NOT NULL default '0',
   `INVOCIE_TAX` decimal(4,2) NOT NULL default '0.00',  -- Changed from (2,2)
@@ -1042,7 +1043,7 @@ function create_setup($db)
 		return false;
 	} else {
 
-		$q = "INSERT INTO `" . PRFX . "SETUP` VALUES (7, 19, '', '', '', '', 1, 0, 0.00, '', '', '', '', '', '03', 0.00, '', '', '')";
+		$q = "INSERT INTO `" . PRFX . "SETUP` VALUES (7, 19, '', '', '', '', 0, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, '', '', '')";
 
 		if (!$rs = $db->Execute($q)) {
 			return false;

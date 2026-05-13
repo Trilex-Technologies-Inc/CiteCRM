@@ -80,6 +80,12 @@
 									<label for="pp_id" class="form-label"><b>Paypal Email:</b></label>
 									<input type="text" class="form-control" id="pp_id" name="PP_ID" value="{$opts[w].PP_ID}">
 								</div>
+								<div class="form-check mb-3">
+									<input class="form-check-input" type="checkbox" id="pp_sandbox" name="PP_SANDBOX" value="1" {if $opts[w].PP_SANDBOX == 1}checked{/if}>
+									<label class="form-check-label" for="pp_sandbox">
+										<b>Use PayPal Sandbox</b>
+									</label>
+								</div>
 							{/section}
 						</div>
 

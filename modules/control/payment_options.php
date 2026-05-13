@@ -60,7 +60,10 @@ if(isset($VAR['submit'])) {
 		$q = "UPDATE ".PRFX."CONFIG_BILLING_OPTIONS SET ACTIVE=1 WHERE  BILLING_OPTION='paypal_billing'";
 		$rs = $db->execute($q);
 		
-		$q = "UPDATE ".PRFX."SETUP SET PP_ID=".$db->qstr($VAR['PP_ID']);
+		$pp_sandbox = (isset($VAR['PP_SANDBOX']) && $VAR['PP_SANDBOX'] == 1) ? 1 : 0;
+		$q = "UPDATE ".PRFX."SETUP SET
+				PP_ID=".$db->qstr($VAR['PP_ID']).",
+				PP_SANDBOX=".$db->qstr($pp_sandbox);
 		$rs = $db->execute($q);
 	} else {
 		$q = "UPDATE ".PRFX."CONFIG_BILLING_OPTIONS SET ACTIVE=0 WHERE  BILLING_OPTION='paypal_billing'";
@@ -80,7 +83,7 @@ if(isset($VAR['submit'])) {
 	$arr = $rs->GetArray();
 
 	/* load setup configuration for billing options */
-	$q = "SELECT AN_LOGIN_ID,AN_TRANS_KEY,PP_ID FROM ".PRFX."SETUP";
+	$q = "SELECT AN_LOGIN_ID,AN_TRANS_KEY,PP_ID,PP_SANDBOX FROM ".PRFX."SETUP";
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 		exit;
