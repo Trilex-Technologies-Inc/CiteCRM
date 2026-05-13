@@ -1,6 +1,40 @@
 <!-- -->
 <div class="container-fluid">
 
+    {* If more than one payment method is enabled, show a selector and only expand the chosen method. *}
+    {assign var=pm_count value=0}
+    {if $billing_options.cc_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+    {if $billing_options.check_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+    {if $billing_options.cash_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+    {if $billing_options.gift_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+    {if $billing_options.paypal_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+
+    {literal}
+    <script>
+        function citecrmShowPaymentMethod(method) {
+            var ids = ['pm-cc', 'pm-check', 'pm-cash', 'pm-gift', 'pm-paypal'];
+            ids.forEach(function (id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                el.style.display = 'none';
+            });
+            if (!method) return;
+            var target = document.getElementById('pm-' + method);
+            if (target) target.style.display = '';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var sel = document.getElementById('payment_method');
+            if (!sel) return;
+            // Start with no payment form shown until user chooses a method.
+            citecrmShowPaymentMethod(sel.value || '');
+            sel.addEventListener('change', function () {
+                citecrmShowPaymentMethod(sel.value);
+            });
+        });
+    </script>
+    {/literal}
+
     <!-- Toolbar -->
     <div class="mb-3">
         {include file="core/tool_bar.tpl"}
@@ -76,6 +110,24 @@
                             <span class="fw-bold">{$translate_billing_phone}</span>
                             &nbsp;{$item.CUSTOMER_PHONE}
                         </div>
+
+                        {if $pm_count > 1}
+                            <div class="card mt-3">
+                                <div class="card-header fw-bold">&nbsp;Payment Method</div>
+                                <div class="card-body">
+                                    <label for="payment_method" class="form-label fw-bold mb-2">Choose one</label>
+                                    <select id="payment_method" class="form-select" onchange="citecrmShowPaymentMethod(this.value)">
+                                        <option value="" selected="selected">-- Select a payment method --</option>
+                                        {if $billing_options.cc_billing == '1'}<option value="cc">{$translate_billing_credit_card}</option>{/if}
+                                        {if $billing_options.check_billing == '1'}<option value="check">{$translate_billing_check}</option>{/if}
+                                        {if $billing_options.cash_billing == '1'}<option value="cash">{$translate_billing_cash}</option>{/if}
+                                        {if $billing_options.gift_billing == '1'}<option value="gift">{$translate_billing_gift}</option>{/if}
+                                        {if $billing_options.paypal_billing == '1'}<option value="paypal">{$translate_billing_paypal}</option>{/if}
+                                    </select>
+                                </div>
+                            </div>
+                        {/if}
+
                         {assign var="customer_id" value=$item.CUSTOMER_ID}
                     {/foreach}
                 </div>
@@ -131,7 +183,7 @@
 
                 <!-- Credit card payment -->
                 {if $billing_options.cc_billing == '1'}
-                    <form method="POST" action="">
+                    <form method="POST" action="" id="pm-cc" {if $pm_count > 1}style="display:none"{/if}>
                         <div class="card mb-4">
                             <div class="card-header fw-bold">
                                 &nbsp;{$translate_billing_credit_card}
@@ -188,7 +240,7 @@
 
                 <!-- Check payment -->
                 {if $billing_options.check_billing == '1'}
-                    <form method="POST" action="">
+                    <form method="POST" action="" id="pm-check" {if $pm_count > 1}style="display:none"{/if}>
                         <div class="card mb-4">
                             <div class="card-header fw-bold">
                                 &nbsp;{$translate_billing_check}
@@ -231,7 +283,7 @@
 
                 <!-- Cash payment -->
                 {if $billing_options.cash_billing == '1'}
-                    <form method="POST" action="">
+                    <form method="POST" action="" id="pm-cash" {if $pm_count > 1}style="display:none"{/if}>
                         <div class="card mb-4">
                             <div class="card-header fw-bold">
                                 &nbsp;{$translate_billing_cash}
@@ -270,7 +322,7 @@
 
                 <!-- Gift certificate payment -->
                 {if $billing_options.gift_billing == '1'}
-                    <form method="POST" action="">
+                    <form method="POST" action="" id="pm-gift" {if $pm_count > 1}style="display:none"{/if}>
                         <div class="card mb-4">
                             <div class="card-header fw-bold">
                                 &nbsp;{$translate_billing_gift}
@@ -311,7 +363,7 @@
 
                 <!-- PayPal payment -->
                 {if $billing_options.paypal_billing == '1'}
-                    <form method="POST" action="?page=billing:proc_paypal">
+                    <form method="POST" action="?page=billing:proc_paypal" id="pm-paypal" {if $pm_count > 1}style="display:none"{/if}>
                         <div class="card mb-4">
                             <div class="card-header fw-bold">
                                 &nbsp;{$translate_billing_paypal}

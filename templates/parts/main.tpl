@@ -65,30 +65,30 @@ function setOptions(chosen) {
 							{if $inventory_products|@count > 0}
 								<div class="table-responsive mb-4">
 									<h5 class="mb-3">Products</h5>
-									<table class="table table-striped table-hover">
+									<table class="table table-striped table-hover align-middle">
 										<thead class="table-dark">
 											<tr>
-												<th style="width: 90px;">ID</th>
+												<th class="d-none d-md-table-cell" style="width: 90px;">ID</th>
 												<th style="min-width: 220px;">Name</th>
-												<th style="min-width: 160px;">Manufacturer</th>
-												<th style="width: 140px;">SKU</th>
+												<th class="d-none d-lg-table-cell" style="min-width: 160px;">Manufacturer</th>
+												<th class="d-none d-md-table-cell" style="width: 140px;">SKU</th>
 												<th style="width: 120px;">Price</th>
-												<th>Description</th>
+												<th class="d-none d-xl-table-cell">Description</th>
 												<th style="width: 160px;">Add</th>
 											</tr>
 										</thead>
 										<tbody>
 											{section name=ip loop=$inventory_products}
 												<tr>
-													<td class="text-muted">{$inventory_products[ip].PRODUCT_ID}</td>
-													<td>{$inventory_products[ip].PRODUCT_NAME|escape}</td>
-													<td>{if $inventory_products[ip].MANUFACTURER_NAME != ''}{$inventory_products[ip].MANUFACTURER_NAME|escape}{else}-{/if}</td>
-													<td>{$inventory_products[ip].PRODUCT_SKU|escape}</td>
+													<td class="d-none d-md-table-cell text-muted">{$inventory_products[ip].PRODUCT_ID}</td>
+													<td class="text-break">{$inventory_products[ip].PRODUCT_NAME|escape}</td>
+													<td class="d-none d-lg-table-cell">{if $inventory_products[ip].MANUFACTURER_NAME != ''}{$inventory_products[ip].MANUFACTURER_NAME|escape}{else}-{/if}</td>
+													<td class="d-none d-md-table-cell">{$inventory_products[ip].PRODUCT_SKU|escape}</td>
 													<td class="text-end">${$inventory_products[ip].PRODUCT_PRICE|string_format:"%.2f"}</td>
-													<td>{$inventory_products[ip].PRODUCT_DESCRIPTION|escape}</td>
+													<td class="d-none d-xl-table-cell text-break">{$inventory_products[ip].PRODUCT_DESCRIPTION|escape}</td>
 													<td class="text-center">
-														<form method="post" action="?page=parts:main" class="d-inline-flex gap-2 align-items-center">
-															<input type="text" class="form-control form-control-sm text-center" name="AMOUNT" value="1" style="width: 70px;" maxlength="4">
+														<form method="post" action="?page=parts:main" class="d-flex flex-column flex-sm-row gap-2 align-items-stretch align-items-sm-center justify-content-center">
+															<input type="text" class="form-control form-control-sm text-center w-100" name="AMOUNT" value="1" style="max-width: 90px;" maxlength="4" inputmode="numeric" pattern="[0-9]*">
 															<input type="hidden" name="SKU" value="{$inventory_products[ip].PRODUCT_SKU|escape}">
 															<input type="hidden" name="DESCRIPTION" value="{$inventory_products[ip].PRODUCT_NAME|escape}">
 															<input type="hidden" name="VENDOR" value="{$inventory_products[ip].MANUFACTURER_NAME|escape}">
@@ -99,7 +99,7 @@ function setOptions(chosen) {
 															<input type="hidden" name="add_part" value="1">
 															<input type="hidden" name="wo_id" value="{$wo_id}">
 															<input type="hidden" name="from_zip" value="{$from_zip}">
-															<input type="submit" class="btn btn-sm btn-primary" name="submit" value="Add">
+															<input type="submit" class="btn btn-sm btn-primary w-100" name="submit" value="Add">
 														</form>
 													</td>
 												</tr>
@@ -112,34 +112,34 @@ function setOptions(chosen) {
 								<div class="mt-4">
 									<h4 class="mb-3">Check Out</h4>
 									<div class="table-responsive">
-										<table class="table table-striped table-hover">
-											<thead class="table-dark">
-												<tr>
-													<th class="text-center">{$translate_parts_amount}</th>
-													<th class="text-center">{$translate_parts_sku}</th>
-													<th class="text-center">{$translate_parts_item_id}</th>
-													<th>{$translate_parts_description}</th>
-													<th>{$translate_parts_vendor}</th>
-													<th class="text-center">{$translate_parts_weight}</th>
-													<th class="text-end">{$translate_parts_each}</th>
-													<th class="text-end">{$translate_parts_total}</th>
-												</tr>
-											</thead>
-											<tbody>
-												{section name=a loop=$cart_contents}
+											<table class="table table-striped table-hover align-middle">
+												<thead class="table-dark">
 													<tr>
-														<td class="text-center align-middle">{$cart_contents[a].AMOUNT}</td>
-														<td class="text-center align-middle">{$cart_contents[a].SKU}</td>
-														<td class="text-center align-middle">{$cart_contents[a].ITEMID}</td>
-														<td class="align-middle">{$cart_contents[a].DESCRIPTION}</td>
-														<td class="align-middle">{$cart_contents[a].VENDOR}</td>
-														<td class="text-center align-middle">{$cart_contents[a].Weight} {$cart_contents[a].UNIT}</td>
-														<td class="text-end align-middle">${$cart_contents[a].PRICE|string_format:"%.2f"}</td>
-														<td class="text-end align-middle">${$cart_contents[a].SUB_TOTAL|string_format:"%.2f"}</td>
-														<input type="hidden" name="SKU" value="{$cart_contents[a].SKU}">
-														<input type="hidden" name="PRICE" value="{$cart_contents[a].PRICE|string_format:"%.2f"}">
+														<th class="text-center">{$translate_parts_amount}</th>
+														<th class="text-center">{$translate_parts_sku}</th>
+														<th class="text-center d-none d-lg-table-cell">{$translate_parts_item_id}</th>
+														<th>{$translate_parts_description}</th>
+														<th class="d-none d-md-table-cell">{$translate_parts_vendor}</th>
+														<th class="text-center d-none d-lg-table-cell">{$translate_parts_weight}</th>
+														<th class="text-end d-none d-md-table-cell">{$translate_parts_each}</th>
+														<th class="text-end">{$translate_parts_total}</th>
 													</tr>
-												{/section}
+												</thead>
+												<tbody>
+													{section name=a loop=$cart_contents}
+														<tr>
+															<td class="text-center align-middle">{$cart_contents[a].AMOUNT}</td>
+															<td class="text-center align-middle">{$cart_contents[a].SKU}</td>
+															<td class="text-center align-middle d-none d-lg-table-cell">{$cart_contents[a].ITEMID}</td>
+															<td class="align-middle text-break">{$cart_contents[a].DESCRIPTION}</td>
+															<td class="align-middle d-none d-md-table-cell">{$cart_contents[a].VENDOR}</td>
+															<td class="text-center align-middle d-none d-lg-table-cell">{$cart_contents[a].Weight} {$cart_contents[a].UNIT}</td>
+															<td class="text-end align-middle d-none d-md-table-cell">${$cart_contents[a].PRICE|string_format:"%.2f"}</td>
+															<td class="text-end align-middle">${$cart_contents[a].SUB_TOTAL|string_format:"%.2f"}</td>
+															<input type="hidden" name="SKU" value="{$cart_contents[a].SKU}">
+															<input type="hidden" name="PRICE" value="{$cart_contents[a].PRICE|string_format:"%.2f"}">
+														</tr>
+													{/section}
 												<tr class="table-light">
 													<td colspan="6" class="align-middle">
 														{$translate_parts_msg_5} ${$total_charges|string_format:"%.2f"}. {$translate_parts_msg_6} {$service_code} {$translate_parts_msg_7} {$location}. {$translate_parts_msg_8}
