@@ -32,7 +32,7 @@ if(!$rs = $db->execute($q)) {
 	}
 
 $from_zip = $rs->fields['COMPANY_ZIP'];
-$workorder_id = $VAR['wo_id'];
+$workorder_id = isset($VAR['wo_id']) ? $VAR['wo_id'] : '';
 
 $q = "SELECT CUSTOMER_ID FROM ".PRFX."TABLE_WORK_ORDER  WHERE WORK_ORDER_ID=".$db->qstr($workorder_id);
 	if(!$rs = $db->execute($q)) {
@@ -46,11 +46,14 @@ $customer_id = $rs->fields['CUSTOMER_ID'];
 	 * Local-only checkout: build the order from the local CART table
 	 * instead of calling external APIs.
 	 */
-	$cart_where = '';
-	$wo_id = $workorder_id;
-	if ($workorder_id !== '' && (int)$workorder_id > 0) {
-		$cart_where = " WHERE WO_ID=".$db->qstr((int)$workorder_id);
-	}
+		$cart_where = '';
+		$wo_id = $workorder_id;
+		if ($workorder_id !== '' && (int)$workorder_id > 0) {
+			$cart_where = " WHERE WO_ID=".$db->qstr((int)$workorder_id);
+		} else if (isset($VAR['wo_id']) && $VAR['wo_id'] === '0') {
+			// Explicitly allow WO_ID=0 scoped carts.
+			$cart_where = " WHERE WO_ID=".$db->qstr('0');
+		}
 
 	$q = "SELECT SKU, AMOUNT, DESCRIPTION, VENDOR, PRICE, SUB_TOTAL, Weight
 		  FROM ".PRFX."CART".$cart_where;
@@ -60,10 +63,20 @@ $customer_id = $rs->fields['CUSTOMER_ID'];
 	}
 
 	$cart_rows = $rs->GetArray();
-	if (!is_array($cart_rows) || count($cart_rows) === 0) {
-		force_page('parts', 'main&error_msg=You have no parts in your Cart. Please select the parts you wish to order and click add.&wo_id='.$VAR['wo_id'].'&page_title=Order%20Parts');
-		exit;
-	}
+		if (!is_array($cart_rows) || count($cart_rows) === 0) {
+			// If a WO_ID was passed but no rows matched, fall back to any cart rows.
+			// This avoids a confusing redirect when the cart exists but isn't scoped.
+			if ($cart_where !== '') {
+				$q = "SELECT SKU, AMOUNT, DESCRIPTION, VENDOR, PRICE, SUB_TOTAL, Weight FROM ".PRFX."CART";
+				if ($rs2 = $db->execute($q)) {
+					$cart_rows = $rs2->GetArray();
+				}
+			}
+		}
+		if (!is_array($cart_rows) || count($cart_rows) === 0) {
+			force_page('parts', 'main&error_msg=You have no parts in your Cart. Please select the parts you wish to order and click add.&wo_id='.$workorder_id.'&page_title=Order%20Parts');
+			exit;
+		}
 
 	$details = array();
 	$cart_total = 0.00;

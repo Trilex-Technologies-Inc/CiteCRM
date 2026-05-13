@@ -158,6 +158,7 @@ function setOptions(chosen) {
 															<span class="text-danger">{$ErrorDescription}</span>
 														{else}
 															<form method="post" action="?page=parts:checkout" class="d-inline">
+																<input type="hidden" name="page" value="parts:checkout">
 																<input type="hidden" name="wo_id" value="{$wo_id}">
 																<input type="submit" class="btn btn-success btn-sm" name="submit" value="check out">
 															</form>

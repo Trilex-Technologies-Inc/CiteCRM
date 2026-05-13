@@ -356,6 +356,14 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 		$height		= 10;
 	
 	if($ups_login != '') {
+			// Defaults to avoid notices when UPS response is missing/invalid.
+			$rate = array();
+			// UPS uses "1" for success and "0" for failure; default to success so
+			// users can still proceed when rate lookup is unavailable.
+			$ResponseStatusCode = 1;
+			$ErrorDescription = '';
+			$MonetaryValue = array('MonetaryValue' => '0.00');
+			$GuaranteedDaysToDelivery = array('GuaranteedDaysToDelivery' => '');
 
 			$activity = "activity"; 	
 			$y = "<?xml version=\"1.0\"?><AccessRequest xml:lang=\"en-US\"><AccessLicenseNumber>$ups_access_key</AccessLicenseNumber><UserId>$ups_login</UserId><Password>$ups_password</Password></AccessRequest><?xml version=\"1.0\"?><RatingServiceSelectionRequest xml:lang=\"en-US\"><Request><TransactionReference><CustomerContext>Bare Bones Rate Request</CustomerContext><XpciVersion>1.0</XpciVersion></TransactionReference><RequestAction>Rate</RequestAction><RequestOption>Rate</RequestOption></Request><PickupType><Code>01</Code></PickupType><Shipment><Shipper><Address><PostalCode>$from_zip</PostalCode><CountryCode>US</CountryCode></Address></Shipper><ShipTo><Address><PostalCode>$to_zip</PostalCode><CountryCode>US</CountryCode></Address></ShipTo><ShipFrom><Address><PostalCode>$from_zip</PostalCode><CountryCode>US</CountryCode></Address></ShipFrom><Service><Code>$service_code</Code></Service><Package><PackagingType><Code>02</Code></PackagingType><Dimensions><UnitOfMeasurement><Code>IN</Code></UnitOfMeasurement><Length>$length</Length><Width>$width</Width><Height>$height</Height></Dimensions><PackageWeight><UnitOfMeasurement><Code>LBS</Code></UnitOfMeasurement><Weight>$cart_weight_total</Weight></PackageWeight></Package></Shipment></RatingServiceSelectionRequest>";  
@@ -380,18 +388,15 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 				
 				//print_r($values);
 				
-				foreach($values as $xml){
+					foreach($values as $xml){
 			
-					if($xml['tag'] == "ResponseStatusCode" && $xml['value'] != "" ){
-							$ResponseStatusCode  = array('ResponseStatusCode'=>$xml['value']);
-					}
-					 if ($xml['tag'] == "ResponseStatusCode" && $xml['value'] != "" ) {
-							$ResponseStatusCode	= $xml['value'];	
-					}
+						if ($xml['tag'] == "ResponseStatusCode" && $xml['value'] != "" ) {
+							$ResponseStatusCode	= $xml['value'];
+						}
 						
-					if	($xml['tag'] == "ErrorDescription" && $xml['value'] != "" ) {
-						$ErrorDescription		= $xml['value'];
-					}
+						if	($xml['tag'] == "ErrorDescription" && $xml['value'] != "" ) {
+							$ErrorDescription		= $xml['value'];
+						}
 
 					if($xml['tag'] == "MonetaryValue" && $xml['value'] != "" ){
 						$MonetaryValue = array('MonetaryValue'=>$xml['value']);
@@ -401,20 +406,29 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 						$GuaranteedDaysToDelivery =  array('GuaranteedDaysToDelivery'=>$xml['value']);
 					}	
 				
-					if($xml['tag'] == "RatedShipment" && $xml['type'] == "close" ){
-						$rate[] = array_merge($ResponseStatusCode,$MonetaryValue,$GuaranteedDaysToDelivery);
-					}
+						if($xml['tag'] == "RatedShipment" && $xml['type'] == "close" ){
+							$rate[] = array_merge(array('ResponseStatusCode' => $ResponseStatusCode), $MonetaryValue, $GuaranteedDaysToDelivery);
+						}
 			
-				}
+					}
  
 			
-
-			$shipping_charges = number_format($rate[0]['MonetaryValue'], 2, '.', '');
-			$total_charges = $sub_total + $rate[0]['MonetaryValue'];
-	} else {
-		$shipping_charges = '0.00';
-		$total_charges = $sub_total;
-		$ResponseStatusCode	= 1;
+				if (isset($rate[0]) && isset($rate[0]['MonetaryValue'])) {
+					$shipping_charges = number_format((float)$rate[0]['MonetaryValue'], 2, '.', '');
+					$total_charges = $sub_total + (float)$rate[0]['MonetaryValue'];
+				} else {
+					$shipping_charges = '0.00';
+					$total_charges = $sub_total;
+					if ($ErrorDescription == '') {
+						$ErrorDescription = 'Unable to retrieve UPS rate (using $0.00 shipping)';
+					}
+					// Allow checkout even if rating fails.
+					$ResponseStatusCode = 1;
+				}
+		} else {
+			$shipping_charges = '0.00';
+			$total_charges = $sub_total;
+			$ResponseStatusCode	= 1;
 		$ErrorDescription		= 'You have not set up UPS information';
 	}
 
