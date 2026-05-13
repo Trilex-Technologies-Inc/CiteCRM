@@ -8,6 +8,21 @@
 <div class="container-fluid">
 	<div class="row justify-content-center">
 		<div class="col-12 col-xxl-10">
+			{if $email_to != ''}
+				<div class="alert {if $email_sent == 1}alert-success{else}alert-warning{/if} mb-4" role="alert">
+					{if $email_sent == 1}
+						PayPal link emailed to <strong>{$email_to|escape}</strong>.
+					{else}
+						Could not email PayPal link to <strong>{$email_to|escape}</strong>. Please copy the link below.
+					{/if}
+					{if $paypal_url != ''}
+						<div class="mt-2">
+							<input type="text" class="form-control" value="{$paypal_url|escape}" readonly onclick="this.select();">
+						</div>
+					{/if}
+				</div>
+			{/if}
+
 			<div class="card mb-4 shadow-sm">
 				<div class="card-header d-flex justify-content-between align-items-center">
 					<strong>{$translate_billing_paypal}</strong>
