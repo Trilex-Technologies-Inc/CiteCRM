@@ -137,6 +137,9 @@ function validate_customer_search(frm) {
                             <th scope="col">{$translate_phone}</th>
                             <th scope="col">{$translate_type}</th>
                             <th scope="col">{$translate_email}</th>
+                            {if $has_brand_new_column}
+                                <th scope="col" class="text-center">Brand new</th>
+                            {/if}
                             <th scope="col">{$translate_action}</th>
                         </tr>
                     </thead>
@@ -183,6 +186,16 @@ function validate_customer_search(frm) {
                                         {$customer_search_result[i].CUSTOMER_EMAIL}
                                     </a>
                                 </td>
+                                {if $has_brand_new_column}
+                                    <td class="text-nowrap text-center" onclick="if (event && event.stopPropagation) event.stopPropagation();">
+                                        <form action="index.php?page=customer:toggle_brand_new" method="post" class="d-inline">
+                                            <input type="hidden" name="customer_id" value="{$customer_search_result[i].CUSTOMER_ID}">
+                                            <input type="hidden" name="name" value="{$name|escape:'html'}">
+                                            <input type="hidden" name="page_no" value="{$page_no|escape:'html'}">
+                                            <input class="form-check-input" type="checkbox" name="brand_new" value="1" {if $customer_search_result[i].CUSTOMER_BRAND_NEW == 1}checked{/if} onclick="if (event && event.stopPropagation) event.stopPropagation();" onchange="this.form.submit();">
+                                        </form>
+                                    </td>
+                                {/if}
                                 <td class="text-nowrap text-center">
                                     <a href="?page=customer:customer_details&customer_id={$customer_search_result[i].CUSTOMER_ID}&page_title={$customer_search_result[i].CUSTOMER_DISPLAY_NAME|escape:'url'}" class="text-decoration-none me-2" aria-label="View customer details">
                                         <i class="bi bi-eye-fill text-secondary  fs-5"

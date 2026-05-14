@@ -672,6 +672,7 @@ function create_table_customer($db)
 		`CREATE_DATE` int(20) NOT NULL default '0',
 		`LAST_ACTIVE` int(20) NOT NULL default '0',
 		`DISCOUNT`  decimal(3,2) NOT NULL default '0.00',
+		`CUSTOMER_BRAND_NEW` tinyint(1) NOT NULL default '0',
 		PRIMARY KEY  (`CUSTOMER_ID`)
 		) ENGINE=MyISAM ";
 

@@ -162,6 +162,17 @@
                     <input type="text" name="discount" value="0.00" class="form-control">
                 </div>
 
+                {if $has_brand_new_column}
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="brand_new" name="brand_new" value="1" {if $VAR.brand_new}checked{/if}>
+                        <label class="form-check-label" for="brand_new">Brand new</label>
+                    </div>
+                {else}
+                    <div class="alert alert-warning mb-3">
+                        Your database is missing the optional <code>CUSTOMER_BRAND_NEW</code> column. Run the upgrade SQL to enable the “Brand new” customer flag.
+                    </div>
+                {/if}
+
                 <input type="hidden" name="page" value="customer:new">
 
                 <div class="mt-4">

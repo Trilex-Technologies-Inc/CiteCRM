@@ -18,6 +18,16 @@ if(!xml2php("employees")) {
 #	Display							#
 #####################################
 
+function customer_has_brand_new_column($db) {
+	static $has_column = null;
+	if ($has_column !== null) {
+		return $has_column;
+	}
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."TABLE_CUSTOMER LIKE 'CUSTOMER_BRAND_NEW'");
+	$has_column = ($rs_cols && !$rs_cols->EOF);
+	return $has_column;
+}
+
 function display_customer_info($db, $customer_id){
 
 	$sql = "SELECT * FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_ID=".$db->qstr($customer_id);
@@ -260,6 +270,7 @@ function checkZip($zip){
 	
 	function insert_new_customer($db,$VAR) {
 		$VAR["zip"] = _normalize_customer_zip($db, isset($VAR["zip"]) ? $VAR["zip"] : '');
+		$brand_new = (!empty($VAR['brand_new']) || (!empty($VAR['customer_brand_new']))) ? 1 : 0;
 	
 		$sql = "INSERT INTO ".PRFX."TABLE_CUSTOMER SET
 				CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]  ).",
@@ -276,7 +287,12 @@ function checkZip($zip){
 			LAST_ACTIVE				= ". $db->qstr( time()                      ).",
 			CUSTOMER_FIRST_NAME		= ". $db->qstr( $VAR["firstName"]    ).", 
 			DISCOUNT 					= ". $db->qstr( $VAR['discount']		).", 
-			CUSTOMER_LAST_NAME		= ". $db->qstr( $VAR["lastName"]     ); 
+			CUSTOMER_LAST_NAME		= ". $db->qstr( $VAR["lastName"]     );
+
+		if (customer_has_brand_new_column($db)) {
+			$sql .= ",
+			CUSTOMER_BRAND_NEW		= ". $db->qstr($brand_new);
+		}
 			
 	if(!$result = $db->Execute($sql)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
@@ -310,6 +326,7 @@ function edit_info($db, $customer_id){
 
 	function update_customer($db,$VAR) {
 		$VAR["zip"] = _normalize_customer_zip($db, isset($VAR["zip"]) ? $VAR["zip"] : '');
+		$brand_new = (!empty($VAR['brand_new']) || (!empty($VAR['customer_brand_new']))) ? 1 : 0;
 	
 		$sql = "UPDATE ".PRFX."TABLE_CUSTOMER SET
 				CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]	).",
@@ -324,7 +341,14 @@ function edit_info($db, $customer_id){
 			CUSTOMER_TYPE			= ". $db->qstr( $VAR["customerType"]	).", 
 			CUSTOMER_FIRST_NAME		= ". $db->qstr( $VAR["firstName"]		).", 
 			CUSTOMER_LAST_NAME		= ". $db->qstr( $VAR["lastName"]		).",
-			DISCOUNT 					= ". $db->qstr( $VAR['discount']		)."
+			DISCOUNT 					= ". $db->qstr( $VAR['discount']		);
+
+		if (customer_has_brand_new_column($db)) {
+			$sql .= ",
+			CUSTOMER_BRAND_NEW		= ". $db->qstr($brand_new);
+		}
+
+		$sql .= "
 			WHERE CUSTOMER_ID		= ". $db->qstr( $VAR['customer_id']	);
 
 			

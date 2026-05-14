@@ -16,6 +16,7 @@ if(!xml2php("customer")) {
 
 /* load customer details */
 $customer_details = display_customer_info($db, $VAR['customer_id']);
+$smarty->assign('has_brand_new_column', customer_has_brand_new_column($db));
 
 if(isset($VAR['submit'])) {	
 	
