@@ -8,11 +8,12 @@
     {if $billing_options.cash_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
     {if $billing_options.gift_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
     {if $billing_options.paypal_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+    {if $billing_options.stripe_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
 
     {literal}
     <script>
         function citecrmShowPaymentMethod(method) {
-            var ids = ['pm-cc', 'pm-check', 'pm-cash', 'pm-gift', 'pm-paypal'];
+            var ids = ['pm-cc', 'pm-check', 'pm-cash', 'pm-gift', 'pm-paypal', 'pm-stripe'];
             ids.forEach(function (id) {
                 var el = document.getElementById(id);
                 if (!el) return;
@@ -123,6 +124,7 @@
                                         {if $billing_options.cash_billing == '1'}<option value="cash">{$translate_billing_cash}</option>{/if}
                                         {if $billing_options.gift_billing == '1'}<option value="gift">{$translate_billing_gift}</option>{/if}
                                         {if $billing_options.paypal_billing == '1'}<option value="paypal">{$translate_billing_paypal}</option>{/if}
+                                        {if $billing_options.stripe_billing == '1'}<option value="stripe">{$translate_billing_stripe}</option>{/if}
                                     </select>
                                 </div>
                             </div>
@@ -166,6 +168,8 @@
                                                         {$translate_billing_gift}
                                                     {elseif $trans[r].TYPE == 5}
                                                         {$translate_billing_paypal}
+                                                    {elseif $trans[r].TYPE == 6}
+                                                        {$translate_billing_stripe}
                                                     {/if}
                                                 </td>
                                             </tr>
@@ -388,6 +392,39 @@
                                     <input type="hidden" name="invoice_id"   value="{$invoice_id}">
                                     <input type="hidden" name="workorder_id" value="{$workorder_id}">
                                     <input type="submit" name="submit" value="Submit PayPal Payment" class="btn btn-primary">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                {/if}
+
+                <!-- Stripe payment -->
+                {if $billing_options.stripe_billing == '1'}
+                    <form method="POST" action="?page=billing:proc_stripe" id="pm-stripe" {if $pm_count > 1}style="display:none"{/if}>
+                        <div class="card mb-4">
+                            <div class="card-header fw-bold">
+                                &nbsp;{$translate_billing_stripe}
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">{$translate_billing_stripe}</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="text"
+                                                   name="stripe_amount"
+                                                   size="8"
+                                                   value="{if $ballance > 0}{$ballance|string_format:"%.2f"}{else}{$invoice_amount|string_format:"%.2f"}{/if}"
+                                                   class="form-control olotd4">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <input type="hidden" name="customer_id"  value="{$customer_id}">
+                                    <input type="hidden" name="invoice_id"   value="{$invoice_id}">
+                                    <input type="hidden" name="workorder_id" value="{$workorder_id}">
+                                    <input type="submit" name="submit" value="Submit Stripe Payment" class="btn btn-primary">
                                 </div>
                             </div>
                         </div>

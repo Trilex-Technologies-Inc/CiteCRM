@@ -89,6 +89,31 @@
 							{/section}
 						</div>
 
+						<!-- Stripe Info -->
+						<div class="mb-4">
+							<h6>Stripe Information</h6>
+							<p>
+								Enable Stripe to collect payment via Stripe Checkout. Keys are stored encrypted in the database.
+							</p>
+
+							{section name=w loop=$opts}
+								<div class="mb-3">
+									<label for="stripe_publishable" class="form-label"><b>Publishable Key:</b></label>
+									<input type="text" class="form-control" id="stripe_publishable" name="STRIPE_PUBLISHABLE_KEY" value="{$opts[w].STRIPE_PUBLISHABLE_KEY|escape}">
+								</div>
+								<div class="mb-3">
+									<label for="stripe_secret" class="form-label"><b>Secret Key:</b></label>
+									<input type="password" class="form-control" id="stripe_secret" name="STRIPE_SECRET_KEY" value="{$opts[w].STRIPE_SECRET_KEY|escape}">
+								</div>
+								<div class="form-check mb-3">
+									<input class="form-check-input" type="checkbox" id="stripe_test_mode" name="STRIPE_TEST_MODE" value="1" {if $opts[w].STRIPE_TEST_MODE == 1}checked{/if}>
+									<label class="form-check-label" for="stripe_test_mode">
+										<b>Use Stripe Test Mode</b>
+									</label>
+								</div>
+							{/section}
+						</div>
+
 						<input name="submit"  value="Submit" type="submit" class="btn btn-primary">
 
 					</form>

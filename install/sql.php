@@ -526,7 +526,7 @@ function create_billing_options($db)
 		return false;
 	} else {
 
-		$q = "INSERT INTO `" . PRFX . "CONFIG_BILLING_OPTIONS` VALUES (1,'cc_billing','Credit Card',0),(2,'check_billing','Check',1),(3,'cash_billing','Cash',1),(4,'gift_billing','Gift Certificate',0),(5,'paypal_billing','Pay Pal',0)";
+		$q = "INSERT INTO `" . PRFX . "CONFIG_BILLING_OPTIONS` VALUES (1,'cc_billing','Authorize.Net (Credit Card)',0),(2,'check_billing','Check',1),(3,'cash_billing','Cash',1),(4,'gift_billing','Gift Certificate',0),(5,'paypal_billing','Pay Pal',0),(6,'stripe_billing','Stripe',0)";
 
 		if (!$rs = $db->execute($q)) {
 			return false;
@@ -1022,6 +1022,9 @@ function create_setup($db)
   `AN_TRANS_KEY` varchar(255) NOT NULL default '',
   `PP_ID` varchar(255) NOT NULL default '',
   `PP_SANDBOX` int(1) NOT NULL default '0',
+  `STRIPE_PUBLISHABLE_KEY` varchar(255) NOT NULL default '',
+  `STRIPE_SECRET_KEY` varchar(255) NOT NULL default '',
+  `STRIPE_TEST_MODE` int(1) NOT NULL default '1',
   `HTML_PRINT` int(1) NOT NULL default '0',
   `PDF_PRINT` int(1) NOT NULL default '0',
   `INVOCIE_TAX` decimal(4,2) NOT NULL default '0.00',  -- Changed from (2,2)
@@ -1043,7 +1046,7 @@ function create_setup($db)
 		return false;
 	} else {
 
-		$q = "INSERT INTO `" . PRFX . "SETUP` VALUES (7, 19, '', '', '', '', 0, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, '', '', '')";
+		$q = "INSERT INTO `" . PRFX . "SETUP` VALUES (7, 19, '', '', '', '', 0, '', '', 1, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, '', '', '')";
 
 		if (!$rs = $db->Execute($q)) {
 			return false;

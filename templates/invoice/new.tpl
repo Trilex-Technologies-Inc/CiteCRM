@@ -304,6 +304,7 @@
 												{elseif $trans[r].TYPE == 3} {$translate_invoice_cash}
 												{elseif $trans[r].TYPE == 4} {$translate_invoice_gift}
 												{elseif $trans[r].TYPE == 5} {$translate_invoice_paypal}
+												{elseif $trans[r].TYPE == 6} {$translate_invoice_stripe}
 												{/if}
 											</td>
 										</tr>

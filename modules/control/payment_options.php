@@ -69,6 +69,26 @@ if(isset($VAR['submit'])) {
 		$q = "UPDATE ".PRFX."CONFIG_BILLING_OPTIONS SET ACTIVE=0 WHERE  BILLING_OPTION='paypal_billing'";
 		$rs = $db->execute($q);
 	}
+
+	if(isset($VAR['stripe_billing']) && $VAR['stripe_billing'] == 1 ) {
+		$q = "UPDATE ".PRFX."CONFIG_BILLING_OPTIONS SET ACTIVE=1 WHERE  BILLING_OPTION='stripe_billing'";
+		$db->execute($q);
+
+		$stripe_test_mode = (isset($VAR['STRIPE_TEST_MODE']) && $VAR['STRIPE_TEST_MODE'] == 1) ? 1 : 0;
+		$stripe_secret = isset($VAR['STRIPE_SECRET_KEY']) ? trim((string)$VAR['STRIPE_SECRET_KEY']) : '';
+		$stripe_publishable = isset($VAR['STRIPE_PUBLISHABLE_KEY']) ? trim((string)$VAR['STRIPE_PUBLISHABLE_KEY']) : '';
+		$enc_secret = ($stripe_secret !== '') ? encrypt($stripe_secret, $strKey) : '';
+		$enc_pub = ($stripe_publishable !== '') ? encrypt($stripe_publishable, $strKey) : '';
+
+		$q = "UPDATE ".PRFX."SETUP SET
+				STRIPE_SECRET_KEY=".$db->qstr($enc_secret).",
+				STRIPE_PUBLISHABLE_KEY=".$db->qstr($enc_pub).",
+				STRIPE_TEST_MODE=".$db->qstr($stripe_test_mode);
+		$db->execute($q);
+	} else {
+		$q = "UPDATE ".PRFX."CONFIG_BILLING_OPTIONS SET ACTIVE=0 WHERE  BILLING_OPTION='stripe_billing'";
+		$db->execute($q);
+	}
 	
 	force_page('control', 'payment_options&msg=Billing Options Updated.');
 	exit;	
@@ -83,7 +103,7 @@ if(isset($VAR['submit'])) {
 	$arr = $rs->GetArray();
 
 	/* load setup configuration for billing options */
-	$q = "SELECT AN_LOGIN_ID,AN_TRANS_KEY,PP_ID,PP_SANDBOX FROM ".PRFX."SETUP";
+	$q = "SELECT AN_LOGIN_ID,AN_TRANS_KEY,PP_ID,PP_SANDBOX,STRIPE_PUBLISHABLE_KEY,STRIPE_SECRET_KEY,STRIPE_TEST_MODE FROM ".PRFX."SETUP";
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 		exit;
@@ -91,6 +111,10 @@ if(isset($VAR['submit'])) {
 	
 
 	$opts = $rs->GetArray();
+	if (!empty($opts) && isset($opts[0])) {
+		$opts[0]['STRIPE_PUBLISHABLE_KEY'] = decrypt(isset($opts[0]['STRIPE_PUBLISHABLE_KEY']) ? $opts[0]['STRIPE_PUBLISHABLE_KEY'] : '', $strKey);
+		$opts[0]['STRIPE_SECRET_KEY'] = decrypt(isset($opts[0]['STRIPE_SECRET_KEY']) ? $opts[0]['STRIPE_SECRET_KEY'] : '', $strKey);
+	}
 	
 	$smarty->assign( 'opts', $opts );
 	$smarty->assign( 'arr', $arr );

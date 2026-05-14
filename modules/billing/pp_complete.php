@@ -28,7 +28,7 @@ if($VAR['submit'] == 'Sucesses') {
 	
 		$q = "INSERT INTO ".PRFX."TABLE_TRANSACTION SET
 			DATE 			= ".$db->qstr(time()).",
-			TYPE 			= '3',
+			TYPE 			= '5',
 			INVOCIE_ID 	= ".$db->qstr($invoice_id).",
 			WORKORDER_ID = ".$db->qstr($workorder_id).",
 			CUSTOMER_ID 	= ".$db->qstr($customer_id).",
@@ -95,7 +95,7 @@ if($VAR['submit'] == 'Sucesses') {
 	
 		$q = "INSERT INTO ".PRFX."TABLE_TRANSACTION SET
 			DATE 			= ".$db->qstr(time()).",
-			TYPE 			= '3',
+			TYPE 			= '5',
 			INVOCIE_ID 	= ".$db->qstr($invoice_id).",
 			WORKORDER_ID = ".$db->qstr($workorder_id).",
 			CUSTOMER_ID 	= ".$db->qstr($customer_id).",
