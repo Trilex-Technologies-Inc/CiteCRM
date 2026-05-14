@@ -166,32 +166,12 @@
 						</div>
 
 						<hr class="my-4">
-
-						<!-- UPS Settings -->
-						<h6>UPS Shipping Settings</h6>
-
-						<div class="row g-3">
-
-							<div class="col-md-6">
-								<label class="form-label">UPS Login</label>
-								<input type="text" class="form-control"
-									   name="ups_login"
-									   value="{$setup[w].UPS_LOGIN}">
+						<div class="alert alert-info d-flex align-items-center justify-content-between">
+							<div>
+								<strong>Shipping settings moved.</strong>
+								<span class="text-muted">Manage UPS/FedEx credentials in Control Center → Shipping Management.</span>
 							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">UPS Password</label>
-								<input type="password" class="form-control"
-									   name="ups_password">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">UPS Access Key</label>
-								<input type="text" class="form-control"
-									   name="ups_access_key"
-									   value="{$setup[w].UPS_ACCESS_KEY}">
-							</div>
-
+							<a class="btn btn-sm btn-outline-primary" href="?page=control:shipping&page_title=Shipping%20Management">Open Shipping Management</a>
 						</div>
 
 					{/section}

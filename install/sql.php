@@ -1035,9 +1035,14 @@ function create_setup($db)
   `PARTS_PASSWORD` varchar(60) NOT NULL default '',
   `SERVICE_CODE` varchar(10) NOT NULL default '',
   `PARTS_MARKUP` DECIMAL(4,2) NOT NULL default '0.00',  -- Changed from (2,2)
+  `SHIPPING_PROVIDER` varchar(20) NOT NULL default 'ups',
   `UPS_LOGIN` VARCHAR(50) NOT NULL default '',
   `UPS_PASSWORD` VARCHAR(50) NOT NULL default '',
   `UPS_ACCESS_KEY` VARCHAR(50) NOT NULL default '',
+  `FEDEX_KEY` varchar(100) NOT NULL default '',
+  `FEDEX_PASSWORD` varchar(100) NOT NULL default '',
+  `FEDEX_ACCOUNT` varchar(50) NOT NULL default '',
+  `FEDEX_METER` varchar(50) NOT NULL default '',
   KEY `OFFICE_HOUR_START` (`OFFICE_HOUR_START`,`OFFICE_HOUR_END`)
 ) ENGINE=MyISAM;";
 
@@ -1046,7 +1051,7 @@ function create_setup($db)
 		return false;
 	} else {
 
-		$q = "INSERT INTO `" . PRFX . "SETUP` VALUES (7, 19, '', '', '', '', 0, '', '', 1, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, '', '', '')";
+		$q = "INSERT INTO `" . PRFX . "SETUP` VALUES (7, 19, '', '', '', '', 0, '', '', 1, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, 'ups', '', '', '', '', '', '', '')";
 
 		if (!$rs = $db->Execute($q)) {
 			return false;

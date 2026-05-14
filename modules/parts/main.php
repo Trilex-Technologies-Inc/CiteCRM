@@ -33,7 +33,27 @@ if($count > 0) {
 # Load Configs							#
 ##################################
 
-	$q = "SELECT PARTS_LO,PARTS_LOGIN,PARTS_PASSWORD,SERVICE_CODE,PARTS_MARKUP,UPS_LOGIN,UPS_PASSWORD,UPS_ACCESS_KEY FROM ".PRFX."SETUP ";
+	$has_shipping_provider_column = false;
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'SHIPPING_PROVIDER'");
+	if ($rs_cols && !$rs_cols->EOF) {
+		$has_shipping_provider_column = true;
+	}
+
+	$has_fedex_columns = false;
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'FEDEX_KEY'");
+	if ($rs_cols && !$rs_cols->EOF) {
+		$has_fedex_columns = true;
+	}
+
+	$cols = "PARTS_LO,PARTS_LOGIN,PARTS_PASSWORD,SERVICE_CODE,PARTS_MARKUP,UPS_LOGIN,UPS_PASSWORD,UPS_ACCESS_KEY";
+	if ($has_shipping_provider_column) {
+		$cols .= ",SHIPPING_PROVIDER";
+	}
+	if ($has_fedex_columns) {
+		$cols .= ",FEDEX_KEY,FEDEX_PASSWORD,FEDEX_ACCOUNT,FEDEX_METER";
+	}
+
+	$q = "SELECT ".$cols." FROM ".PRFX."SETUP ";
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 		exit;
@@ -47,6 +67,13 @@ if($count > 0) {
 	$ups_login 		= $rs->fields['UPS_LOGIN'];
 	$ups_password	= $rs->fields['UPS_PASSWORD'];
 	$ups_access_key	= $rs->fields['UPS_ACCESS_KEY'];
+	$shipping_provider = $has_shipping_provider_column ? strtolower(trim((string)$rs->fields['SHIPPING_PROVIDER'])) : 'ups';
+	if ($shipping_provider !== 'fedex') {
+		$shipping_provider = 'ups';
+	}
+	$fedex_key = $has_fedex_columns ? (string)$rs->fields['FEDEX_KEY'] : '';
+	$fedex_password = $has_fedex_columns ? (string)$rs->fields['FEDEX_PASSWORD'] : '';
+	$fedex_account = $has_fedex_columns ? (string)$rs->fields['FEDEX_ACCOUNT'] : '';
 
 	/* assign service coed to smarty */
 	if($service_code == "03") {
@@ -355,82 +382,143 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 		$width		   = 10;
 		$height		= 10;
 	
-	if($ups_login != '') {
-			// Defaults to avoid notices when UPS response is missing/invalid.
-			$rate = array();
-			// UPS uses "1" for success and "0" for failure; default to success so
-			// users can still proceed when rate lookup is unavailable.
-			$ResponseStatusCode = 1;
-			$ErrorDescription = '';
-			$MonetaryValue = array('MonetaryValue' => '0.00');
-			$GuaranteedDaysToDelivery = array('GuaranteedDaysToDelivery' => '');
+		$ResponseStatusCode = 1;
+		$ErrorDescription = '';
+		$shipping_charges = '0.00';
+		$total_charges = $sub_total;
 
-			$activity = "activity"; 	
-			$y = "<?xml version=\"1.0\"?><AccessRequest xml:lang=\"en-US\"><AccessLicenseNumber>$ups_access_key</AccessLicenseNumber><UserId>$ups_login</UserId><Password>$ups_password</Password></AccessRequest><?xml version=\"1.0\"?><RatingServiceSelectionRequest xml:lang=\"en-US\"><Request><TransactionReference><CustomerContext>Bare Bones Rate Request</CustomerContext><XpciVersion>1.0</XpciVersion></TransactionReference><RequestAction>Rate</RequestAction><RequestOption>Rate</RequestOption></Request><PickupType><Code>01</Code></PickupType><Shipment><Shipper><Address><PostalCode>$from_zip</PostalCode><CountryCode>US</CountryCode></Address></Shipper><ShipTo><Address><PostalCode>$to_zip</PostalCode><CountryCode>US</CountryCode></Address></ShipTo><ShipFrom><Address><PostalCode>$from_zip</PostalCode><CountryCode>US</CountryCode></Address></ShipFrom><Service><Code>$service_code</Code></Service><Package><PackagingType><Code>02</Code></PackagingType><Dimensions><UnitOfMeasurement><Code>IN</Code></UnitOfMeasurement><Length>$length</Length><Width>$width</Width><Height>$height</Height></Dimensions><PackageWeight><UnitOfMeasurement><Code>LBS</Code></UnitOfMeasurement><Weight>$cart_weight_total</Weight></PackageWeight></Package></Shipment></RatingServiceSelectionRequest>";  
-			
-			// cURL ENGINE 
-			$ch = curl_init(); //initialize a cURL session  
-			curl_setopt ($ch, CURLOPT_URL,"https://www.ups.com/ups.app/xml/Rate"); 
-			curl_setopt ($ch, CURLOPT_HEADER, 0); 
-			curl_setopt($ch, CURLOPT_POST, 1); 
-			curl_setopt($ch, CURLOPT_POSTFIELDS, "$y"); 
-			curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1); 
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-			$response = curl_exec ($ch); 
-			 
-			curl_close ($ch); 
+		if ($shipping_provider === 'fedex') {
+			require_once('include/shipping/fedex.php');
 
-				$parser = xml_parser_create();
-				xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
-				xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
-				xml_parse_into_struct($parser, $response, $values, $tags);
-				xml_parser_free($parser);
-				
-				//print_r($values);
-				
-					foreach($values as $xml){
-			
-						if ($xml['tag'] == "ResponseStatusCode" && $xml['value'] != "" ) {
-							$ResponseStatusCode	= $xml['value'];
-						}
-						
-						if	($xml['tag'] == "ErrorDescription" && $xml['value'] != "" ) {
-							$ErrorDescription		= $xml['value'];
-						}
+			$rate_err = '';
+			$rate_value = null;
 
-					if($xml['tag'] == "MonetaryValue" && $xml['value'] != "" ){
-						$MonetaryValue = array('MonetaryValue'=>$xml['value']);
+			list($token, $token_err) = citecrm_fedex_get_oauth_token($fedex_key, $fedex_password, false);
+			if ($token === null) {
+				$rate_err = $token_err;
+			} else {
+				$rate_request = array(
+					'accountNumber' => array('value' => trim((string)$fedex_account)),
+					'requestedShipment' => array(
+						'shipper' => array('address' => array('postalCode' => (string)$from_zip, 'countryCode' => 'US')),
+						'recipient' => array('address' => array('postalCode' => (string)$to_zip, 'countryCode' => 'US')),
+						'pickupType' => 'DROPOFF_AT_FEDEX_LOCATION',
+						'rateRequestType' => array('ACCOUNT'),
+						'requestedPackageLineItems' => array(
+							array(
+								'weight' => array('units' => 'LB', 'value' => (float)$cart_weight_total),
+								'dimensions' => array(
+									'length' => (int)$length,
+									'width' => (int)$width,
+									'height' => (int)$height,
+									'units' => 'IN',
+								),
+							),
+						),
+					),
+				);
+
+				list($rate_data, $rate_err) = citecrm_fedex_rate($token, $rate_request, false);
+				if (is_array($rate_data)) {
+					$details = null;
+					if (isset($rate_data['output']) && isset($rate_data['output']['rateReplyDetails'])) {
+						$details = $rate_data['output']['rateReplyDetails'];
 					}
-					
-					if($xml['tag'] == "GuaranteedDaysToDelivery" && $xml['value'] != "" ){
-						$GuaranteedDaysToDelivery =  array('GuaranteedDaysToDelivery'=>$xml['value']);
-					}	
-				
-						if($xml['tag'] == "RatedShipment" && $xml['type'] == "close" ){
-							$rate[] = array_merge(array('ResponseStatusCode' => $ResponseStatusCode), $MonetaryValue, $GuaranteedDaysToDelivery);
+					if (is_array($details) && isset($details[0]) && is_array($details[0])) {
+						$first = $details[0];
+						if (isset($first['ratedShipmentDetails'][0]['totalNetChargeWithDutiesAndTaxes']['amount'])) {
+							$rate_value = $first['ratedShipmentDetails'][0]['totalNetChargeWithDutiesAndTaxes']['amount'];
+						} else if (isset($first['ratedShipmentDetails'][0]['totalNetCharge']['amount'])) {
+							$rate_value = $first['ratedShipmentDetails'][0]['totalNetCharge']['amount'];
+						} else if (isset($first['ratedShipmentDetails'][0]['shipmentRateDetail']['totalNetCharge']['amount'])) {
+							$rate_value = $first['ratedShipmentDetails'][0]['shipmentRateDetail']['totalNetCharge']['amount'];
 						}
-			
 					}
- 
-			
-				if (isset($rate[0]) && isset($rate[0]['MonetaryValue'])) {
-					$shipping_charges = number_format((float)$rate[0]['MonetaryValue'], 2, '.', '');
-					$total_charges = $sub_total + (float)$rate[0]['MonetaryValue'];
-				} else {
-					$shipping_charges = '0.00';
-					$total_charges = $sub_total;
-					if ($ErrorDescription == '') {
-						$ErrorDescription = 'Unable to retrieve UPS rate (using $0.00 shipping)';
-					}
-					// Allow checkout even if rating fails.
-					$ResponseStatusCode = 1;
 				}
+			}
+
+			if ($rate_value !== null) {
+				$shipping_charges = number_format((float)$rate_value, 2, '.', '');
+				$total_charges = $sub_total + (float)$rate_value;
+			} else {
+				$ErrorDescription = $rate_err !== '' ? $rate_err : 'Unable to retrieve FedEx rate (using $0.00 shipping)';
+			}
 		} else {
-			$shipping_charges = '0.00';
-			$total_charges = $sub_total;
-			$ResponseStatusCode	= 1;
-		$ErrorDescription		= 'You have not set up UPS information';
-	}
+			require_once('include/shipping/ups.php');
+
+			$rate_value = null;
+			$rate_err = '';
+
+			$rate_request = array(
+				'RateRequest' => array(
+					'Request' => array(
+						'TransactionReference' => array('CustomerContext' => 'CiteCRM'),
+						'RequestOption' => 'Rate',
+					),
+					'Shipment' => array(
+						'Shipper' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => 'US')),
+						'ShipTo' => array('Address' => array('PostalCode' => (string)$to_zip, 'CountryCode' => 'US')),
+						'ShipFrom' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => 'US')),
+						'Service' => array('Code' => (string)$service_code),
+						'Package' => array(
+							'PackagingType' => array('Code' => '02'),
+							'Dimensions' => array(
+								'UnitOfMeasurement' => array('Code' => 'IN'),
+								'Length' => (string)$length,
+								'Width' => (string)$width,
+								'Height' => (string)$height,
+							),
+							'PackageWeight' => array(
+								'UnitOfMeasurement' => array('Code' => 'LBS'),
+								'Weight' => (string)$cart_weight_total,
+							),
+						),
+					),
+				),
+			);
+
+			list($token, $token_err) = citecrm_ups_get_oauth_token($ups_access_key, $ups_password, false);
+			if ($token !== null) {
+				list($rate_data, $rate_err) = citecrm_ups_rate_rest($token, $rate_request, false);
+				if (is_array($rate_data)) {
+					$shipment = null;
+					if (isset($rate_data['RateResponse']) && isset($rate_data['RateResponse']['RatedShipment'])) {
+						$shipment = $rate_data['RateResponse']['RatedShipment'];
+						if (isset($shipment[0])) {
+							$shipment = $shipment[0];
+						}
+					}
+
+					if (is_array($shipment)) {
+						if (isset($shipment['NegotiatedRateCharges']['TotalCharge']['MonetaryValue'])) {
+							$rate_value = $shipment['NegotiatedRateCharges']['TotalCharge']['MonetaryValue'];
+						} else if (isset($shipment['TotalCharges']['MonetaryValue'])) {
+							$rate_value = $shipment['TotalCharges']['MonetaryValue'];
+						}
+					}
+				}
+			} else {
+				$rate_err = $token_err;
+			}
+
+			if ($rate_value === null) {
+				list($legacy_rate, $legacy_err) = citecrm_ups_rate_xml_legacy($ups_access_key, $ups_login, $ups_password, $from_zip, $to_zip, $service_code, $length, $width, $height, $cart_weight_total);
+				if (is_array($legacy_rate) && isset($legacy_rate['MonetaryValue'])) {
+					$rate_value = $legacy_rate['MonetaryValue'];
+				} else {
+					$rate_err = $legacy_err !== '' ? $legacy_err : ($rate_err !== '' ? $rate_err : 'Unable to retrieve UPS rate (using $0.00 shipping)');
+				}
+			}
+
+			if ($rate_value !== null) {
+				$shipping_charges = number_format((float)$rate_value, 2, '.', '');
+				$total_charges = $sub_total + (float)$rate_value;
+			} else {
+				$shipping_charges = '0.00';
+				$total_charges = $sub_total;
+				$ErrorDescription = $rate_err;
+			}
+		}
 
 		/* get Cart Total */
 		$smarty->assign('ResponseStatusCode',$ResponseStatusCode);
