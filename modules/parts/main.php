@@ -45,12 +45,21 @@ if($count > 0) {
 		$has_fedex_columns = true;
 	}
 
+	$has_dhl_columns = false;
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'DHL_KEY'");
+	if ($rs_cols && !$rs_cols->EOF) {
+		$has_dhl_columns = true;
+	}
+
 	$cols = "PARTS_LO,PARTS_LOGIN,PARTS_PASSWORD,SERVICE_CODE,PARTS_MARKUP,UPS_LOGIN,UPS_PASSWORD,UPS_ACCESS_KEY";
 	if ($has_shipping_provider_column) {
 		$cols .= ",SHIPPING_PROVIDER";
 	}
 	if ($has_fedex_columns) {
 		$cols .= ",FEDEX_KEY,FEDEX_PASSWORD,FEDEX_ACCOUNT,FEDEX_METER";
+	}
+	if ($has_dhl_columns) {
+		$cols .= ",DHL_KEY,DHL_SECRET,DHL_ACCOUNT";
 	}
 
 	$q = "SELECT ".$cols." FROM ".PRFX."SETUP ";
@@ -74,6 +83,9 @@ if($count > 0) {
 	$fedex_key = $has_fedex_columns ? (string)$rs->fields['FEDEX_KEY'] : '';
 	$fedex_password = $has_fedex_columns ? (string)$rs->fields['FEDEX_PASSWORD'] : '';
 	$fedex_account = $has_fedex_columns ? (string)$rs->fields['FEDEX_ACCOUNT'] : '';
+	$dhl_key = $has_dhl_columns ? (string)$rs->fields['DHL_KEY'] : '';
+	$dhl_secret = $has_dhl_columns ? (string)$rs->fields['DHL_SECRET'] : '';
+	$dhl_account = $has_dhl_columns ? (string)$rs->fields['DHL_ACCOUNT'] : '';
 
 	/* assign service coed to smarty */
 	if($service_code == "03") {
@@ -102,32 +114,34 @@ if($count > 0) {
 		$smarty->assign('service_code','UPS Express Saver');
 	}
 	
-	/* assign smarty wharehoues location */
-	if($local == "AT") {
-		$smarty->assign('location', 'Atlanta');
-	} else if($local == "CH") {
-		$smarty->assign('location', 'Chicago');
-	} else if($local == "DA") {
-		$smarty->assign('location', 'Dallas');
-	} else if($local == "FR") {
-		$smarty->assign('location', 'Fremont');
-	} else if($local == "HO") {
-		$smarty->assign('location', 'Houston');
-	} else if($local == "KA") {
-		$smarty->assign('location', 'Kansas');
-	} else if($local == "LR") {
-		$smarty->assign('location', 'Laredo');
-	} else if($local == "LA") {
-		$smarty->assign('location', 'Los Angeles');
-	} else if($local == "MI") {
-		$smarty->assign('location', 'Miami');
-	} else if($local == "NJ") {
-		$smarty->assign('location', 'New Jersey');
-	} else if($local == "PO") {
-		$smarty->assign('location', 'Portland');
-	} else if($local == "TP") {
-		$smarty->assign('location', 'Tampa');
-	}
+		/* assign smarty wharehoues location */
+		$warehouse_city = '';
+		if($local == "AT") {
+			$warehouse_city = 'Atlanta';
+		} else if($local == "CH") {
+			$warehouse_city = 'Chicago';
+		} else if($local == "DA") {
+			$warehouse_city = 'Dallas';
+		} else if($local == "FR") {
+			$warehouse_city = 'Fremont';
+		} else if($local == "HO") {
+			$warehouse_city = 'Houston';
+		} else if($local == "KA") {
+			$warehouse_city = 'Kansas';
+		} else if($local == "LR") {
+			$warehouse_city = 'Laredo';
+		} else if($local == "LA") {
+			$warehouse_city = 'Los Angeles';
+		} else if($local == "MI") {
+			$warehouse_city = 'Miami';
+		} else if($local == "NJ") {
+			$warehouse_city = 'New Jersey';
+		} else if($local == "PO") {
+			$warehouse_city = 'Portland';
+		} else if($local == "TP") {
+			$warehouse_city = 'Tampa';
+		}
+		$smarty->assign('location', $warehouse_city);
 
 
 	
@@ -370,21 +384,25 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 			$cart_weight_total = $cart_weight_total + $amount;
 		}
 		
-		$q = "SELECT COMPANY_ZIP, COMPANY_COUNTRY FROM ".PRFX."TABLE_COMPANY";
-		if(!$rs = $db->execute($q)) {
-			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-			exit;
-		}
+			$q = "SELECT COMPANY_ZIP, COMPANY_COUNTRY, COMPANY_CITY FROM ".PRFX."TABLE_COMPANY";
+			if(!$rs = $db->execute($q)) {
+				force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+				exit;
+			}
 
-		$to_zip  = $rs->fields['COMPANY_ZIP'];
-		$to_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
-		if ($to_country === '') {
-			$to_country = 'US';
-		}
+			$to_zip  = $rs->fields['COMPANY_ZIP'];
+			$to_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
+			if ($to_country === '') {
+				$to_country = 'US';
+			}
+			$to_city = trim((string)$rs->fields['COMPANY_CITY']);
+			if ($to_city === '') {
+				$to_city = 'Unknown';
+			}
 
-		$length		= 10;
-		$width		   = 10;
-		$height		= 10;
+			$length		= 10;
+			$width		   = 10;
+			$height		= 10;
 	
 		$ResponseStatusCode = 1;
 		$ErrorDescription = '';
@@ -448,11 +466,52 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 				$ErrorDescription = $rate_err !== '' ? $rate_err : 'Unable to retrieve FedEx rate (using $0.00 shipping)';
 			}
 		} else if ($shipping_provider === 'dhl') {
-			// DHL support is limited to provider selection for now.
-			// Rates require a DHL API integration, so we default to $0.00 shipping.
-			$shipping_charges = '0.00';
-			$total_charges = $sub_total;
-			$ErrorDescription = 'DHL rates are not configured (using $0.00 shipping)';
+			require_once('include/shipping/dhl.php');
+
+			$rate_err = '';
+			$rate_value = null;
+
+			$origin_country = 'US';
+			$origin_city = isset($warehouse_city) && trim((string)$warehouse_city) !== '' ? trim((string)$warehouse_city) : 'Unknown';
+
+			$planned_date = date('Y-m-d');
+			$is_customs_declarable = ($origin_country !== $to_country);
+
+			$rate_params = array(
+				'requestEstimatedDeliveryDate' => 'true',
+				'plannedShippingDate' => $planned_date,
+				'originCountryCode' => $origin_country,
+				'originCityName' => $origin_city,
+				'originPostalCode' => (string)$from_zip,
+				'destinationCountryCode' => (string)$to_country,
+				'destinationCityName' => (string)$to_city,
+				'destinationPostalCode' => (string)$to_zip,
+				'weight' => (float)$cart_weight_total,
+				'length' => (float)$length,
+				'width' => (float)$width,
+				'height' => (float)$height,
+				'unitOfMeasurement' => 'imperial',
+				'isCustomsDeclarable' => $is_customs_declarable ? 'true' : 'false',
+			);
+
+			list($rate_data, $rate_err) = citecrm_dhl_rate($dhl_key, $dhl_secret, $dhl_account, $rate_params, false);
+			if (is_array($rate_data)) {
+				list($best_price, $best_currency, $best_code, $best_name) = citecrm_dhl_extract_best_rate($rate_data);
+				if ($best_price !== null) {
+					$rate_value = $best_price;
+				} else {
+					$rate_err = 'Unable to retrieve DHL rate (no products returned)';
+				}
+			}
+
+			if ($rate_value !== null) {
+				$shipping_charges = number_format((float)$rate_value, 2, '.', '');
+				$total_charges = $sub_total + (float)$rate_value;
+			} else {
+				$shipping_charges = '0.00';
+				$total_charges = $sub_total;
+				$ErrorDescription = $rate_err !== '' ? $rate_err : 'Unable to retrieve DHL rate (using $0.00 shipping)';
+			}
 		} else {
 			require_once('include/shipping/ups.php');
 

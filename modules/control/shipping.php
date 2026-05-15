@@ -15,6 +15,12 @@ if ($rs_cols && !$rs_cols->EOF) {
 	$has_shipping_columns = true;
 }
 
+$has_dhl_columns = false;
+$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'DHL_KEY'");
+if ($rs_cols && !$rs_cols->EOF) {
+	$has_dhl_columns = true;
+}
+
 if (isset($VAR['submit'])) {
 	$q = 'UPDATE '.PRFX.'SETUP SET ';
 
@@ -49,6 +55,18 @@ if (isset($VAR['submit'])) {
 		if (isset($VAR['fedex_password']) && trim((string)$VAR['fedex_password']) !== '') {
 			$updates[] = 'FEDEX_PASSWORD = '.$db->qstr((string)$VAR['fedex_password']);
 		}
+
+		if ($has_dhl_columns) {
+			if (isset($VAR['dhl_key'])) {
+				$updates[] = 'DHL_KEY = '.$db->qstr(trim((string)$VAR['dhl_key']));
+			}
+			if (isset($VAR['dhl_account'])) {
+				$updates[] = 'DHL_ACCOUNT = '.$db->qstr(trim((string)$VAR['dhl_account']));
+			}
+			if (isset($VAR['dhl_secret']) && trim((string)$VAR['dhl_secret']) !== '') {
+				$updates[] = 'DHL_SECRET = '.$db->qstr((string)$VAR['dhl_secret']);
+			}
+		}
 	}
 
 	$q .= implode(",\n\t", $updates);
@@ -71,5 +89,6 @@ $setup = $rs->GetArray();
 
 $smarty->assign('setup', $setup);
 $smarty->assign('has_shipping_columns', $has_shipping_columns);
+$smarty->assign('has_dhl_columns', $has_dhl_columns);
 $smarty->display('control'.SEP.'shipping.tpl');
 ?>

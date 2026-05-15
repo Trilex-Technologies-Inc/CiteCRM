@@ -1044,6 +1044,9 @@ function create_setup($db)
   `FEDEX_PASSWORD` varchar(100) NOT NULL default '',
   `FEDEX_ACCOUNT` varchar(50) NOT NULL default '',
   `FEDEX_METER` varchar(50) NOT NULL default '',
+  `DHL_KEY` varchar(255) NOT NULL DEFAULT '',
+  `DHL_SECRET` varchar(255) NOT NULL DEFAULT '',
+  `DHL_ACCOUNT` varchar(32) NOT NULL DEFAULT '',
   KEY `OFFICE_HOUR_START` (`OFFICE_HOUR_START`,`OFFICE_HOUR_END`)
 ) ENGINE=MyISAM;";
 
@@ -1052,7 +1055,7 @@ function create_setup($db)
 		return false;
 	} else {
 
-		$q = "INSERT INTO `" . PRFX . "SETUP` VALUES (7, 19, '', '', '', '', 0, '', '', 1, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, 'ups', '', '', '', '', '', '', '')";
+		$q = "INSERT INTO `" . PRFX . "SETUP` VALUES (7, 19, '', '', '', '', 0, '', '', 1, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, 'ups', '', '', '', '', '', '', '', '', '')";
 
 		if (!$rs = $db->Execute($q)) {
 			return false;

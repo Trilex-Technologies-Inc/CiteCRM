@@ -89,10 +89,33 @@
 					</div>
 
 					<div id="shipping-dhl-fields" class="col-12" {if !$has_shipping_columns}style="display:none"{/if}>
-						<h6 class="mb-3">DHL</h6>
-						<div class="alert alert-info mb-0">
-							DHL provider selection is available, but DHL rate calculation is not configured yet (checkout will use $0.00 shipping).
-						</div>
+						<h6 class="mb-3">DHL Express (MyDHL API)</h6>
+
+						{if !$has_dhl_columns}
+							<div class="alert alert-warning mb-0">
+								Your database is missing DHL credential columns (DHL_KEY/DHL_SECRET/DHL_ACCOUNT). Please run the DHL shipping upgrade SQL, then refresh this page.
+							</div>
+						{else}
+							<div class="row g-3">
+								<div class="col-md-6">
+									<label class="form-label">DHL API Key</label>
+									<input type="text" class="form-control" name="dhl_key" value="{$setup[w].DHL_KEY|default:''|escape}">
+									<div class="form-text">MyDHL API Key (used as Basic Auth username).</div>
+								</div>
+
+								<div class="col-md-6">
+									<label class="form-label">DHL API Secret</label>
+									<input type="password" class="form-control" name="dhl_secret">
+									<div class="form-text">Leave blank to keep current secret.</div>
+								</div>
+
+								<div class="col-md-6">
+									<label class="form-label">DHL Account Number</label>
+									<input type="text" class="form-control" name="dhl_account" value="{$setup[w].DHL_ACCOUNT|default:''|escape}">
+									<div class="form-text">Your DHL Express account number.</div>
+								</div>
+							</div>
+						{/if}
 					</div>
 
 				{/section}
