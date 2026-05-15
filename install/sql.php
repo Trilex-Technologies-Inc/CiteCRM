@@ -1513,13 +1513,13 @@ function create_sub_cat($db)
 		$parent = $matches[$i][1];
 		$desc = $matches[$i][2];
 		$child = $matches[$i][3];
-		$values[] = "(".$db->qstr($child).",".$db->qstr($desc).",".$db->qstr($parent).")";
+		$values[] = "(" . $db->qstr($child) . "," . $db->qstr($desc) . "," . $db->qstr($parent) . ")";
 	}
 
 	$chunk = 200;
 	for ($i = 0; $i < count($values); $i += $chunk) {
 		$part = array_slice($values, $i, $chunk);
-		$q = "INSERT IGNORE INTO " . PRFX . "CAT (`ID`,`DESCRIPTION`,`PARENT_ID`) VALUES ".implode(",", $part);
+		$q = "INSERT IGNORE INTO " . PRFX . "CAT (`ID`,`DESCRIPTION`,`PARENT_ID`) VALUES " . implode(",", $part);
 		if (!$rs = $db->Execute($q)) {
 			return false;
 		}
