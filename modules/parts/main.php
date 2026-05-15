@@ -370,13 +370,17 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 			$cart_weight_total = $cart_weight_total + $amount;
 		}
 		
-		$q = "SELECT COMPANY_ZIP FROM ".PRFX."TABLE_COMPANY";
+		$q = "SELECT COMPANY_ZIP, COMPANY_COUNTRY FROM ".PRFX."TABLE_COMPANY";
 		if(!$rs = $db->execute($q)) {
 			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 			exit;
 		}
 
 		$to_zip  = $rs->fields['COMPANY_ZIP'];
+		$to_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
+		if ($to_country === '') {
+			$to_country = 'US';
+		}
 
 		$length		= 10;
 		$width		   = 10;
@@ -401,7 +405,7 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 					'accountNumber' => array('value' => trim((string)$fedex_account)),
 					'requestedShipment' => array(
 						'shipper' => array('address' => array('postalCode' => (string)$from_zip, 'countryCode' => 'US')),
-						'recipient' => array('address' => array('postalCode' => (string)$to_zip, 'countryCode' => 'US')),
+						'recipient' => array('address' => array('postalCode' => (string)$to_zip, 'countryCode' => (string)$to_country)),
 						'pickupType' => 'DROPOFF_AT_FEDEX_LOCATION',
 						'rateRequestType' => array('ACCOUNT'),
 						'requestedPackageLineItems' => array(
@@ -463,7 +467,7 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 					),
 					'Shipment' => array(
 						'Shipper' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => 'US')),
-						'ShipTo' => array('Address' => array('PostalCode' => (string)$to_zip, 'CountryCode' => 'US')),
+						'ShipTo' => array('Address' => array('PostalCode' => (string)$to_zip, 'CountryCode' => (string)$to_country)),
 						'ShipFrom' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => 'US')),
 						'Service' => array('Code' => (string)$service_code),
 						'Package' => array(
