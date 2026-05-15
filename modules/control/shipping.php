@@ -32,7 +32,7 @@ if (isset($VAR['submit'])) {
 
 	if ($has_shipping_columns) {
 		$provider = isset($VAR['shipping_provider']) ? strtolower(trim((string)$VAR['shipping_provider'])) : 'ups';
-		if ($provider !== 'fedex') {
+		if ($provider !== 'fedex' && $provider !== 'dhl') {
 			$provider = 'ups';
 		}
 		$updates[] = 'SHIPPING_PROVIDER = '.$db->qstr($provider);
@@ -73,4 +73,3 @@ $smarty->assign('setup', $setup);
 $smarty->assign('has_shipping_columns', $has_shipping_columns);
 $smarty->display('control'.SEP.'shipping.tpl');
 ?>
-

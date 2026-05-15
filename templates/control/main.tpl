@@ -69,7 +69,7 @@
                         </div>
                         <div class="flex-grow-1">
                             <h5 class="card-title mb-1">Shipping</h5>
-                            <small class="text-secondary-emphasis">UPS/FedEx settings & rates</small>
+                            <small class="text-secondary-emphasis">UPS/FedEx/DHL settings & rates</small>
                         </div>
                         {if $current_module == 'control' && $current_page == 'shipping'}
                             <i class="bi bi-check-circle-fill text-primary fs-5"></i>

@@ -31,10 +31,6 @@ if($rs_cols && !$rs_cols->EOF) {
 	$has_shipping_columns = true;
 }
 
-if(isset($VAR['parts_password']) && $VAR['parts_password'] !='') {
-	$q .= 'PARTS_PASSWORD		= '. $db->qstr( md5($VAR['parts_password'])).', ';	
-}
-
 if(isset($VAR['ups_password']) && $VAR['ups_password'] != '') {
 	$q .= 'UPS_PASSWORD		= '. $db->qstr( $VAR['ups_password']		) .', ';
 }
@@ -47,11 +43,7 @@ if($has_shipping_columns && isset($VAR['fedex_password']) && $VAR['fedex_passwor
 			PDF_PRINT				= '. $db->qstr( $pdf_print           	) .',
 			INVOCIE_TAX 			= '. $db->qstr( isset($VAR['inv_tax']) && $VAR['inv_tax'] != '' ? $VAR['inv_tax'] : '0' ) .',
 			INV_THANK_YOU 		= '. $db->qstr( isset($VAR['inv_thank_you']) && $VAR['inv_thank_you'] != '' ? $VAR['inv_thank_you'] : ' ' ) .',
-			WELCOME_NOTE			= '. $db->qstr( isset($VAR['welcome']) && $VAR['welcome'] != '' ? $VAR['welcome'] : ' ' ) .',
-			PARTS_LO				= '. $db->qstr( isset($VAR['parts_lo']) && $VAR['parts_lo'] != '' ? $VAR['parts_lo'] : '0' ) .',
-			SERVICE_CODE			= '. $db->qstr( isset($VAR['service_code']) && $VAR['service_code'] != '' ? $VAR['service_code'] : ' ' ) .',
-			PARTS_MARKUP			= '. $db->qstr( isset($VAR['parts_markup']) && $VAR['parts_markup'] != '' ? $VAR['parts_markup'] : '0' ) .',
-			PARTS_LOGIN			= '. $db->qstr( isset($VAR['parts_login']) && $VAR['parts_login'] != '' ? $VAR['parts_login'] : ' ' );
+			WELCOME_NOTE			= '. $db->qstr( isset($VAR['welcome']) && $VAR['welcome'] != '' ? $VAR['welcome'] : ' ' );
 
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');

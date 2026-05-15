@@ -68,7 +68,7 @@ if($count > 0) {
 	$ups_password	= $rs->fields['UPS_PASSWORD'];
 	$ups_access_key	= $rs->fields['UPS_ACCESS_KEY'];
 	$shipping_provider = $has_shipping_provider_column ? strtolower(trim((string)$rs->fields['SHIPPING_PROVIDER'])) : 'ups';
-	if ($shipping_provider !== 'fedex') {
+	if ($shipping_provider !== 'fedex' && $shipping_provider !== 'dhl') {
 		$shipping_provider = 'ups';
 	}
 	$fedex_key = $has_fedex_columns ? (string)$rs->fields['FEDEX_KEY'] : '';
@@ -443,6 +443,12 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 			} else {
 				$ErrorDescription = $rate_err !== '' ? $rate_err : 'Unable to retrieve FedEx rate (using $0.00 shipping)';
 			}
+		} else if ($shipping_provider === 'dhl') {
+			// DHL support is limited to provider selection for now.
+			// Rates require a DHL API integration, so we default to $0.00 shipping.
+			$shipping_charges = '0.00';
+			$total_charges = $sub_total;
+			$ErrorDescription = 'DHL rates are not configured (using $0.00 shipping)';
 		} else {
 			require_once('include/shipping/ups.php');
 

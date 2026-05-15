@@ -136,44 +136,6 @@
 									  name="welcome">{$setup[w].WELCOME_NOTE}</textarea>
 						</div>
 
-						<hr class="my-4">
-
-						<!-- Parts Settings -->
-						<h6>Parts Ordering Settings</h6>
-
-						<div class="row g-3">
-
-							<div class="col-md-6">
-								<label class="form-label">Parts Login</label>
-								<input type="text" class="form-control"
-									   name="parts_login"
-									   value="{$setup[w].PARTS_LOGIN}">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">Parts Password</label>
-								<input type="password" class="form-control"
-									   name="parts_password">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">Parts Markup (%)</label>
-								<input type="text" class="form-control"
-									   name="parts_markup"
-									   value="{$setup[w].PARTS_MARKUP}">
-							</div>
-
-						</div>
-
-						<hr class="my-4">
-						<div class="alert alert-info d-flex align-items-center justify-content-between">
-							<div>
-								<strong>Shipping settings moved.</strong>
-								<span class="text-muted">Manage UPS/FedEx credentials in Control Center → Shipping Management.</span>
-							</div>
-							<a class="btn btn-sm btn-outline-primary" href="?page=control:shipping&page_title=Shipping%20Management">Open Shipping Management</a>
-						</div>
-
 					{/section}
 
 					<div class="mt-4">

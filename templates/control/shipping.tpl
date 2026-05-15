@@ -20,7 +20,7 @@
 
 					{if !$has_shipping_columns}
 						<div class="alert alert-warning">
-							Your database does not have the optional shipping provider columns yet. UPS credentials can still be saved, but selecting a provider (UPS/FedEx) requires a database upgrade.
+							Your database does not have the optional shipping provider columns yet. UPS credentials can still be saved, but selecting a provider (UPS/FedEx/DHL) requires a database upgrade.
 						</div>
 					{else}
 						<h6 class="mb-3">Provider</h6>
@@ -30,6 +30,7 @@
 								<select class="form-select" id="shipping_provider" name="shipping_provider">
 									<option value="ups" {if $setup[w].SHIPPING_PROVIDER == 'ups' || $setup[w].SHIPPING_PROVIDER == ''}selected{/if}>UPS</option>
 									<option value="fedex" {if $setup[w].SHIPPING_PROVIDER == 'fedex'}selected{/if}>FedEx</option>
+									<option value="dhl" {if $setup[w].SHIPPING_PROVIDER == 'dhl'}selected{/if}>DHL</option>
 								</select>
 								<div class="form-text">Select which provider to use for shipping.</div>
 							</div>
@@ -87,6 +88,13 @@
 						</div>
 					</div>
 
+					<div id="shipping-dhl-fields" class="col-12" {if !$has_shipping_columns}style="display:none"{/if}>
+						<h6 class="mb-3">DHL</h6>
+						<div class="alert alert-info mb-0">
+							DHL provider selection is available, but DHL rate calculation is not configured yet (checkout will use $0.00 shipping).
+						</div>
+					</div>
+
 				{/section}
 
 				<div class="mt-4 d-flex gap-2">
@@ -105,12 +113,13 @@
 			var providerEl = document.getElementById('shipping_provider');
 			var ups = document.getElementById('shipping-ups-fields');
 			var fedex = document.getElementById('shipping-fedex-fields');
-			if (!providerEl || !ups || !fedex) return;
+			var dhl = document.getElementById('shipping-dhl-fields');
+			if (!providerEl || !ups || !fedex || !dhl) return;
 
 			var provider = (providerEl.value || 'ups').toLowerCase();
-			var showUps = provider === 'ups';
-			ups.style.display = showUps ? '' : 'none';
-			fedex.style.display = showUps ? 'none' : '';
+			ups.style.display = provider === 'ups' ? '' : 'none';
+			fedex.style.display = provider === 'fedex' ? '' : 'none';
+			dhl.style.display = provider === 'dhl' ? '' : 'none';
 		}
 
 		document.addEventListener('DOMContentLoaded', function () {
