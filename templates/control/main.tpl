@@ -176,6 +176,25 @@
             </div>
 
             <div class="col-sm-6 col-lg-4">
+                <a href="?page=control:gift_cert&page_title=Gift%20Certificates" class="text-decoration-none">
+                    <div class="card h-100 shadow-sm {if $current_module == 'control' && $current_page == 'gift_cert'}border-primary bg-light-subtle{else}border-light{/if}" style="transition: all 0.2s ease-in-out; border-width: 1px; border-style: solid; cursor: pointer; border-radius: 0.75rem;">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-gift-fill fs-2 text-danger"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-1">Gift Certificates</h5>
+                                <small class="text-secondary-emphasis">Generate codes & manage balances</small>
+                            </div>
+                            {if $current_module == 'control' && $current_page == 'gift_cert'}
+                                <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+                            {/if}
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-sm-6 col-lg-4">
                 <a href="?page=control:edit_rate&page_title=Billing%20Rates" class="text-decoration-none">
                     <div class="card h-100 shadow-sm {if $current_module == 'control' && $current_page == 'edit_rate'}border-primary bg-light-subtle{else}border-light{/if}" style="transition: all 0.2s ease-in-out; border-width: 1px; border-style: solid; cursor: pointer; border-radius: 0.75rem;">
                         <div class="card-body d-flex align-items-center gap-3">

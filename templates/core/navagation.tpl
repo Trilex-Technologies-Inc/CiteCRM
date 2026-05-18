@@ -251,6 +251,10 @@
 	                           href="?page=control:main&page_title={$translate_core_control|default:"Control Center"}">
 	                            {$translate_core_control|default:"Control Center"}
 	                        </a>
+	                        <a class="app-nav-subitem"
+	                           href="?page=control:gift_cert&page_title=Gift%20Certificates">
+	                            Gift Certificates
+	                        </a>
 	                        <a class="app-nav-subitem" href="http://www.incitecrm.com" target="new">
 	                            Cite CRM
 	                        </a>

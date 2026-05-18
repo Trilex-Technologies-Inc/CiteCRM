@@ -346,7 +346,7 @@
                                     </div>
                                     <div class="col-md-8">
                                         <label class="form-label fw-bold">{$translate_billing_gift_code}</label>
-                                        <input type="text" name="gift_code" size="16" class="form-control olotd4">
+                                        <input type="text" name="gift_code" size="13" maxlength="13" inputmode="numeric" pattern="[0-9]{13}" class="form-control olotd4">
                                         <div class="form-text">
                                             {$translate_billing_gift_code_2}
                                         </div>
@@ -358,7 +358,8 @@
                                     <input type="hidden" name="invoice_id"   value="{$invoice_id}">
                                     <input type="hidden" name="workorder_id" value="{$workorder_id}">
                                     <input type="hidden" name="page"         value="billing:proc_gift">
-                                    <input type="submit" name="submit" value="Submit Gift Certificate" class="btn btn-primary">
+                                    <input type="submit" name="submit" value="Submit Gift Certificate" class="btn btn-primary" onclick="this.form.page.value='billing:proc_gift'">
+                                    <input type="submit" name="submit" value="Check Gift Balance" class="btn btn-outline-secondary ms-2" onclick="this.form.page.value='billing:check_gift'">
                                 </div>
                             </div>
                         </div>
