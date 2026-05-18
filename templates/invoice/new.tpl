@@ -1,11 +1,5 @@
 <!-- new.tpl -->
 {literal}
-	</script>
-<link rel="stylesheet" type="text/css" media="all" href="include/jscalendar/calendar-blue.css" title="win2k-1" />
-	<script type="text/javascript" src="include/jscalendar/calendar_stripped.js"></script>
-	<script type="text/javascript" src="include/jscalendar/lang/calendar-english.js"></script>
-	<script type="text/javascript" src="include/jscalendar/calendar-setup_stripped.js"></script>
-
 <script type="text/javascript">
 	function addRowToTableLabor(){
 		var tbl = document.getElementById('labor');
@@ -195,7 +189,7 @@
 		<div class="card-header d-flex justify-content-between align-items-center">
 			<h5 class="mb-0">{$translate_invoice_for} {$wo_id}</h5>
 			<a href="http://www.citecrm.com/docs/#billing" target="_blank">
-				<img src="images/icons/16x16/help.gif" alt="Help">
+				<i class="bi bi-question-circle-fill fs-5 text-secondary" aria-hidden="true"></i>
 			</a>
 		</div>
 
@@ -229,30 +223,10 @@
 						<tr>
 							<td>{$invoice.INVOICE_ID}</td>
 							<td>
-								<input type="text" size="10" name="date" id="date" value="{$invoice.INVOICE_DATE|date_format:"%m/%d/%y"}" class="form-control form-control-sm d-inline w-auto">
-								<button type="button" id="trigger_date" class="btn btn-sm btn-secondary">+</button>
-								{literal}
-									<script>
-										Calendar.setup({
-											inputField  : "date",
-											ifFormat    : "%m/%d/%Y",
-											button      : "trigger_date"
-										});
-									</script>
-								{/literal}
+								<input type="date" name="date" id="date" value="{$invoice.INVOICE_DATE|date_format:"%Y-%m-%d"}" class="form-control form-control-sm d-inline w-auto">
 							</td>
 							<td>
-								<input type="text" size="10" name="due_date" id="due_date" value="{$invoice.INVOICE_DUE|date_format:"%m/%d/%y"}" class="form-control form-control-sm d-inline w-auto">
-								<button type="button" id="trigger_due_date" class="btn btn-sm btn-secondary">+</button>
-								{literal}
-									<script>
-										Calendar.setup({
-											inputField  : "due_date",
-											ifFormat    : "%m/%d/%Y",
-											button      : "trigger_due_date"
-										});
-									</script>
-								{/literal}
+								<input type="date" name="due_date" id="due_date" value="{$invoice.INVOICE_DUE|date_format:"%Y-%m-%d"}" class="form-control form-control-sm d-inline w-auto">
 							</td>
 							<td>${$invoice.INVOICE_AMOUNT|string_format:"%.2f"}</td>
 							<td>{$invoice.EMPLOYEE_DISPLAY_NAME}</td>
@@ -330,6 +304,7 @@
 												{elseif $trans[r].TYPE == 3} {$translate_invoice_cash}
 												{elseif $trans[r].TYPE == 4} {$translate_invoice_gift}
 												{elseif $trans[r].TYPE == 5} {$translate_invoice_paypal}
+												{elseif $trans[r].TYPE == 6} {$translate_invoice_stripe}
 												{/if}
 											</td>
 										</tr>
@@ -344,21 +319,28 @@
 					</div>
 				{/if}
 
-				<!-- Submit Buttons -->
-				<div class="d-flex justify-content-between mb-4">
-					<div>
-						<input type="hidden" name="chkValidateOnKeyPress" value="checked">
-						<input type="hidden" name="invoice_id" value="{$invoice.INVOICE_ID}">
-						<input type="hidden" name="sub_total" value="{$invoice.SUB_TOTAL|string_format:"%.2f"}">
-						<input type="hidden" name="page" value="invoice:new">
-						<input type="hidden" name="create_by" value="{$login_id}">
-						<input type="hidden" name="wo_id" value="{$wo_id}">
-						<input  name="submit" type="submit" class="btn btn-primary" value="{$translate_invoice_submit}" >
+					<!-- Submit Buttons -->
+					<div class="d-flex justify-content-between mb-4">
+						<div>
+							<input type="hidden" name="chkValidateOnKeyPress" value="checked">
+							<input type="hidden" name="invoice_id" value="{$invoice.INVOICE_ID}">
+							<input type="hidden" name="sub_total" value="{$invoice.SUB_TOTAL|string_format:"%.2f"}">
+							<input type="hidden" name="page" value="invoice:new">
+							<input type="hidden" name="create_by" value="{$login_id}">
+							<input type="hidden" name="wo_id" value="{$wo_id}">
+							<input  name="submit" type="submit" class="btn btn-primary" value="{$translate_invoice_submit}" >
+						</div>
+						<div>
+							{if $invoice.INVOICE_AMOUNT > 0 && $invoice.INVOICE_PAID != 1}
+								<a class="btn btn-success"
+								   href="?page=billing:new&wo_id={$invoice.WORKORDER_ID}&customer_id={$invoice.CUSTOMER_ID}&invoice_id={$invoice.INVOICE_ID}&page_title=Billing">
+									Take Payment
+								</a>
+							{/if}
+						</div>
 					</div>
-				</div>
 
 			</form>
 		</div>
 	</div>
 </div>
-

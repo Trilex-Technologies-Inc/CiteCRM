@@ -18,6 +18,16 @@ if(!xml2php("employees")) {
 #	Display							#
 #####################################
 
+function customer_has_brand_new_column($db) {
+	static $has_column = null;
+	if ($has_column !== null) {
+		return $has_column;
+	}
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."TABLE_CUSTOMER LIKE 'CUSTOMER_BRAND_NEW'");
+	$has_column = ($rs_cols && !$rs_cols->EOF);
+	return $has_column;
+}
+
 function display_customer_info($db, $customer_id){
 
 	$sql = "SELECT * FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_ID=".$db->qstr($customer_id);
@@ -204,7 +214,7 @@ function checkZip($zip){
 #	Duplicate						#
 #####################################
 	
-function check_customer_ex($db, $displayName) {
+	function check_customer_ex($db, $displayName) {
 	$sql = "SELECT COUNT(*) AS num_users FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME=".$db->qstr($displayName);
 	
 	if(!$result = $db->Execute($sql)) {
@@ -219,20 +229,55 @@ function check_customer_ex($db, $displayName) {
 	} else {
 		return true;
 	}
-}
+	}
 
-#####################################
-#	Add								#
-#####################################
+	function _get_customer_zip_maxlen($db) {
+		static $max_len = null;
+		if ($max_len !== null) {
+			return $max_len;
+		}
 
-function insert_new_customer($db,$VAR) {
+		// Default to the historical schema width (prevents "Data too long..." errors).
+		$max_len = 8;
+		$q = "SHOW COLUMNS FROM ".PRFX."TABLE_CUSTOMER LIKE 'CUSTOMER_ZIP'";
+		if ($rs = $db->Execute($q)) {
+			$row = $rs->FetchRow();
+			if (isset($row['Type'])) {
+				if (preg_match('/varchar\\((\\d+)\\)/i', $row['Type'], $m)) {
+					$max_len = (int)$m[1];
+				}
+			}
+		}
 
-	$sql = "INSERT INTO ".PRFX."TABLE_CUSTOMER SET
-			CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]  ).",
-			CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]      ).", 
-			CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]         ).", 
-			CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]        ).", 
-			CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]          ).",
+		if ($max_len < 1) {
+			$max_len = 8;
+		}
+		return $max_len;
+	}
+
+	function _normalize_customer_zip($db, $zip) {
+		$zip = isset($zip) ? trim((string)$zip) : '';
+		$max_len = _get_customer_zip_maxlen($db);
+		if (strlen($zip) > $max_len) {
+			$zip = substr($zip, 0, $max_len);
+		}
+		return $zip;
+	}
+
+	#####################################
+	#	Add								#
+	#####################################
+	
+	function insert_new_customer($db,$VAR) {
+		$VAR["zip"] = _normalize_customer_zip($db, isset($VAR["zip"]) ? $VAR["zip"] : '');
+		$brand_new = (!empty($VAR['brand_new']) || (!empty($VAR['customer_brand_new']))) ? 1 : 0;
+	
+		$sql = "INSERT INTO ".PRFX."TABLE_CUSTOMER SET
+				CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]  ).",
+				CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]      ).", 
+				CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]         ).", 
+				CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]        ).", 
+				CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]          ).",
 			CUSTOMER_PHONE			= ". $db->qstr( $VAR["homePhone"]    ).",
 			CUSTOMER_WORK_PHONE	= ". $db->qstr( $VAR["workPhone"]    ).",
 			CUSTOMER_MOBILE_PHONE	= ". $db->qstr( $VAR["mobilePhone"]  ).",
@@ -242,7 +287,12 @@ function insert_new_customer($db,$VAR) {
 			LAST_ACTIVE				= ". $db->qstr( time()                      ).",
 			CUSTOMER_FIRST_NAME		= ". $db->qstr( $VAR["firstName"]    ).", 
 			DISCOUNT 					= ". $db->qstr( $VAR['discount']		).", 
-			CUSTOMER_LAST_NAME		= ". $db->qstr( $VAR["lastName"]     ); 
+			CUSTOMER_LAST_NAME		= ". $db->qstr( $VAR["lastName"]     );
+
+		if (customer_has_brand_new_column($db)) {
+			$sql .= ",
+			CUSTOMER_BRAND_NEW		= ". $db->qstr($brand_new);
+		}
 			
 	if(!$result = $db->Execute($sql)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
@@ -274,14 +324,16 @@ function edit_info($db, $customer_id){
 #	Update							#
 #####################################
 
-function update_customer($db,$VAR) {
-
-	$sql = "UPDATE ".PRFX."TABLE_CUSTOMER SET
-			CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]	).",
-			CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]		).", 
-			CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]			).", 
-			CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]			).", 
-			CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]				).",
+	function update_customer($db,$VAR) {
+		$VAR["zip"] = _normalize_customer_zip($db, isset($VAR["zip"]) ? $VAR["zip"] : '');
+		$brand_new = (!empty($VAR['brand_new']) || (!empty($VAR['customer_brand_new']))) ? 1 : 0;
+	
+		$sql = "UPDATE ".PRFX."TABLE_CUSTOMER SET
+				CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]	).",
+				CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]		).", 
+				CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]			).", 
+				CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]			).", 
+				CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]				).",
 			CUSTOMER_PHONE			= ". $db->qstr( $VAR["homePhone"]		).",
 			CUSTOMER_WORK_PHONE	= ". $db->qstr( $VAR["workPhone"]		).",
 			CUSTOMER_MOBILE_PHONE	= ". $db->qstr( $VAR["mobilePhone"]	).",
@@ -289,7 +341,14 @@ function update_customer($db,$VAR) {
 			CUSTOMER_TYPE			= ". $db->qstr( $VAR["customerType"]	).", 
 			CUSTOMER_FIRST_NAME		= ". $db->qstr( $VAR["firstName"]		).", 
 			CUSTOMER_LAST_NAME		= ". $db->qstr( $VAR["lastName"]		).",
-			DISCOUNT 					= ". $db->qstr( $VAR['discount']		)."
+			DISCOUNT 					= ". $db->qstr( $VAR['discount']		);
+
+		if (customer_has_brand_new_column($db)) {
+			$sql .= ",
+			CUSTOMER_BRAND_NEW		= ". $db->qstr($brand_new);
+		}
+
+		$sql .= "
 			WHERE CUSTOMER_ID		= ". $db->qstr( $VAR['customer_id']	);
 
 			

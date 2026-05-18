@@ -49,11 +49,12 @@
 		<invoice_trans_log>Transaction Log</invoice_trans_log>
 		<invoice_trans_id>Trans Id</invoice_trans_id>
 		<invoice_type>Type</invoice_type>
-		<invoice_cc>Credit Card</invoice_cc>
+		<invoice_cc>Authorize.Net (Credit Card)</invoice_cc>
 		<invoice_check>Check</invoice_check>
 		<invoice_cash>Cash</invoice_cash>
 		<invoice_gift>Gift Certificate</invoice_gift>
 		<invoice_paypal>Pay Pal</invoice_paypal>
+		<invoice_stripe>Stripe</invoice_stripe>
 		<invoice_memo>Memo</invoice_memo>
 		
 		<invoice_phone>Phone:</invoice_phone>

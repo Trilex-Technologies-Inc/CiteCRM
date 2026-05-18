@@ -1,13 +1,44 @@
 <!-- -->
 <div class="container-fluid">
 
+    {* If more than one payment method is enabled, show a selector and only expand the chosen method. *}
+    {assign var=pm_count value=0}
+    {if $billing_options.cc_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+    {if $billing_options.check_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+    {if $billing_options.cash_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+    {if $billing_options.gift_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+    {if $billing_options.paypal_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+    {if $billing_options.stripe_billing == '1'}{assign var=pm_count value=$pm_count+1}{/if}
+
+    {literal}
+    <script>
+        function citecrmShowPaymentMethod(method) {
+            var ids = ['pm-cc', 'pm-check', 'pm-cash', 'pm-gift', 'pm-paypal', 'pm-stripe'];
+            ids.forEach(function (id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                el.style.display = 'none';
+            });
+            if (!method) return;
+            var target = document.getElementById('pm-' + method);
+            if (target) target.style.display = '';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var sel = document.getElementById('payment_method');
+            if (!sel) return;
+            // Start with no payment form shown until user chooses a method.
+            citecrmShowPaymentMethod(sel.value || '');
+            sel.addEventListener('change', function () {
+                citecrmShowPaymentMethod(sel.value);
+            });
+        });
+    </script>
+    {/literal}
+
     <!-- Toolbar -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <table class="table-borderless m-0">
-            <tr>
-                {include file="core/tool_bar.tpl"}
-            </tr>
-        </table>
+    <div class="mb-3">
+        {include file="core/tool_bar.tpl"}
     </div>
 
     {if $error_msg != ""}
@@ -17,13 +48,14 @@
     {/if}
 
     <div class="container" style="max-width: 700px;">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="fw-bold">&nbsp;{$translate_billing_title}{$wo_id}</span>
-                <img src="images/icons/16x16/help.gif" border="0"
-                     onMouseOver="ddrivetip('<b>New Invoice</b><hr><p></p>')"
-                     onMouseOut="hideddrivetip()">
-            </div>
+	        <div class="card">
+	            <div class="card-header d-flex justify-content-between align-items-center">
+	                <span class="fw-bold">&nbsp;{$translate_billing_title}{$wo_id}</span>
+	                <i class="bi bi-question-circle-fill fs-5 text-secondary"
+	                   aria-hidden="true"
+	                   onMouseOver="ddrivetip('<b>New Invoice</b><hr><p></p>')"
+	                   onMouseOut="hideddrivetip()"></i>
+	            </div>
 
             <div class="card-body">
 
@@ -79,6 +111,25 @@
                             <span class="fw-bold">{$translate_billing_phone}</span>
                             &nbsp;{$item.CUSTOMER_PHONE}
                         </div>
+
+                        {if $pm_count > 1}
+                            <div class="card mt-3">
+                                <div class="card-header fw-bold">&nbsp;Payment Method</div>
+                                <div class="card-body">
+                                    <label for="payment_method" class="form-label fw-bold mb-2">Choose one</label>
+                                    <select id="payment_method" class="form-select" onchange="citecrmShowPaymentMethod(this.value)">
+                                        <option value="" selected="selected">-- Select a payment method --</option>
+                                        {if $billing_options.cc_billing == '1'}<option value="cc">{$translate_billing_credit_card}</option>{/if}
+                                        {if $billing_options.check_billing == '1'}<option value="check">{$translate_billing_check}</option>{/if}
+                                        {if $billing_options.cash_billing == '1'}<option value="cash">{$translate_billing_cash}</option>{/if}
+                                        {if $billing_options.gift_billing == '1'}<option value="gift">{$translate_billing_gift}</option>{/if}
+                                        {if $billing_options.paypal_billing == '1'}<option value="paypal">{$translate_billing_paypal}</option>{/if}
+                                        {if $billing_options.stripe_billing == '1'}<option value="stripe">{$translate_billing_stripe}</option>{/if}
+                                    </select>
+                                </div>
+                            </div>
+                        {/if}
+
                         {assign var="customer_id" value=$item.CUSTOMER_ID}
                     {/foreach}
                 </div>
@@ -117,6 +168,8 @@
                                                         {$translate_billing_gift}
                                                     {elseif $trans[r].TYPE == 5}
                                                         {$translate_billing_paypal}
+                                                    {elseif $trans[r].TYPE == 6}
+                                                        {$translate_billing_stripe}
                                                     {/if}
                                                 </td>
                                             </tr>
@@ -134,7 +187,7 @@
 
                 <!-- Credit card payment -->
                 {if $billing_options.cc_billing == '1'}
-                    <form method="POST" action="">
+                    <form method="POST" action="" id="pm-cc" {if $pm_count > 1}style="display:none"{/if}>
                         <div class="card mb-4">
                             <div class="card-header fw-bold">
                                 &nbsp;{$translate_billing_credit_card}
@@ -191,7 +244,7 @@
 
                 <!-- Check payment -->
                 {if $billing_options.check_billing == '1'}
-                    <form method="POST" action="">
+                    <form method="POST" action="" id="pm-check" {if $pm_count > 1}style="display:none"{/if}>
                         <div class="card mb-4">
                             <div class="card-header fw-bold">
                                 &nbsp;{$translate_billing_check}
@@ -234,7 +287,7 @@
 
                 <!-- Cash payment -->
                 {if $billing_options.cash_billing == '1'}
-                    <form method="POST" action="">
+                    <form method="POST" action="" id="pm-cash" {if $pm_count > 1}style="display:none"{/if}>
                         <div class="card mb-4">
                             <div class="card-header fw-bold">
                                 &nbsp;{$translate_billing_cash}
@@ -273,7 +326,7 @@
 
                 <!-- Gift certificate payment -->
                 {if $billing_options.gift_billing == '1'}
-                    <form method="POST" action="">
+                    <form method="POST" action="" id="pm-gift" {if $pm_count > 1}style="display:none"{/if}>
                         <div class="card mb-4">
                             <div class="card-header fw-bold">
                                 &nbsp;{$translate_billing_gift}
@@ -293,7 +346,7 @@
                                     </div>
                                     <div class="col-md-8">
                                         <label class="form-label fw-bold">{$translate_billing_gift_code}</label>
-                                        <input type="text" name="gift_code" size="16" class="form-control olotd4">
+                                        <input type="text" name="gift_code" size="13" maxlength="13" inputmode="numeric" pattern="[0-9]{13}" class="form-control olotd4">
                                         <div class="form-text">
                                             {$translate_billing_gift_code_2}
                                         </div>
@@ -305,7 +358,8 @@
                                     <input type="hidden" name="invoice_id"   value="{$invoice_id}">
                                     <input type="hidden" name="workorder_id" value="{$workorder_id}">
                                     <input type="hidden" name="page"         value="billing:proc_gift">
-                                    <input type="submit" name="submit" value="Submit Gift Certificate" class="btn btn-primary">
+                                    <input type="submit" name="submit" value="Submit Gift Certificate" class="btn btn-primary" onclick="this.form.page.value='billing:proc_gift'">
+                                    <input type="submit" name="submit" value="Check Gift Balance" class="btn btn-outline-secondary ms-2" onclick="this.form.page.value='billing:check_gift'">
                                 </div>
                             </div>
                         </div>
@@ -314,7 +368,7 @@
 
                 <!-- PayPal payment -->
                 {if $billing_options.paypal_billing == '1'}
-                    <form method="POST" action="?page=billing:proc_paypal">
+                    <form method="POST" action="?page=billing:proc_paypal" id="pm-paypal" {if $pm_count > 1}style="display:none"{/if}>
                         <div class="card mb-4">
                             <div class="card-header fw-bold">
                                 &nbsp;{$translate_billing_paypal}
@@ -339,6 +393,39 @@
                                     <input type="hidden" name="invoice_id"   value="{$invoice_id}">
                                     <input type="hidden" name="workorder_id" value="{$workorder_id}">
                                     <input type="submit" name="submit" value="Submit PayPal Payment" class="btn btn-primary">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                {/if}
+
+                <!-- Stripe payment -->
+                {if $billing_options.stripe_billing == '1'}
+                    <form method="POST" action="?page=billing:proc_stripe" id="pm-stripe" {if $pm_count > 1}style="display:none"{/if}>
+                        <div class="card mb-4">
+                            <div class="card-header fw-bold">
+                                &nbsp;{$translate_billing_stripe}
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">{$translate_billing_stripe}</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="text"
+                                                   name="stripe_amount"
+                                                   size="8"
+                                                   value="{if $ballance > 0}{$ballance|string_format:"%.2f"}{else}{$invoice_amount|string_format:"%.2f"}{/if}"
+                                                   class="form-control olotd4">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <input type="hidden" name="customer_id"  value="{$customer_id}">
+                                    <input type="hidden" name="invoice_id"   value="{$invoice_id}">
+                                    <input type="hidden" name="workorder_id" value="{$workorder_id}">
+                                    <input type="submit" name="submit" value="Submit Stripe Payment" class="btn btn-primary">
                                 </div>
                             </div>
                         </div>

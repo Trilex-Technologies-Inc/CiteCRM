@@ -1,6 +1,17 @@
 <div class="card mb-3">
-	<div class="card-header">
-		{$translate_workorder_parts}
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<span>{$translate_workorder_parts}</span>
+		{if $single_workorder_array[i].WORK_ORDER_STATUS != 6}
+			{if $part|default:0 == 0}
+				<a class="btn btn-sm btn-primary"
+				   href="?page=parts:main&wo_id={$single_workorder_array[i].WORK_ORDER_ID}&page_title=New%20Parts%20Order"
+				   data-bs-toggle="tooltip"
+				   title="New Part Order">
+					<i class="bi bi-cart-plus me-1" aria-hidden="true"></i>
+					New Part Order
+				</a>
+			{/if}
+		{/if}
 	</div>
 
 	<div class="card-body p-0">

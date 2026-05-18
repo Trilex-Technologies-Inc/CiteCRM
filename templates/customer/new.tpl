@@ -123,7 +123,7 @@
                         <label class="form-label">
                             <span class="text-danger">*</span> <b>{$translate_customer_zip}</b>
                         </label>
-                        <input type="text" name="zip" value="{$company_zip}" class="form-control">
+                        <input type="text" name="zip" value="{$company_zip}" maxlength="20" class="form-control">
                     </div>
                 </div>
 
@@ -161,6 +161,17 @@
                     </label>
                     <input type="text" name="discount" value="0.00" class="form-control">
                 </div>
+
+                {if $has_brand_new_column}
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="brand_new" name="brand_new" value="1" {if $VAR.brand_new}checked{/if}>
+                        <label class="form-check-label" for="brand_new">Brand new</label>
+                    </div>
+                {else}
+                    <div class="alert alert-warning mb-3">
+                        Your database is missing the optional <code>CUSTOMER_BRAND_NEW</code> column. Run the upgrade SQL to enable the “Brand new” customer flag.
+                    </div>
+                {/if}
 
                 <input type="hidden" name="page" value="customer:new">
 

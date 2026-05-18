@@ -136,64 +136,6 @@
 									  name="welcome">{$setup[w].WELCOME_NOTE}</textarea>
 						</div>
 
-						<hr class="my-4">
-
-						<!-- Parts Settings -->
-						<h6>Parts Ordering Settings</h6>
-
-						<div class="row g-3">
-
-							<div class="col-md-6">
-								<label class="form-label">Parts Login</label>
-								<input type="text" class="form-control"
-									   name="parts_login"
-									   value="{$setup[w].PARTS_LOGIN}">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">Parts Password</label>
-								<input type="password" class="form-control"
-									   name="parts_password">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">Parts Markup (%)</label>
-								<input type="text" class="form-control"
-									   name="parts_markup"
-									   value="{$setup[w].PARTS_MARKUP}">
-							</div>
-
-						</div>
-
-						<hr class="my-4">
-
-						<!-- UPS Settings -->
-						<h6>UPS Shipping Settings</h6>
-
-						<div class="row g-3">
-
-							<div class="col-md-6">
-								<label class="form-label">UPS Login</label>
-								<input type="text" class="form-control"
-									   name="ups_login"
-									   value="{$setup[w].UPS_LOGIN}">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">UPS Password</label>
-								<input type="password" class="form-control"
-									   name="ups_password">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">UPS Access Key</label>
-								<input type="text" class="form-control"
-									   name="ups_access_key"
-									   value="{$setup[w].UPS_ACCESS_KEY}">
-							</div>
-
-						</div>
-
 					{/section}
 
 					<div class="mt-4">

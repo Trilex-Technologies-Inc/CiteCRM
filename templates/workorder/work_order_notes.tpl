@@ -6,7 +6,7 @@
 			   class="btn btn-sm btn-outline-secondary"
 			   data-bs-toggle="tooltip"
 			   title="New Note">
-				<img src="images/icons/16x16/small_new_work_order.gif" alt="New Note">
+				<i class="bi bi-plus-circle" aria-hidden="true"></i>
 			</a>
 		{/if}
 	</div>

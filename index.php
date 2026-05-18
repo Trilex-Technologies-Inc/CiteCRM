@@ -130,7 +130,26 @@ if(!isset($_POST['page'])) {
 }
 
 
-$tracker_page = "$module:$page";
+	$tracker_page = "$module:$page";
+	$smarty->assign('current_module', $module);
+	$smarty->assign('current_page', $page);
+
+	// Employee type (used to show/hide admin menu sections)
+	$employee_type = '';
+	$show_admin_menu = false;
+	if (isset($_SESSION['login_id']) && !empty($_SESSION['login_id'])) {
+		$uid = $_SESSION['login_id'];
+		$q = 'SELECT '.PRFX.'CONFIG_EMPLOYEE_TYPE.TYPE_NAME
+				FROM '.PRFX.'TABLE_EMPLOYEE,'.PRFX.'CONFIG_EMPLOYEE_TYPE
+				WHERE '.PRFX.'TABLE_EMPLOYEE.EMPLOYEE_TYPE = '.PRFX.'CONFIG_EMPLOYEE_TYPE.TYPE_ID
+				  AND EMPLOYEE_ID='.$db->qstr($uid);
+		if ($rs = $db->execute($q)) {
+			$employee_type = $rs->fields['TYPE_NAME'];
+			$show_admin_menu = in_array($employee_type, array('Admin', 'Manager', 'Supervisor'), true);
+		}
+	}
+	$smarty->assign('employee_type', $employee_type);
+	$smarty->assign('show_admin_menu', $show_admin_menu);
 
 
 #####################################
@@ -153,6 +172,21 @@ if(isset($VAR['msg'])) {
 
 if(!isset($VAR['escape']) || $VAR['escape'] != 1 ) { // FIXED: Check if escape is set
 	require('modules'.SEP.'core'.SEP.'header.php');
+
+	// Preload navigation-specific workorder data before nav is rendered.
+	if($module == 'workorder' && $page == 'view' && !empty($VAR['wo_id'])) {
+		require_once('modules'.SEP.'workorder'.SEP.'include.php');
+		$wo_id = $VAR['wo_id'];
+		$q = "SELECT count(*) as count FROM ".PRFX."ORDERS WHERE WO_ID=".$db->qstr($wo_id);
+		if($rs = $db->execute($q)) {
+			$smarty->assign('part', $rs->fields['count']);
+		}
+
+		if($single_work_order = display_single_open_workorder($db, $wo_id)) {
+			$smarty->assign('single_workorder_array', $single_work_order);
+		}
+	}
+
 	require('modules'.SEP.'core'.SEP.'navagation.php');
 	require('modules'.SEP.'core'.SEP.'company.php');
 }

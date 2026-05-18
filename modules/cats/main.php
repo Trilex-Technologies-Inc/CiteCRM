@@ -13,6 +13,11 @@ $description = isset($VAR['description']) ? $VAR['description'] : '';
 
 $cat_search_result = display_cat_search($db, $description, $page_no);
 
+// Add subcategories for each category
+foreach ($cat_search_result as &$cat) {
+    $cat['subcats'] = display_subcat_search($db, $cat['ID']);
+}
+
 $smarty->assign('alpha', $alpha);
 $smarty->assign('cat_search_result', $cat_search_result);
 $smarty->display('cats'.SEP.'main.tpl');

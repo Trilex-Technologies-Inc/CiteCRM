@@ -21,6 +21,22 @@ require("conf.php");
 
 $smarty->assign('page_title', 'Login');
 
+// Captcha settings (Cloudflare Turnstile) for login page.
+$captcha_enabled = 0;
+$captcha_provider = 'turnstile';
+$captcha_site_key = '';
+if (isset($db) && defined('PRFX')) {
+	$rs = @$db->Execute("SELECT PROVIDER, ENABLED, SITE_KEY FROM ".PRFX."TABLE_CAPTCHA_SETTINGS WHERE SETTINGS_ID=1");
+	if ($rs && !$rs->EOF) {
+		$captcha_enabled = (int)$rs->fields['ENABLED'];
+		$captcha_provider = (string)$rs->fields['PROVIDER'];
+		$captcha_site_key = (string)$rs->fields['SITE_KEY'];
+	}
+}
+$smarty->assign('captcha_enabled', $captcha_enabled);
+$smarty->assign('captcha_provider', $captcha_provider);
+$smarty->assign('captcha_site_key', $captcha_site_key);
+
 #####################################
 #	Display Any Errors				#
 ##################################### 

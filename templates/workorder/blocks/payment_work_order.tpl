@@ -28,9 +28,10 @@
 							</td>
 							<td>{$payment.WORK_ORDER_OPEN_DATE|date_format:"%m-%d-%Y"}</td>
 							<td nowrap>
-								<img src="images/icons/16x16/view+.gif" border="0"
-									 onMouseOver="ddrivetip('<b><center>Contact Info</b></center><hr><b>Phone: </b>{$payment.CUSTOMER_PHONE}<br><b>Work: </b>{$payment.CUSTOMER_WORK_PHONE}<br><b>Mobile: </b>{$payment.CUSTOMER_MOBILE_PHONE}<br><br>{$payment.CUSTOMER_ADDRESS}<br>{$payment.CUSTOMER_CITY}, {$payment.CUSTOMER_STATE}<br>{$payment.CUSTOMER_ZIP}')"
-									 onMouseOut="hideddrivetip()">
+								<i class="bi bi-info-circle-fill text-primary fs-5"
+								   aria-hidden="true"
+								   onMouseOver="ddrivetip('<b><center>Contact Info</b></center><hr><b>Phone: </b>{$payment.CUSTOMER_PHONE}<br><b>Work: </b>{$payment.CUSTOMER_WORK_PHONE}<br><b>Mobile: </b>{$payment.CUSTOMER_MOBILE_PHONE}<br><br>{$payment.CUSTOMER_ADDRESS}<br>{$payment.CUSTOMER_CITY}, {$payment.CUSTOMER_STATE}<br>{$payment.CUSTOMER_ZIP}')"
+								   onMouseOut="hideddrivetip()"></i>
 								<a class="link1" href="?page=customer:customer_details&customer_id={$payment.CUSTOMER_ID}&page_title={$payment.CUSTOMER_DISPLAY_NAME}">
 									{$payment.CUSTOMER_DISPLAY_NAME}
 								</a>
@@ -41,9 +42,10 @@
 								{if $payment.EMPLOYEE_DISPLAY_NAME == ""}
 									{$translate_workorder_not_assigned}
 								{else}
-									<img src="images/icons/16x16/view+.gif" border="0"
-										 onMouseOver="ddrivetip('<center><b>Contact</b></center><hr><b>Work: </b>{$payment.EMPLOYEE_WORK_PHONE}<br><b>Mobile: </b>{$payment.EMPLOYEE_MOBILE_PHONE}<br><b>Home: </b>{$payment.EMPLOYEE_HOME_PHONE}')"
-										 onMouseOut="hideddrivetip()">
+									<i class="bi bi-info-circle-fill text-primary fs-5"
+									   aria-hidden="true"
+									   onMouseOver="ddrivetip('<center><b>Contact</b></center><hr><b>Work: </b>{$payment.EMPLOYEE_WORK_PHONE}<br><b>Mobile: </b>{$payment.EMPLOYEE_MOBILE_PHONE}<br><b>Home: </b>{$payment.EMPLOYEE_HOME_PHONE}')"
+									   onMouseOut="hideddrivetip()"></i>
 									<a class="link1" href="?page=employees:employee_details&employee_id={$payment.EMPLOYEE_ID}&page_title={$payment.EMPLOYEE_DISPLAY_NAME}">
 										{$payment.EMPLOYEE_DISPLAY_NAME}
 									</a>
@@ -51,10 +53,16 @@
 							</td>
 							<td class="text-center" nowrap>
 								<a href="?page=workorder:print&wo_id={$payment.WORK_ORDER_ID}&customer_id={$payment.CUSTOMER_ID}&page_title={$translate_workorder_print_title} {$payment.WORK_ORDER_ID}&escape=1" target="_blank">
-									<img src="images/icons/16x16/fileprint.gif" border="0" onMouseOver="ddrivetip('Print The Work Order')" onMouseOut="hideddrivetip()">
+									<i class="bi bi-printer-fill text-secondary  fs-5"
+									   aria-hidden="true"
+									   onMouseOver="ddrivetip('Print The Work Order')"
+									   onMouseOut="hideddrivetip()"></i>
 								</a>
 								<a href="?page=workorder:view&wo_id={$payment.WORK_ORDER_ID}&customer_id={$payment.CUSTOMER_ID}&page_title={$translate_workorder_page_title} {$payment.WORK_ORDER_ID}">
-									<img src="images/icons/16x16/viewmag.gif" border="0" onMouseOver="ddrivetip('View The Work Order')" onMouseOut="hideddrivetip()">
+									<i class="bi bi-eye-fill text-secondary fs-5"
+									   aria-hidden="true"
+									   onMouseOver="ddrivetip('View The Work Order')"
+									   onMouseOut="hideddrivetip()"></i>
 								</a>
 							</td>
 						</tr>

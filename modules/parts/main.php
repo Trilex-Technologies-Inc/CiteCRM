@@ -33,7 +33,36 @@ if($count > 0) {
 # Load Configs							#
 ##################################
 
-	$q = "SELECT PARTS_LO,PARTS_LOGIN,PARTS_PASSWORD,SERVICE_CODE,PARTS_MARKUP,UPS_LOGIN,UPS_PASSWORD,UPS_ACCESS_KEY FROM ".PRFX."SETUP ";
+	$has_shipping_provider_column = false;
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'SHIPPING_PROVIDER'");
+	if ($rs_cols && !$rs_cols->EOF) {
+		$has_shipping_provider_column = true;
+	}
+
+	$has_fedex_columns = false;
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'FEDEX_KEY'");
+	if ($rs_cols && !$rs_cols->EOF) {
+		$has_fedex_columns = true;
+	}
+
+	$has_dhl_columns = false;
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'DHL_KEY'");
+	if ($rs_cols && !$rs_cols->EOF) {
+		$has_dhl_columns = true;
+	}
+
+	$cols = "PARTS_LO,PARTS_LOGIN,PARTS_PASSWORD,SERVICE_CODE,PARTS_MARKUP,UPS_LOGIN,UPS_PASSWORD,UPS_ACCESS_KEY";
+	if ($has_shipping_provider_column) {
+		$cols .= ",SHIPPING_PROVIDER";
+	}
+	if ($has_fedex_columns) {
+		$cols .= ",FEDEX_KEY,FEDEX_PASSWORD,FEDEX_ACCOUNT,FEDEX_METER";
+	}
+	if ($has_dhl_columns) {
+		$cols .= ",DHL_KEY,DHL_SECRET,DHL_ACCOUNT";
+	}
+
+	$q = "SELECT ".$cols." FROM ".PRFX."SETUP ";
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 		exit;
@@ -47,6 +76,16 @@ if($count > 0) {
 	$ups_login 		= $rs->fields['UPS_LOGIN'];
 	$ups_password	= $rs->fields['UPS_PASSWORD'];
 	$ups_access_key	= $rs->fields['UPS_ACCESS_KEY'];
+	$shipping_provider = $has_shipping_provider_column ? strtolower(trim((string)$rs->fields['SHIPPING_PROVIDER'])) : 'ups';
+	if ($shipping_provider !== 'fedex' && $shipping_provider !== 'dhl') {
+		$shipping_provider = 'ups';
+	}
+	$fedex_key = $has_fedex_columns ? (string)$rs->fields['FEDEX_KEY'] : '';
+	$fedex_password = $has_fedex_columns ? (string)$rs->fields['FEDEX_PASSWORD'] : '';
+	$fedex_account = $has_fedex_columns ? (string)$rs->fields['FEDEX_ACCOUNT'] : '';
+	$dhl_key = $has_dhl_columns ? (string)$rs->fields['DHL_KEY'] : '';
+	$dhl_secret = $has_dhl_columns ? (string)$rs->fields['DHL_SECRET'] : '';
+	$dhl_account = $has_dhl_columns ? (string)$rs->fields['DHL_ACCOUNT'] : '';
 
 	/* assign service coed to smarty */
 	if($service_code == "03") {
@@ -75,32 +114,34 @@ if($count > 0) {
 		$smarty->assign('service_code','UPS Express Saver');
 	}
 	
-	/* assign smarty wharehoues location */
-	if($local == "AT") {
-		$smarty->assign('location', 'Atlanta');
-	} else if($local == "CH") {
-		$smarty->assign('location', 'Chicago');
-	} else if($local == "DA") {
-		$smarty->assign('location', 'Dallas');
-	} else if($local == "FR") {
-		$smarty->assign('location', 'Fremont');
-	} else if($local == "HO") {
-		$smarty->assign('location', 'Houston');
-	} else if($local == "KA") {
-		$smarty->assign('location', 'Kansas');
-	} else if($local == "LR") {
-		$smarty->assign('location', 'Laredo');
-	} else if($local == "LA") {
-		$smarty->assign('location', 'Los Angeles');
-	} else if($local == "MI") {
-		$smarty->assign('location', 'Miami');
-	} else if($local == "NJ") {
-		$smarty->assign('location', 'New Jersey');
-	} else if($local == "PO") {
-		$smarty->assign('location', 'Portland');
-	} else if($local == "TP") {
-		$smarty->assign('location', 'Tampa');
-	}
+		/* assign smarty wharehoues location */
+		$warehouse_city = '';
+		if($local == "AT") {
+			$warehouse_city = 'Atlanta';
+		} else if($local == "CH") {
+			$warehouse_city = 'Chicago';
+		} else if($local == "DA") {
+			$warehouse_city = 'Dallas';
+		} else if($local == "FR") {
+			$warehouse_city = 'Fremont';
+		} else if($local == "HO") {
+			$warehouse_city = 'Houston';
+		} else if($local == "KA") {
+			$warehouse_city = 'Kansas';
+		} else if($local == "LR") {
+			$warehouse_city = 'Laredo';
+		} else if($local == "LA") {
+			$warehouse_city = 'Los Angeles';
+		} else if($local == "MI") {
+			$warehouse_city = 'Miami';
+		} else if($local == "NJ") {
+			$warehouse_city = 'New Jersey';
+		} else if($local == "PO") {
+			$warehouse_city = 'Portland';
+		} else if($local == "TP") {
+			$warehouse_city = 'Tampa';
+		}
+		$smarty->assign('location', $warehouse_city);
 
 
 	
@@ -108,9 +149,24 @@ if($count > 0) {
 # Load Category							#
 ##################################
 
+$supports_parent_id = false;
+$chk = "SELECT COUNT(*) AS cnt
+		FROM information_schema.COLUMNS
+		WHERE TABLE_SCHEMA = DATABASE()
+		  AND TABLE_NAME = ".$db->qstr(PRFX."CAT")."
+		  AND COLUMN_NAME = 'PARENT_ID'";
+$chk_rs = $db->Execute($chk);
+if ($chk_rs && (int)$chk_rs->fields['cnt'] > 0) {
+	$supports_parent_id = true;
+}
 
+if (!$supports_parent_id) {
+	force_page('core', 'error&error_msg=Database upgrade required: CAT.PARENT_ID missing.&menu=1&type=validation');
+	exit;
+}
 
-$q = "SELECT * FROM ".PRFX."CAT";
+// Parent categories (top-level)
+$q = "SELECT * FROM ".PRFX."CAT WHERE (PARENT_ID = '' OR PARENT_ID IS NULL) ORDER BY DESCRIPTION";
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 		exit;
@@ -119,13 +175,21 @@ $q = "SELECT * FROM ".PRFX."CAT";
 	$arr = $rs->GetArray();
 	$smarty->assign( 'CAT', $arr );
 	
-$q = "SELECT * FROM ".PRFX."SUB_CAT";
-	if(!$rs = $db->execute($q)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;
-	}
-	$arr = $rs->GetArray();
-	$smarty->assign( 'SUB_CAT', $arr );	
+// Child categories, mapped to legacy SUB_CAT keys expected by templates
+$q = "SELECT ID, DESCRIPTION, PARENT_ID
+	  FROM ".PRFX."CAT
+	  WHERE PARENT_ID <> '' AND PARENT_ID IS NOT NULL
+	  ORDER BY PARENT_ID, DESCRIPTION";
+if(!$rs = $db->execute($q)) {
+	force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+	exit;
+}
+$arr = $rs->GetArray();
+for ($i = 0; $i < count($arr); $i++) {
+	$arr[$i]['CAT'] = $arr[$i]['PARENT_ID'];
+	$arr[$i]['SUB_CATEGORY'] = $arr[$i]['ID'];
+}
+$smarty->assign('SUB_CAT', $arr);
 
 
 ##################################
@@ -217,6 +281,25 @@ $smarty->assign('parts', $parts);
 $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 
 	$smarty->assign('CAT2', $VAR['CAT2']);
+
+	// Local product catalog listing (inventory module)
+	$cat2 = isset($VAR['CAT2']) ? trim((string)$VAR['CAT2']) : '';
+	$inventory_products = array();
+	if ($cat2 !== '') {
+		$q = "SELECT p.PRODUCT_ID, p.PRODUCT_SKU, p.PRODUCT_NAME, p.PRODUCT_DESCRIPTION, p.PRODUCT_PRICE,
+					COALESCE(m.MANUFACTURER_NAME,'') AS MANUFACTURER_NAME
+			  FROM ".PRFX."TABLE_PRODUCT p
+			  LEFT JOIN ".PRFX."TABLE_MANUFACTURER m ON (m.MANUFACTURER_ID = p.MANUFACTURER_ID)
+			  WHERE p.PRODUCT_ACTIVE=1
+			    AND p.CAT_ID=".$db->qstr($cat2)."
+			  ORDER BY p.PRODUCT_NAME";
+		if(!$rs = $db->execute($q)) {
+			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+			exit;
+		}
+		$inventory_products = $rs->GetArray();
+	}
+	$smarty->assign('inventory_products', $inventory_products);
 }
 ###############################
 # Add Part							#
@@ -246,33 +329,48 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 		}
 	}
 
-##################################
-# Remove part From Cart				#
-##################################
-	/* if parts where removed */
-	if(isset($VAR['update_cart'])) {
+	##################################
+	# Remove part From Cart				#
+	##################################
+		/* if parts where removed */
+		if(isset($VAR['update_cart'])) {
+			$current_wo_id = 0;
+			if (isset($VAR['wo_id']) && (int)$VAR['wo_id'] > 0) {
+				$current_wo_id = (int)$VAR['wo_id'];
+			}
+			if(isset($VAR['remove']) && is_array($VAR['remove'])) {
+				foreach($VAR['remove'] as $SKU){
+					$SKU = trim((string)$SKU);
+					if($SKU === '') {
+						continue;
+					}
+					$q = "DELETE FROM ".PRFX."CART WHERE SKU=".$db->qstr($SKU);
+					if ($current_wo_id > 0) {
+						$q .= " AND WO_ID=".$db->qstr($current_wo_id);
+					}
+					if(!$rs = $db->execute($q)) {
+						force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+						exit;
+					}
+				}
+			}
+		}
 	
-		foreach($VAR['remove'] as $SKU){
-			$q = "DELETE FROM ".PRFX."CART WHERE SKU=".$db->qstr($SKU);
+	##################################
+	# Check Out								#
+	##################################
+		/* if checkout selected */
+	if(isset($VAR['check_out'])) {
+			$cart_where = '';
+			if (isset($VAR['wo_id']) && (int)$VAR['wo_id'] > 0) {
+				$cart_where = " WHERE WO_ID=".$db->qstr((int)$VAR['wo_id']);
+			}
+			$q = "SELECT * FROM ".PRFX."CART".$cart_where;
 			if(!$rs = $db->execute($q)) {
 				force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 				exit;
 			}
-			
-		}
-	}
-	
-##################################
-# Check Out								#
-##################################
-	/* if checkout selected */
-if(isset($VAR['check_out'])) {
-		$q = "SELECT * FROM ".PRFX."CART";
-		if(!$rs = $db->execute($q)) {
-			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-			exit;
-		}
-		$arr = $rs->GetArray();
+			$arr = $rs->GetArray();
 		
 		// Initialize totals before accumulating
 		$sub_total         = 0;
@@ -286,80 +384,210 @@ if(isset($VAR['check_out'])) {
 			$cart_weight_total = $cart_weight_total + $amount;
 		}
 		
-		$q = "SELECT COMPANY_ZIP FROM ".PRFX."TABLE_COMPANY";
-		if(!$rs = $db->execute($q)) {
-			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-			exit;
-		}
+			$q = "SELECT COMPANY_ZIP, COMPANY_COUNTRY, COMPANY_CITY FROM ".PRFX."TABLE_COMPANY";
+			if(!$rs = $db->execute($q)) {
+				force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+				exit;
+			}
 
-		$to_zip  = $rs->fields['COMPANY_ZIP'];
+			$to_zip  = $rs->fields['COMPANY_ZIP'];
+			$to_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
+			if ($to_country === '') {
+				$to_country = 'US';
+			}
+			$to_city = trim((string)$rs->fields['COMPANY_CITY']);
+			if ($to_city === '') {
+				$to_city = 'Unknown';
+			}
 
-		$length		= 10;
-		$width		   = 10;
-		$height		= 10;
+			$length		= 10;
+			$width		   = 10;
+			$height		= 10;
 	
-	if($ups_login != '') {
-
-			$activity = "activity"; 	
-			$y = "<?xml version=\"1.0\"?><AccessRequest xml:lang=\"en-US\"><AccessLicenseNumber>$ups_access_key</AccessLicenseNumber><UserId>$ups_login</UserId><Password>$ups_password</Password></AccessRequest><?xml version=\"1.0\"?><RatingServiceSelectionRequest xml:lang=\"en-US\"><Request><TransactionReference><CustomerContext>Bare Bones Rate Request</CustomerContext><XpciVersion>1.0</XpciVersion></TransactionReference><RequestAction>Rate</RequestAction><RequestOption>Rate</RequestOption></Request><PickupType><Code>01</Code></PickupType><Shipment><Shipper><Address><PostalCode>$from_zip</PostalCode><CountryCode>US</CountryCode></Address></Shipper><ShipTo><Address><PostalCode>$to_zip</PostalCode><CountryCode>US</CountryCode></Address></ShipTo><ShipFrom><Address><PostalCode>$from_zip</PostalCode><CountryCode>US</CountryCode></Address></ShipFrom><Service><Code>$service_code</Code></Service><Package><PackagingType><Code>02</Code></PackagingType><Dimensions><UnitOfMeasurement><Code>IN</Code></UnitOfMeasurement><Length>$length</Length><Width>$width</Width><Height>$height</Height></Dimensions><PackageWeight><UnitOfMeasurement><Code>LBS</Code></UnitOfMeasurement><Weight>$cart_weight_total</Weight></PackageWeight></Package></Shipment></RatingServiceSelectionRequest>";  
-			
-			// cURL ENGINE 
-			$ch = curl_init(); //initialize a cURL session  
-			curl_setopt ($ch, CURLOPT_URL,"https://www.ups.com/ups.app/xml/Rate"); 
-			curl_setopt ($ch, CURLOPT_HEADER, 0); 
-			curl_setopt($ch, CURLOPT_POST, 1); 
-			curl_setopt($ch, CURLOPT_POSTFIELDS, "$y"); 
-			curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1); 
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-			$response = curl_exec ($ch); 
-			 
-			curl_close ($ch); 
-
-				$parser = xml_parser_create();
-				xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
-				xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
-				xml_parse_into_struct($parser, $response, $values, $tags);
-				xml_parser_free($parser);
-				
-				//print_r($values);
-				
-				foreach($values as $xml){
-			
-					if($xml['tag'] == "ResponseStatusCode" && $xml['value'] != "" ){
-							$ResponseStatusCode  = array('ResponseStatusCode'=>$xml['value']);
-					}
-					 if ($xml['tag'] == "ResponseStatusCode" && $xml['value'] != "" ) {
-							$ResponseStatusCode	= $xml['value'];	
-					}
-						
-					if	($xml['tag'] == "ErrorDescription" && $xml['value'] != "" ) {
-						$ErrorDescription		= $xml['value'];
-					}
-
-					if($xml['tag'] == "MonetaryValue" && $xml['value'] != "" ){
-						$MonetaryValue = array('MonetaryValue'=>$xml['value']);
-					}
-					
-					if($xml['tag'] == "GuaranteedDaysToDelivery" && $xml['value'] != "" ){
-						$GuaranteedDaysToDelivery =  array('GuaranteedDaysToDelivery'=>$xml['value']);
-					}	
-				
-					if($xml['tag'] == "RatedShipment" && $xml['type'] == "close" ){
-						$rate[] = array_merge($ResponseStatusCode,$MonetaryValue,$GuaranteedDaysToDelivery);
-					}
-			
-				}
- 
-			
-
-			$shipping_charges = number_format($rate[0]['MonetaryValue'], 2, '.', '');
-			$total_charges = $sub_total + $rate[0]['MonetaryValue'];
-	} else {
+		$ResponseStatusCode = 1;
+		$ErrorDescription = '';
 		$shipping_charges = '0.00';
 		$total_charges = $sub_total;
-		$ResponseStatusCode	= 1;
-		$ErrorDescription		= 'You have not set up UPS information';
-	}
+
+		if ($shipping_provider === 'fedex') {
+			require_once('include/shipping/fedex.php');
+
+			$rate_err = '';
+			$rate_value = null;
+
+			list($token, $token_err) = citecrm_fedex_get_oauth_token($fedex_key, $fedex_password, false);
+			if ($token === null) {
+				$rate_err = $token_err;
+			} else {
+				$rate_request = array(
+					'accountNumber' => array('value' => trim((string)$fedex_account)),
+					'requestedShipment' => array(
+						'shipper' => array('address' => array('postalCode' => (string)$from_zip, 'countryCode' => 'US')),
+						'recipient' => array('address' => array('postalCode' => (string)$to_zip, 'countryCode' => (string)$to_country)),
+						'pickupType' => 'DROPOFF_AT_FEDEX_LOCATION',
+						'rateRequestType' => array('ACCOUNT'),
+						'requestedPackageLineItems' => array(
+							array(
+								'weight' => array('units' => 'LB', 'value' => (float)$cart_weight_total),
+								'dimensions' => array(
+									'length' => (int)$length,
+									'width' => (int)$width,
+									'height' => (int)$height,
+									'units' => 'IN',
+								),
+							),
+						),
+					),
+				);
+
+				list($rate_data, $rate_err) = citecrm_fedex_rate($token, $rate_request, false);
+				if (is_array($rate_data)) {
+					$details = null;
+					if (isset($rate_data['output']) && isset($rate_data['output']['rateReplyDetails'])) {
+						$details = $rate_data['output']['rateReplyDetails'];
+					}
+					if (is_array($details) && isset($details[0]) && is_array($details[0])) {
+						$first = $details[0];
+						if (isset($first['ratedShipmentDetails'][0]['totalNetChargeWithDutiesAndTaxes']['amount'])) {
+							$rate_value = $first['ratedShipmentDetails'][0]['totalNetChargeWithDutiesAndTaxes']['amount'];
+						} else if (isset($first['ratedShipmentDetails'][0]['totalNetCharge']['amount'])) {
+							$rate_value = $first['ratedShipmentDetails'][0]['totalNetCharge']['amount'];
+						} else if (isset($first['ratedShipmentDetails'][0]['shipmentRateDetail']['totalNetCharge']['amount'])) {
+							$rate_value = $first['ratedShipmentDetails'][0]['shipmentRateDetail']['totalNetCharge']['amount'];
+						}
+					}
+				}
+			}
+
+			if ($rate_value !== null) {
+				$shipping_charges = number_format((float)$rate_value, 2, '.', '');
+				$total_charges = $sub_total + (float)$rate_value;
+			} else {
+				$ErrorDescription = $rate_err !== '' ? $rate_err : 'Unable to retrieve FedEx rate (using $0.00 shipping)';
+			}
+		} else if ($shipping_provider === 'dhl') {
+			require_once('include/shipping/dhl.php');
+
+			$rate_err = '';
+			$rate_value = null;
+
+			$origin_country = 'US';
+			$origin_city = isset($warehouse_city) && trim((string)$warehouse_city) !== '' ? trim((string)$warehouse_city) : 'Unknown';
+
+			$planned_date = date('Y-m-d');
+			$is_customs_declarable = ($origin_country !== $to_country);
+
+			$rate_params = array(
+				'requestEstimatedDeliveryDate' => 'true',
+				'plannedShippingDate' => $planned_date,
+				'originCountryCode' => $origin_country,
+				'originCityName' => $origin_city,
+				'originPostalCode' => (string)$from_zip,
+				'destinationCountryCode' => (string)$to_country,
+				'destinationCityName' => (string)$to_city,
+				'destinationPostalCode' => (string)$to_zip,
+				'weight' => (float)$cart_weight_total,
+				'length' => (float)$length,
+				'width' => (float)$width,
+				'height' => (float)$height,
+				'unitOfMeasurement' => 'imperial',
+				'isCustomsDeclarable' => $is_customs_declarable ? 'true' : 'false',
+			);
+
+			list($rate_data, $rate_err) = citecrm_dhl_rate($dhl_key, $dhl_secret, $dhl_account, $rate_params, false);
+			if (is_array($rate_data)) {
+				list($best_price, $best_currency, $best_code, $best_name) = citecrm_dhl_extract_best_rate($rate_data);
+				if ($best_price !== null) {
+					$rate_value = $best_price;
+				} else {
+					$rate_err = 'Unable to retrieve DHL rate (no products returned)';
+				}
+			}
+
+			if ($rate_value !== null) {
+				$shipping_charges = number_format((float)$rate_value, 2, '.', '');
+				$total_charges = $sub_total + (float)$rate_value;
+			} else {
+				$shipping_charges = '0.00';
+				$total_charges = $sub_total;
+				$ErrorDescription = $rate_err !== '' ? $rate_err : 'Unable to retrieve DHL rate (using $0.00 shipping)';
+			}
+		} else {
+			require_once('include/shipping/ups.php');
+
+			$rate_value = null;
+			$rate_err = '';
+
+			$rate_request = array(
+				'RateRequest' => array(
+					'Request' => array(
+						'TransactionReference' => array('CustomerContext' => 'CiteCRM'),
+						'RequestOption' => 'Rate',
+					),
+					'Shipment' => array(
+						'Shipper' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => 'US')),
+						'ShipTo' => array('Address' => array('PostalCode' => (string)$to_zip, 'CountryCode' => (string)$to_country)),
+						'ShipFrom' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => 'US')),
+						'Service' => array('Code' => (string)$service_code),
+						'Package' => array(
+							'PackagingType' => array('Code' => '02'),
+							'Dimensions' => array(
+								'UnitOfMeasurement' => array('Code' => 'IN'),
+								'Length' => (string)$length,
+								'Width' => (string)$width,
+								'Height' => (string)$height,
+							),
+							'PackageWeight' => array(
+								'UnitOfMeasurement' => array('Code' => 'LBS'),
+								'Weight' => (string)$cart_weight_total,
+							),
+						),
+					),
+				),
+			);
+
+			list($token, $token_err) = citecrm_ups_get_oauth_token($ups_access_key, $ups_password, false);
+			if ($token !== null) {
+				list($rate_data, $rate_err) = citecrm_ups_rate_rest($token, $rate_request, false);
+				if (is_array($rate_data)) {
+					$shipment = null;
+					if (isset($rate_data['RateResponse']) && isset($rate_data['RateResponse']['RatedShipment'])) {
+						$shipment = $rate_data['RateResponse']['RatedShipment'];
+						if (isset($shipment[0])) {
+							$shipment = $shipment[0];
+						}
+					}
+
+					if (is_array($shipment)) {
+						if (isset($shipment['NegotiatedRateCharges']['TotalCharge']['MonetaryValue'])) {
+							$rate_value = $shipment['NegotiatedRateCharges']['TotalCharge']['MonetaryValue'];
+						} else if (isset($shipment['TotalCharges']['MonetaryValue'])) {
+							$rate_value = $shipment['TotalCharges']['MonetaryValue'];
+						}
+					}
+				}
+			} else {
+				$rate_err = $token_err;
+			}
+
+			if ($rate_value === null) {
+				list($legacy_rate, $legacy_err) = citecrm_ups_rate_xml_legacy($ups_access_key, $ups_login, $ups_password, $from_zip, $to_zip, $service_code, $length, $width, $height, $cart_weight_total);
+				if (is_array($legacy_rate) && isset($legacy_rate['MonetaryValue'])) {
+					$rate_value = $legacy_rate['MonetaryValue'];
+				} else {
+					$rate_err = $legacy_err !== '' ? $legacy_err : ($rate_err !== '' ? $rate_err : 'Unable to retrieve UPS rate (using $0.00 shipping)');
+				}
+			}
+
+			if ($rate_value !== null) {
+				$shipping_charges = number_format((float)$rate_value, 2, '.', '');
+				$total_charges = $sub_total + (float)$rate_value;
+			} else {
+				$shipping_charges = '0.00';
+				$total_charges = $sub_total;
+				$ErrorDescription = $rate_err;
+			}
+		}
 
 		/* get Cart Total */
 		$smarty->assign('ResponseStatusCode',$ResponseStatusCode);
@@ -374,16 +602,19 @@ if(isset($VAR['check_out'])) {
 
 
 
-##################################
-# Get Cart Contents					#
-##################################
-
-$q = "SELECT * FROM ".PRFX."CART";
-	if(!$rs = $db->execute($q)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;
+	##################################
+	# Get Cart Contents					#
+	##################################
+	$cart_where = '';
+	if (isset($VAR['wo_id']) && (int)$VAR['wo_id'] > 0) {
+		$cart_where = " WHERE WO_ID=".$db->qstr((int)$VAR['wo_id']);
 	}
-$arr = $rs->GetArray();
+	$q = "SELECT * FROM ".PRFX."CART".$cart_where;
+		if(!$rs = $db->execute($q)) {
+			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+			exit;
+		}
+	$arr = $rs->GetArray();
 //print_r($arr);
 
 // Initialize cart subtotal before accumulating

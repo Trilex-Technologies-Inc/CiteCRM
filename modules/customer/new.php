@@ -13,6 +13,8 @@ require_once ("include.php");
 if(!xml2php("customer")) {
 	$smarty->assign('error_msg',"Error in language file");
 }
+
+$smarty->assign('has_brand_new_column', customer_has_brand_new_column($db));
 if(isset($VAR['submit'])) {
 
 	if (!check_customer_ex($db, $VAR['displayName'])){

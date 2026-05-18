@@ -11,10 +11,20 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     >
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
 
-    <!-- App theme overrides -->
-    <link href="css/default.css" rel="stylesheet" type="text/css">
-  </head>
+	    <!-- App theme overrides -->
+	    <link href="css/default.css" rel="stylesheet" type="text/css">
+
+		    {if $captcha_enabled == 1 && $captcha_provider == 'turnstile' && $captcha_site_key != ""}
+		      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+		    {elseif $captcha_enabled == 1 && $captcha_provider == 'recaptcha' && $captcha_site_key != ""}
+		      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+		    {/if}
+		  </head>
   <body class="bg-light d-flex align-items-center min-vh-100">
     <div class="container">
       <div class="row justify-content-center">
@@ -41,17 +51,38 @@
                   >
                 </div>
 
-                <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    class="form-control"
-                    autocomplete="current-password"
-                    required
-                  >
-                </div>
+	                <div class="mb-3">
+	                  <label for="password" class="form-label">Password</label>
+	                  <input
+	                    type="password"
+	                    id="password"
+	                    name="password"
+	                    class="form-control"
+	                    autocomplete="current-password"
+	                    required
+	                  >
+	                </div>
+
+		                {if $captcha_enabled == 1 && $captcha_provider == 'turnstile' && $captcha_site_key != ""}
+		                  <div class="mb-3">
+		                    <div class="cf-turnstile" data-sitekey="{$captcha_site_key|escape}"></div>
+		                  </div>
+		                {elseif $captcha_enabled == 1 && $captcha_provider == 'recaptcha' && $captcha_site_key != ""}
+		                  <div class="mb-3">
+		                    <div class="g-recaptcha" data-sitekey="{$captcha_site_key|escape}"></div>
+		                  </div>
+		                {/if}
+					
+					<div class="d-flex justify-content-end mb-3">
+	                  <a
+	                    class="btn btn-sm btn-link px-0 text-decoration-none"
+	                    href="forgot_password.php"
+	                    aria-label="Forgot password"
+	                  >
+	                    <i class="bi bi-key me-1" aria-hidden="true"></i>
+	                    Forgot password?
+	                  </a>
+	                </div>
 
                 {if $error_msg != ""}
                   <div class="alert alert-danger py-2 small" role="alert">
