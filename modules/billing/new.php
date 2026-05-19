@@ -101,7 +101,8 @@ if($invoice_id == "" || $invoice_id == "0") {
 	}
 
 if($invoice_details[1]['BALLANCE'] > 0){
-		$q ="SELECT * FROM ".PRFX."TABLE_TRANSACTION WHERE INVOCIE_ID=".$db->qstr($invoice_details[1]['INVOICE_ID']);
+		$transaction_column = transaction_invoice_column($db);
+		$q ="SELECT * FROM ".PRFX."TABLE_TRANSACTION WHERE " . $transaction_column . "=".$db->qstr($invoice_details[1]['INVOICE_ID']);
 		$rs = $db->execute($q);
 		$trans = $rs->GetArray();
 		$smarty->assign('trans', $trans);

@@ -25,7 +25,7 @@
 		<billing_exp>Expiration</billing_exp>
 		<billing_check_no>Document #</billing_check_no>
 		<billing_gift_code>Gift Code</billing_gift_code>
-		<billing_gift_code_2>Enter the 16 digit code</billing_gift_code_2>
+		<billing_gift_code_2>Enter the 13 digit code</billing_gift_code_2>
 		<billing_gift_code_3>Redemption Code:</billing_gift_code_3>
 		<billing_created>Created:</billing_created>
 		<billing_expires>Expires:</billing_expires>

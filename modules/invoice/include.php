@@ -147,5 +147,25 @@ global $smarty;
 	$smarty->assign("next", $next);
 	return $invoice_arr;
 }
+function transaction_invoice_column($db) {
+    static $col = null;
 
+    if ($col !== null) {
+        return $col;
+    }
+
+    $col = 'INVOICE_ID';
+    $rs = @$db->execute("SHOW COLUMNS FROM " . PRFX . "TABLE_TRANSACTION LIKE 'INVOICE_ID'");
+    if ($rs && !$rs->EOF) {
+        return $col;
+    }
+
+    $col = 'INVOCIE_ID';
+    $rs = @$db->execute("SHOW COLUMNS FROM " . PRFX . "TABLE_TRANSACTION LIKE 'INVOCIE_ID'");
+    if ($rs && !$rs->EOF) {
+        return $col;
+    }
+
+    return 'INVOICE_ID';
+}
 ?>

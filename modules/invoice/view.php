@@ -96,7 +96,8 @@ if($customer_id == '' || $customer_id == '0'){
 	}
 	
 	/* Get trans action information */
-	$q = 'SELECT * FROM '.PRFX.'TABLE_TRANSACTION WHERE INVOCIE_ID='.$db->qstr($invoice['INVOICE_ID']);
+	$transaction_column = transaction_invoice_column($db);
+	$q = 'SELECT * FROM '.PRFX.'TABLE_TRANSACTION WHERE '.$transaction_column.'='.$db->qstr($invoice['INVOICE_ID']);
 	if(!$rs = $db->execute($q)) {
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1');
 		exit;

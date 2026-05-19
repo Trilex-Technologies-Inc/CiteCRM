@@ -11,12 +11,13 @@
 ####################################################
 require('include.php');
 
-$requested_amount = $VAR['gift_amount'] ?? '';
-$gift_code = $VAR['gift_code'] ?? '';
-$customer_id = $VAR['customer_id'] ?? '';
-$invoice_id = $VAR['invoice_id'] ?? '';
-$workorder_id = $VAR['workorder_id'] ?? '';
+$requested_amount = isset($VAR['gift_amount']) ? $VAR['gift_amount'] : '';
+$gift_code = isset($VAR['gift_code']) ? $VAR['gift_code'] : '';
+$customer_id = isset($VAR['customer_id']) ? $VAR['customer_id'] : '';
+$invoice_id = isset($VAR['invoice_id']) ? $VAR['invoice_id'] : '';
+$workorder_id = isset($VAR['workorder_id']) ? $VAR['workorder_id'] : '';
 $date = time();
+$transaction_column = transaction_invoice_column($db);
 
 $gift_code = preg_replace('/\\s+/', '', (string) $gift_code);
 if ($gift_code === '') {
@@ -35,7 +36,7 @@ if (!$rs = $db->execute($q)) {
 	exit;
 }
 
-if (($rs->fields['GIFT_ID'] ?? '') === '') {
+if (!isset($rs->fields['GIFT_ID']) || $rs->fields['GIFT_ID'] === '') {
 	force_page('billing', 'new&wo_id=' . $workorder_id . '&customer_id=' . $customer_id . '&invoice_id=' . $invoice_id . '&page_title=Billing&error_msg=Not a valid gift code.');
 	exit;
 }
@@ -68,9 +69,9 @@ if (!$rs = $db->execute($q)) {
 }
 $invoice_details = $rs->FetchRow();
 
-$invoice_amount = (float) ($invoice_details['INVOICE_AMOUNT'] ?? 0);
-$paid_amount = (float) ($invoice_details['PAID_AMOUNT'] ?? 0);
-$ballance_field = (float) ($invoice_details['BALLANCE'] ?? 0);
+$invoice_amount = (float) (isset($invoice_details['INVOICE_AMOUNT']) ? $invoice_details['INVOICE_AMOUNT'] : 0);
+$paid_amount = (float) (isset($invoice_details['PAID_AMOUNT']) ? $invoice_details['PAID_AMOUNT'] : 0);
+$ballance_field = (float) (isset($invoice_details['BALLANCE']) ? $invoice_details['BALLANCE'] : 0);
 
 $due = $ballance_field > 0 ? $ballance_field : max(0.0, $invoice_amount - $paid_amount);
 if ($due <= 0) {
@@ -108,7 +109,7 @@ $memo = $invoice_paid
 $q = "INSERT INTO " . PRFX . "TABLE_TRANSACTION SET
 	DATE=" . $db->qstr(time()) . ",
 	TYPE='3',
-	INVOCIE_ID=" . $db->qstr($invoice_id) . ",
+	" . $transaction_column . "=" . $db->qstr($invoice_id) . ",
 	WORKORDER_ID=" . $db->qstr($workorder_id) . ",
 	CUSTOMER_ID=" . $db->qstr($customer_id) . ",
 	MEMO=" . $db->qstr($memo) . ",
