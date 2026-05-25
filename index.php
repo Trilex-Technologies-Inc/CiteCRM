@@ -28,7 +28,37 @@ if(!is_file('lock') ) {
 $VAR = array_merge($_GET, $_POST);
 $page_title = isset($VAR['page_title']) ? $VAR['page_title'] : 'Home'; // FIXED: Check if set
 
-$auth = new Auth($db, 'login.php', 'secret');
+$requested_page = '';
+if (isset($_GET['page']) && $_GET['page'] !== '') {
+	$requested_page = (string)$_GET['page'];
+} elseif (isset($_POST['page']) && $_POST['page'] !== '') {
+	$requested_page = (string)$_POST['page'];
+}
+
+$public_access = false;
+if ($requested_page !== '') {
+	$public_pages = array(
+		'billing:stripe_complete',
+		'billing:stripe_cancel',
+	);
+	if ($requested_page === 'billing:stripe_complete') {
+		$public_access = (!empty($VAR['session_id']));
+	} else if ($requested_page === 'billing:stripe_cancel') {
+		$public_access = true;
+	} else if (in_array($requested_page, $public_pages, true)) {
+		$public_access = true;
+	}
+}
+
+$auth = null;
+if (!$public_access) {
+	$auth = new Auth($db, 'login.php', 'secret');
+} else {
+	if (!isset($_SESSION['login_id'])) {
+		$_SESSION['login_id'] = 0;
+	}
+}
+
 require(INCLUDE_URL.SEP.'acl.php');
 
 require('modules/core/translate.php');
@@ -47,7 +77,9 @@ $start = getMicroTime();
 
 // If logg of is set then we log off
 if (isset($VAR['action']) && $VAR['action'] == 'logout') {
-  $auth->logout('login.php');
+  if ($auth) {
+    $auth->logout('login.php');
+  }
 }
 
 /* get company info for defaults */
@@ -198,9 +230,11 @@ if($menu == 1 ) {
 } else {
 	
 	/* check acl for page request */
-	if(!check_acl($db,$module,$page)) {
+	if ($public_access) {
+		require($the_page);
+	} else if(!check_acl($db,$module,$page)) {
 		force_page('core','error&error_msg=You do not have permission to access this '.$module.':'.$page.'&menu=1');
-	} else { 
+	} else {
 		require($the_page);
 	}
 }

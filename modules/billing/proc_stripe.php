@@ -82,6 +82,100 @@ function citecrm_safe_redirect($url)
 	exit;
 }
 
+function citecrm_send_payment_email($db, $invoice_id, $workorder_id, $customer_id, $amount, $payment_url, $company_name)
+{
+	$email_sent = false;
+	$customer_email = '';
+	$customer_name = '';
+
+	if ($customer_id > 0) {
+		$q = "SELECT CUSTOMER_EMAIL, CUSTOMER_DISPLAY_NAME, CUSTOMER_FIRST_NAME, CUSTOMER_LAST_NAME
+			  FROM " . PRFX . "TABLE_CUSTOMER
+			  WHERE CUSTOMER_ID=" . $db->qstr($customer_id);
+		$rs = $db->Execute($q);
+		if ($rs) {
+			$customer_email = trim((string)$rs->fields['CUSTOMER_EMAIL']);
+			$customer_name = trim((string)$rs->fields['CUSTOMER_DISPLAY_NAME']);
+			if ($customer_name === '') {
+				$customer_name = trim((string)$rs->fields['CUSTOMER_FIRST_NAME'] . ' ' . (string)$rs->fields['CUSTOMER_LAST_NAME']);
+			}
+		}
+	}
+
+	$company_email = '';
+	$q = "SELECT COMPANY_EMAIL, COMPANY_NAME FROM " . PRFX . "TABLE_COMPANY";
+	$rs = $db->Execute($q);
+	if ($rs) {
+		$company_email = trim((string)$rs->fields['COMPANY_EMAIL']);
+		if (trim((string)$rs->fields['COMPANY_NAME']) !== '') {
+			$company_name = (string)$rs->fields['COMPANY_NAME'];
+		}
+	}
+
+	$has_sendmail = false;
+	$sendmail_path = (string)ini_get('sendmail_path');
+	$sendmail_bin = trim(strtok($sendmail_path, " \t"));
+	if ($sendmail_bin !== '' && @file_exists($sendmail_bin)) {
+		$has_sendmail = true;
+	}
+
+	if ($customer_email !== '' && filter_var($customer_email, FILTER_VALIDATE_EMAIL)) {
+		$subject = $company_name . ' - Stripe payment link (Invoice #' . $invoice_id . ')';
+
+		$lines = array();
+		if ($customer_name !== '') {
+			$lines[] = 'Hello ' . $customer_name . ',';
+			$lines[] = '';
+		}
+		$lines[] = 'Please use the link below to complete your payment via Stripe:';
+		$lines[] = $payment_url;
+		$lines[] = '';
+		$lines[] = 'Invoice ID: ' . $invoice_id;
+		if ($workorder_id > 0) {
+			$lines[] = 'Work Order: ' . $workorder_id;
+		}
+		if ($amount !== '') {
+			$lines[] = 'Amount: $' . $amount;
+		}
+		$lines[] = '';
+		$lines[] = 'Thank you.';
+		$message = implode("\r\n", $lines);
+
+		$headers = array();
+		$headers[] = 'MIME-Version: 1.0';
+		$headers[] = 'Content-Type: text/plain; charset=UTF-8';
+		if ($company_email !== '' && filter_var($company_email, FILTER_VALIDATE_EMAIL)) {
+			$headers[] = 'From: ' . $company_name . ' <' . $company_email . '>';
+			$headers[] = 'Reply-To: ' . $company_email;
+		}
+
+		if ($has_sendmail) {
+			$email_sent = @mail($customer_email, $subject, $message, implode("\r\n", $headers));
+		}
+
+		if ($workorder_id > 0) {
+			if ($email_sent) {
+				$msg = "Stripe payment link emailed to " . $customer_email . " (Invoice ID: " . $invoice_id . ")";
+			} else {
+				$reason = $has_sendmail ? 'mail() failed' : ('sendmail missing (sendmail_path=' . $sendmail_path . ')');
+				$msg = "Stripe payment link NOT emailed to " . $customer_email . " (Invoice ID: " . $invoice_id . ") - " . $reason;
+				@error_log('[' . date('c') . '] ' . $msg . "\n", 3, 'log/mail.log');
+			}
+			$sql = "INSERT INTO " . PRFX . "TABLE_WORK_ORDER_STATUS SET
+					WORK_ORDER_ID=" . $db->qstr($workorder_id) . ",
+					WORK_ORDER_STATUS_DATE=" . $db->qstr(time()) . ",
+					WORK_ORDER_STATUS_NOTES=" . $db->qstr($msg) . ",
+					WORK_ORDER_STATUS_ENTER_BY=" . $db->qstr($_SESSION['login_id']);
+			$db->Execute($sql);
+		}
+	}
+
+	return array(
+		'email_sent' => $email_sent ? 1 : 0,
+		'email_to' => $customer_email,
+	);
+}
+
 /* get stripe config */
 $q = "SELECT STRIPE_SECRET_KEY, STRIPE_TEST_MODE FROM " . PRFX . "SETUP";
 $rs = $db->Execute($q);
@@ -101,6 +195,8 @@ $amount = isset($VAR['stripe_amount']) ? (string)$VAR['stripe_amount'] : '';
 $invoice_id = isset($VAR['invoice_id']) ? (int)$VAR['invoice_id'] : 0;
 $workorder_id = isset($VAR['workorder_id']) ? (int)$VAR['workorder_id'] : 0;
 $customer_id = isset($VAR['customer_id']) ? (int)$VAR['customer_id'] : 0;
+// Optional: email the Stripe payment link to the customer instead of redirecting immediately.
+$email_link = !empty($VAR['stripe_email_link']) ? 1 : 0;
 
 if ($invoice_id <= 0 || $workorder_id <= 0 || $customer_id <= 0) {
 	force_page('core', 'error&error_msg=Missing invoice/workorder/customer information for Stripe.&menu=1');
@@ -130,15 +226,23 @@ if ($base === '') {
 }
 
 $success_url = $base . '/index.php?page=billing:stripe_complete'
+	. '&escape=1'
 	. '&session_id={CHECKOUT_SESSION_ID}'
 	. '&invoice_id=' . urlencode((string)$invoice_id)
 	. '&wo_id=' . urlencode((string)$workorder_id);
-$cancel_url = $base . '/index.php?page=billing:new'
-	. '&wo_id=' . urlencode((string)$workorder_id)
-	. '&customer_id=' . urlencode((string)$customer_id)
-	. '&invoice_id=' . urlencode((string)$invoice_id)
-	. '&page_title=Billing'
-	. '&error_msg=' . urlencode('Stripe payment canceled.');
+if ($email_link === 1) {
+	$cancel_url = $base . '/index.php?page=billing:stripe_cancel'
+		. '&escape=1'
+		. '&invoice_id=' . urlencode((string)$invoice_id)
+		. '&wo_id=' . urlencode((string)$workorder_id);
+} else {
+	$cancel_url = $base . '/index.php?page=billing:new'
+		. '&wo_id=' . urlencode((string)$workorder_id)
+		. '&customer_id=' . urlencode((string)$customer_id)
+		. '&invoice_id=' . urlencode((string)$invoice_id)
+		. '&page_title=Billing'
+		. '&error_msg=' . urlencode('Stripe payment canceled.');
+}
 
 $params = array(
 	'mode' => 'payment',
@@ -167,6 +271,27 @@ $session = $result['data'];
 $redirect_url = isset($session['url']) ? (string)$session['url'] : '';
 if ($redirect_url === '') {
 	force_page('core', 'error&error_msg=Stripe did not return a redirect URL.&menu=1');
+	exit;
+}
+
+/* Note: we email the Checkout Session URL (hosted Stripe payment page). */
+if ($email_link === 1) {
+	$result = citecrm_send_payment_email(
+		$db,
+		$invoice_id,
+		$workorder_id,
+		$customer_id,
+		$amount,
+		$redirect_url,
+		$company_name
+	);
+
+	$smarty->assign('invoice_id', $invoice_id);
+	$smarty->assign('wo_id', $workorder_id);
+	$smarty->assign('stripe_url', $redirect_url);
+	$smarty->assign('email_sent', (int)$result['email_sent']);
+	$smarty->assign('email_to', (string)$result['email_to']);
+	$smarty->display('billing' . SEP . 'proc_stripe.tpl');
 	exit;
 }
 

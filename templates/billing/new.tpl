@@ -424,6 +424,12 @@
                                     <input type="hidden" name="customer_id"  value="{$customer_id}">
                                     <input type="hidden" name="invoice_id"   value="{$invoice_id}">
                                     <input type="hidden" name="workorder_id" value="{$workorder_id}">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" checked name="stripe_email_link" id="stripe_email_link" value="1">
+                                        <label class="form-check-label" for="stripe_email_link">
+                                            Email Stripe payment link to customer
+                                        </label>
+                                    </div>
                                     <input type="submit" name="submit" value="Submit Stripe Payment" class="btn btn-primary">
                                 </div>
                             </div>

@@ -30,11 +30,33 @@ function stripe_api_get($path, $secret_key)
 	return array('ok' => true, 'http_code' => $http_code, 'data' => $data);
 }
 
-$session_id = isset($VAR['session_id']) ? trim((string)$VAR['session_id']) : '';
-$invoice_id = isset($VAR['invoice_id']) ? (int)$VAR['invoice_id'] : 0;
-$workorder_id = isset($VAR['wo_id']) ? (int)$VAR['wo_id'] : 0;
+function citecrm_public_page($title, $message)
+{
+	$title = (string)$title;
+	$message = (string)$message;
+	$esc_title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+	$esc_msg = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
 
-if ($session_id === '' || $invoice_id <= 0 || $workorder_id <= 0) {
+	echo '<!doctype html><html><head><meta charset="utf-8">';
+	echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
+	echo '<title>' . $esc_title . '</title>';
+	echo '<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px;max-width:720px}';
+	echo '.card{border:1px solid #e5e7eb;border-radius:12px;padding:16px}';
+	echo '.muted{color:#6b7280}';
+	echo '</style></head><body>';
+	echo '<div class="card">';
+	echo '<h2 style="margin:0 0 8px 0">' . $esc_title . '</h2>';
+	echo '<p style="margin:0 0 12px 0">' . $esc_msg . '</p>';
+	echo '<p class="muted" style="margin:0">You can close this tab.</p>';
+	echo '</div></body></html>';
+	exit;
+}
+
+$session_id = isset($VAR['session_id']) ? trim((string)$VAR['session_id']) : '';
+$invoice_id_url = isset($VAR['invoice_id']) ? (int)$VAR['invoice_id'] : 0;
+$workorder_id_url = isset($VAR['wo_id']) ? (int)$VAR['wo_id'] : 0;
+
+if ($session_id === '') {
 	force_page('core', 'error&error_msg=Missing Stripe completion parameters.&menu=1');
 	exit;
 }
@@ -66,6 +88,40 @@ $payment_status = isset($session['payment_status']) ? (string)$session['payment_
 $amount_total = isset($session['amount_total']) ? (int)$session['amount_total'] : 0;
 $payment_intent = isset($session['payment_intent']) ? (string)$session['payment_intent'] : '';
 
+$meta_invoice_id = 0;
+$meta_workorder_id = 0;
+$meta_customer_id = 0;
+if (isset($session['metadata']) && is_array($session['metadata'])) {
+	if (isset($session['metadata']['invoice_id'])) {
+		$meta_invoice_id = (int)$session['metadata']['invoice_id'];
+	}
+	if (isset($session['metadata']['workorder_id'])) {
+		$meta_workorder_id = (int)$session['metadata']['workorder_id'];
+	}
+	if (isset($session['metadata']['customer_id'])) {
+		$meta_customer_id = (int)$session['metadata']['customer_id'];
+	}
+}
+
+if ($meta_invoice_id <= 0 || $meta_workorder_id <= 0) {
+	force_page('core', 'error&error_msg=Stripe session is missing required metadata (invoice/workorder).&menu=1');
+	exit;
+}
+
+if ($invoice_id_url > 0 && $invoice_id_url !== $meta_invoice_id) {
+	force_page('core', 'error&error_msg=Stripe invoice mismatch.&menu=1');
+	exit;
+}
+if ($workorder_id_url > 0 && $workorder_id_url !== $meta_workorder_id) {
+	force_page('core', 'error&error_msg=Stripe work order mismatch.&menu=1');
+	exit;
+}
+
+$invoice_id = $meta_invoice_id;
+$workorder_id = $meta_workorder_id;
+
+$has_employee_session = (!empty($_SESSION['login_id']) && (int)$_SESSION['login_id'] > 0);
+
 if ($payment_status !== 'paid') {
 	$memo = "Stripe payment not completed (status: " . $payment_status . ", session: " . $session_id . ")";
 	$q = "INSERT INTO " . PRFX . "TABLE_WORK_ORDER_STATUS SET
@@ -75,17 +131,17 @@ if ($payment_status !== 'paid') {
 		WORK_ORDER_STATUS_ENTER_BY=" . $db->qstr($_SESSION['login_id']);
 	$db->Execute($q);
 
-	$customer_id_from_session = 0;
-	if (isset($session['metadata']) && is_array($session['metadata']) && isset($session['metadata']['customer_id'])) {
-		$customer_id_from_session = (int)$session['metadata']['customer_id'];
+	if ($has_employee_session) {
+		force_page(
+			'billing',
+			'new&wo_id=' . urlencode((string)$workorder_id)
+				. '&customer_id=' . urlencode((string)$meta_customer_id)
+				. '&invoice_id=' . urlencode((string)$invoice_id)
+				. '&error_msg=' . urlencode('Stripe payment not completed.')
+		);
+	} else {
+		citecrm_public_page('Payment not completed', 'Your Stripe payment was not completed.');
 	}
-	force_page(
-		'billing',
-		'new&wo_id=' . urlencode((string)$workorder_id)
-			. '&customer_id=' . urlencode((string)$customer_id_from_session)
-			. '&invoice_id=' . urlencode((string)$invoice_id)
-			. '&error_msg=' . urlencode('Stripe payment not completed.')
-	);
 	exit;
 }
 
@@ -162,6 +218,10 @@ if ($is_paid === 1) {
 	$db->Execute($q);
 }
 
-force_page('invoice', 'view&invoice_id=' . urlencode((string)$invoice_id) . '&customer_id=' . urlencode((string)$customer_id));
+if ($has_employee_session) {
+	force_page('invoice', 'view&invoice_id=' . urlencode((string)$invoice_id) . '&customer_id=' . urlencode((string)$customer_id));
+} else {
+	citecrm_public_page('Payment successful', 'Thank you. Your payment was received.');
+}
 exit;
 ?>
