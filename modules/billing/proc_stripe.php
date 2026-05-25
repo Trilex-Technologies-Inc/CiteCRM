@@ -13,7 +13,18 @@ function citecrm_base_url()
 	if ($host === '') {
 		return '';
 	}
-	return $scheme . '://' . $host;
+
+	// If app is installed in a subfolder (e.g. /z), include it.
+	$script = isset($_SERVER['SCRIPT_NAME']) ? (string)$_SERVER['SCRIPT_NAME'] : '';
+	$basePath = '';
+	if ($script !== '') {
+		$dir = str_replace('\\', '/', dirname($script));
+		if ($dir !== '/' && $dir !== '.' && $dir !== '\\') {
+			$basePath = rtrim($dir, '/');
+		}
+	}
+
+	return $scheme . '://' . $host . $basePath;
 }
 
 function stripe_api_request($method, $path, $params, $secret_key)
@@ -51,6 +62,24 @@ function stripe_api_request($method, $path, $params, $secret_key)
 	}
 
 	return array('ok' => true, 'http_code' => $http_code, 'data' => $data);
+}
+
+function citecrm_safe_redirect($url)
+{
+	$url = (string)$url;
+
+	if (!headers_sent()) {
+		header('Location: ' . $url);
+		exit;
+	}
+
+	$esc = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+	echo '<!doctype html><html><head><meta charset="utf-8">';
+	echo '<meta http-equiv="refresh" content="0;url=' . $esc . '">';
+	echo '<title>Redirecting...</title></head><body>';
+	echo 'Redirecting... <a href="' . $esc . '">Continue</a>';
+	echo '</body></html>';
+	exit;
 }
 
 /* get stripe config */
@@ -141,6 +170,5 @@ if ($redirect_url === '') {
 	exit;
 }
 
-header('Location: ' . $redirect_url);
-exit;
-?>
+citecrm_safe_redirect($redirect_url);
+	?>
