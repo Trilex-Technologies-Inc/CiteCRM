@@ -27,6 +27,12 @@ function validate_customer_search(frm) {
     <div>
         {include file="core/tool_bar.tpl"}
     </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a class="btn btn-success btn-sm" href="?page=customer:new&page_title=New%20Customer">
+            <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>
+            {$translate_menu_add_new_customer|default:"New Customer"}
+        </a>
+    </div>
 </div>
 
 <!-- Main Content Container -->
