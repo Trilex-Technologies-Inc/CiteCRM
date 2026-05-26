@@ -411,6 +411,22 @@ if (!create_cat($db)) {
 }
 
 ##################################
+# ensure_cat_parent_id				#
+##################################
+if (!ensure_cat_parent_id($db)) {
+	echo ("<tr>\n
+				<td>Ensure column " . PRFX . "CAT.PARENT_ID</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
+			</tr>\n");
+	$error_flag = true;
+} else {
+	echo ("<tr>\n
+				<td>Ensure column " . PRFX . "CAT.PARENT_ID</td>\n
+				<td><font color=\"green\"><b>OK</b></font></td>\n
+			</tr>\n");
+}
+
+##################################
 # create_orders							#
 ##################################
 if (!create_orders($db)) {
@@ -438,6 +454,54 @@ if (!create_order_details($db)) {
 } else {
 	echo ("<tr>\n
 				<td>Create table " . PRFX . "ORDERS_DETAILS</td>\n
+				<td><font color=\"green\"><b>OK</b></font></td>\n
+			</tr>\n");
+}
+
+##################################
+# create_table_manufacturer		#
+##################################
+if (!create_table_manufacturer($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_MANUFACTURER</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
+			</tr>\n");
+	$error_flag = true;
+} else {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_MANUFACTURER</td>\n
+				<td><font color=\"green\"><b>OK</b></font></td>\n
+			</tr>\n");
+}
+
+##################################
+# create_table_product				#
+##################################
+if (!create_table_product($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_PRODUCT</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
+			</tr>\n");
+	$error_flag = true;
+} else {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_PRODUCT</td>\n
+				<td><font color=\"green\"><b>OK</b></font></td>\n
+			</tr>\n");
+}
+
+##################################
+# ensure_product_category_columns	#
+##################################
+if (!ensure_product_category_columns($db)) {
+	echo ("<tr>\n
+				<td>Ensure columns " . PRFX . "TABLE_PRODUCT.CAT_ID/SUBCAT_ID</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
+			</tr>\n");
+	$error_flag = true;
+} else {
+	echo ("<tr>\n
+				<td>Ensure columns " . PRFX . "TABLE_PRODUCT.CAT_ID/SUBCAT_ID</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -1220,7 +1284,7 @@ function create_cart($db)
 
 function create_cat($db)
 {
-	$q = "CREATE TABLE `" . PRFX . "CAT` (
+	$q = "CREATE TABLE IF NOT EXISTS `" . PRFX . "CAT` (
 	`ID` varchar(10) NOT NULL default '',
 	`DESCRIPTION` varchar(100) NOT NULL default '',
 	`PARENT_ID` varchar(10) NOT NULL default '',
@@ -1233,6 +1297,31 @@ function create_cat($db)
 	}
 
 	// Intentionally do not seed categories during install.
+	return true;
+}
+
+function column_exists($db, $table_name, $column_name)
+{
+	$q = "SELECT COUNT(*)
+		FROM information_schema.COLUMNS
+		WHERE TABLE_SCHEMA = DATABASE()
+			AND TABLE_NAME = " . $db->qstr($table_name) . "
+			AND COLUMN_NAME = " . $db->qstr($column_name);
+	$cnt = $db->GetOne($q);
+	return ((int)$cnt) > 0;
+}
+
+function ensure_cat_parent_id($db)
+{
+	$table = PRFX . "CAT";
+	if (!column_exists($db, $table, "PARENT_ID")) {
+		$q = "ALTER TABLE `" . $table . "`
+			ADD COLUMN `PARENT_ID` varchar(10) NOT NULL default '' AFTER `DESCRIPTION`,
+			ADD KEY `PARENT_ID` (`PARENT_ID`)";
+		if (!$db->Execute($q)) {
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -1259,6 +1348,75 @@ function create_orders($db)
 	} else {
 		return true;
 	}
+}
+
+function create_table_manufacturer($db)
+{
+	$q = "CREATE TABLE IF NOT EXISTS `" . PRFX . "TABLE_MANUFACTURER` (
+	  `MANUFACTURER_ID` int(11) NOT NULL auto_increment,
+	  `MANUFACTURER_NAME` varchar(120) NOT NULL default '',
+	  `MANUFACTURER_WEBSITE` varchar(255) NOT NULL default '',
+	  `MANUFACTURER_ACTIVE` tinyint(1) NOT NULL default '1',
+	  PRIMARY KEY  (`MANUFACTURER_ID`),
+	  UNIQUE KEY `MANUFACTURER_NAME` (`MANUFACTURER_NAME`)
+	) ENGINE=MyISAM";
+
+	$rs = $db->Execute($q);
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function create_table_product($db)
+{
+	$q = "CREATE TABLE IF NOT EXISTS `" . PRFX . "TABLE_PRODUCT` (
+	  `PRODUCT_ID` int(11) NOT NULL auto_increment,
+	  `MANUFACTURER_ID` int(11) NOT NULL default '0',
+	  `CAT_ID` varchar(10) NOT NULL default '',
+	  `SUBCAT_ID` int(20) NOT NULL default '0',
+	  `PRODUCT_SKU` varchar(60) NOT NULL default '',
+	  `PRODUCT_NAME` varchar(120) NOT NULL default '',
+	  `PRODUCT_DESCRIPTION` text,
+	  `PRODUCT_PRICE` decimal(10,2) NOT NULL default '0.00',
+	  `PRODUCT_ACTIVE` tinyint(1) NOT NULL default '1',
+	  PRIMARY KEY  (`PRODUCT_ID`),
+	  KEY `MANUFACTURER_ID` (`MANUFACTURER_ID`),
+	  KEY `CAT_ID` (`CAT_ID`),
+	  KEY `SUBCAT_ID` (`SUBCAT_ID`),
+	  KEY `PRODUCT_SKU` (`PRODUCT_SKU`)
+	) ENGINE=MyISAM";
+
+	$rs = $db->Execute($q);
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function ensure_product_category_columns($db)
+{
+	$table = PRFX . "TABLE_PRODUCT";
+
+	$queries = array();
+	if (!column_exists($db, $table, "CAT_ID")) {
+		$queries[] = "ALTER TABLE `" . $table . "` ADD COLUMN `CAT_ID` varchar(10) NOT NULL default '' AFTER `MANUFACTURER_ID`";
+		$queries[] = "ALTER TABLE `" . $table . "` ADD KEY `CAT_ID` (`CAT_ID`)";
+	}
+	if (!column_exists($db, $table, "SUBCAT_ID")) {
+		$queries[] = "ALTER TABLE `" . $table . "` ADD COLUMN `SUBCAT_ID` int(20) NOT NULL default '0' AFTER `MANUFACTURER_ID`";
+		$queries[] = "ALTER TABLE `" . $table . "` ADD KEY `SUBCAT_ID` (`SUBCAT_ID`)";
+	}
+
+	foreach ($queries as $q) {
+		if (!$db->Execute($q)) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 function create_order_details($db)
