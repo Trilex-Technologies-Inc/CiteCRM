@@ -288,8 +288,8 @@ switch ($mode) {
                                                 <h5 class="mt-4">Help Resources</h5>
                                                 <ul>
                                                     <li><a href="http://www.incitecrm.com/doc/" target="_blank">User Documentation</a></li>
-                                                    <li><a href="http://www.incitecrm.com/support/" target="_blank">Support Forum</a></li>
-                                                    <li><a href="http://www.citecrm.com/bugs" target="_blank">Bug Reporting</a></li>
+                                                    <li><a href="https://www.incitecrm.com/module.php?modname=forum" target="_blank">Support Forum</a></li>
+                                                    <li><a href="https://github.com/Trilex-Technologies-Inc/CiteCRM" target="_blank">Bug Reporting</a></li>
                                                 </ul>
                                             </div>
                                         </div>

@@ -40,7 +40,7 @@
                     </li>
                     <li>
                         <a href="http://www.incitecrm.com" target="new">
-                            www.citecrm.com
+                            www.incitecrm.com
                         </a>
                     </li>
                     <li>
