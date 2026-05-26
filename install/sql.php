@@ -1055,7 +1055,39 @@ function create_setup($db)
 		return false;
 	} else {
 
-		$q = "INSERT INTO `" . PRFX . "SETUP` VALUES (7, 19, '', '', '', '', 0, '', '', 1, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, 'ups', '', '', '', '', '', '', '', '', '')";
+			$q = "INSERT INTO `" . PRFX . "SETUP` (
+				`OFFICE_HOUR_START`,
+				`OFFICE_HOUR_END`,
+				`AN_LOGIN_ID`,
+				`AN_PASSWORD`,
+				`AN_TRANS_KEY`,
+				`PP_ID`,
+				`PP_SANDBOX`,
+				`STRIPE_PUBLISHABLE_KEY`,
+				`STRIPE_SECRET_KEY`,
+				`STRIPE_TEST_MODE`,
+				`HTML_PRINT`,
+				`PDF_PRINT`,
+				`INVOCIE_TAX`,
+				`INV_THANK_YOU`,
+				`WELCOME_NOTE`,
+				`PARTS_LO`,
+				`PARTS_LOGIN`,
+				`PARTS_PASSWORD`,
+				`SERVICE_CODE`,
+				`PARTS_MARKUP`,
+				`SHIPPING_PROVIDER`,
+				`UPS_LOGIN`,
+				`UPS_PASSWORD`,
+				`UPS_ACCESS_KEY`,
+				`FEDEX_KEY`,
+				`FEDEX_PASSWORD`,
+				`FEDEX_ACCOUNT`,
+				`FEDEX_METER`,
+				`DHL_KEY`,
+				`DHL_SECRET`,
+				`DHL_ACCOUNT`
+			) VALUES (7, 19, '', '', '', '', 0, '', '', 1, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, 'ups', '', '', '', '', '', '', '', '', '', '')";
 
 		if (!$rs = $db->Execute($q)) {
 			return false;
