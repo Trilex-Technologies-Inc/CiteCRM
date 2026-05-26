@@ -62,11 +62,11 @@
 						<!-- Authorize.Net Info -->
 						<div class="mb-4" id="gateway-cc">
 							<h6>Authorize.Net Information</h6>
-							<p>
-								If you are enabling credit card billing you must have an Authorize.Net account set up and enabled.
-								To set up an Authorize.Net account click here. Your account information will be encrypted before being stored.
-								No credit card information is stored in the Cite CRM system. For more information on billing profiles and setup please contact Authorize.Net.
-							</p>
+								<p>
+									If you are enabling credit card billing you must have an Authorize.Net account set up and enabled.
+									To set up an Authorize.Net account <a href="https://www.authorize.net/sign-up/pricing.html" target="_blank" rel="noopener noreferrer">click here</a>. Your account information will be encrypted before being stored.
+									No credit card information is stored in the Cite CRM system. For more information on billing profiles and setup please contact Authorize.Net.
+								</p>
 
 							{section name=w loop=$opts}
 								<div class="mb-3">
