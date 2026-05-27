@@ -29,10 +29,7 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-6 col-lg-4">
-          <div class="text-center mb-4">
-            <img src="images/cite_crm.jpg" alt="Cite CRM" class="img-fluid mb-2" style="max-height: 80px;">
-          </div>
-
+          
           <div class="card shadow-sm">
             <div class="card-header bg-primary text-white text-center">
               <h1 class="h5 mb-0">Login</h1>
@@ -98,12 +95,10 @@
               </form>
             </div>
           </div>
-
-          <div class="text-center text-muted small mt-3">
-            Copyright 2005 &copy; Cite CRM
-            <a href="http://www.incitecrm.com" target="new">www.incitecrm.com</a>
-            &mdash; All rights reserved.
-          </div>
+<div style="text-align: center;">
+    <div> © 2005 - <?php echo date('Y'); ?> Cite CRM
+    <a href="http://www.incitecrm.com" target="_blank">www.incitecrm.com</a> — All rights reserved.</div>
+</div>
         </div>
       </div>
     </div>

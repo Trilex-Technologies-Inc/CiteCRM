@@ -15,10 +15,7 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-7 col-lg-5">
-          <div class="text-center mb-4">
-            <img src="images/cite_crm.jpg" alt="Cite CRM" class="img-fluid mb-2" style="max-height: 80px;">
-          </div>
-
+         
           <div class="card shadow-sm">
             <div class="card-header bg-primary text-white text-center">
               <h1 class="h5 mb-0">Forgot Password</h1>

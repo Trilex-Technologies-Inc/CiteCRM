@@ -12,6 +12,83 @@
 
 if(isset($VAR['submit'])) {
 
+	// Optional: upload/update company logo (stored in /images as company_logo.<ext>)
+	$logo_error = '';
+	if(isset($_FILES['company_logo']) && is_array($_FILES['company_logo']) && isset($_FILES['company_logo']['error']) && $_FILES['company_logo']['error'] !== UPLOAD_ERR_NO_FILE) {
+		if($_FILES['company_logo']['error'] !== UPLOAD_ERR_OK) {
+			$logo_error = 'Logo upload failed.';
+		} else {
+			$max_bytes = 2 * 1024 * 1024;
+			if(isset($_FILES['company_logo']['size']) && $_FILES['company_logo']['size'] > $max_bytes) {
+				$logo_error = 'Logo file is too large (max 2MB).';
+			} else {
+				$tmp_name = $_FILES['company_logo']['tmp_name'];
+				$mime = '';
+				if(function_exists('finfo_open')) {
+					$finfo = @finfo_open(FILEINFO_MIME_TYPE);
+					if($finfo) {
+						$mime = @finfo_file($finfo, $tmp_name);
+						@finfo_close($finfo);
+					}
+				}
+				$allowed = array(
+					'image/png'  => 'png',
+					'image/jpeg' => 'jpg',
+					'image/gif'  => 'gif',
+					'image/webp' => 'webp',
+				);
+
+				$ext = isset($allowed[$mime]) ? $allowed[$mime] : '';
+				if($ext === '') {
+					// Fallback check for older PHP setups
+					$img_info = @getimagesize($tmp_name);
+					if(is_array($img_info) && isset($img_info['mime']) && isset($allowed[$img_info['mime']])) {
+						$ext = $allowed[$img_info['mime']];
+					}
+				}
+
+				if($ext === '') {
+					$logo_error = 'Invalid logo image type. Please upload PNG, JPG, GIF, or WEBP.';
+				} else {
+					// Use project-relative path (relative to index.php in project root).
+					$images_dir = 'images';
+					if(!is_dir($images_dir)) {
+						$logo_error = 'Images directory is missing: images/';
+					} else {
+						if(!is_writable($images_dir)) {
+							// Best-effort permission fix (may fail depending on server ownership/config)
+							@chmod($images_dir, 0775);
+							if(!is_writable($images_dir)) {
+								@chmod($images_dir, 0777);
+							}
+						}
+						if(!is_writable($images_dir)) {
+							$logo_error = 'Upload folder is not writable: images/. Please fix permissions (chown/chmod) and try again.';
+						}
+					}
+
+					if($logo_error != '') {
+						// keep error set; skip move/upload
+					} else {
+					$dest = $images_dir . DIRECTORY_SEPARATOR . 'company_logo.' . $ext;
+
+					// Remove existing logo variants to keep a single canonical file
+					foreach(array('png','jpg','jpeg','gif','webp') as $old_ext) {
+						$old = $images_dir . DIRECTORY_SEPARATOR . 'company_logo.' . $old_ext;
+						if(is_file($old)) {
+							@unlink($old);
+						}
+					}
+
+					if(!@move_uploaded_file($tmp_name, $dest)) {
+						$logo_error = 'Could not save uploaded logo. Please check file permissions on /images.';
+					}
+					}
+				}
+			}
+		}
+	}
+
 
 	/* get pdf printing option */
 	if(isset($VAR['pdf_print']) && $VAR['pdf_print'] == 1) {
@@ -74,6 +151,11 @@ unset($q);
 		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
 		exit;
 	} else {
+		if($logo_error != '') {
+			force_page('control', 'company_edit&error_msg=' . urlencode($logo_error));
+			exit;
+		}
+
 		force_page('control', 'company_edit&msg=The Company information was updated');
 		exit;
 	}

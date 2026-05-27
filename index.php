@@ -100,6 +100,24 @@ $smarty->assign('company_email', $rs->fields['COMPANY_EMAIL']);
 $smarty->assign('company_toll_free', $rs->fields['COMPANY_TOLL_FREE']);
 $smarty->assign('compnay_mobile', $rs->fields['COMPNAY_MOBILE']);
 
+// Company logo (optional). If present, show in sidebar.
+$company_logo_url = '';
+$logo_candidates = array(
+	'images/company_logo.png',
+	'images/company_logo.jpg',
+	'images/company_logo.jpeg',
+	'images/company_logo.gif',
+	'images/company_logo.webp',
+);
+foreach ($logo_candidates as $candidate) {
+	if (is_file($candidate)) {
+		$mtime = @filemtime($candidate);
+		$company_logo_url = $candidate . ($mtime ? ('?v=' . $mtime) : '');
+		break;
+	}
+}
+$smarty->assign('company_logo_url', $company_logo_url);
+
 
 #############################################################
 #	Url Builder This grabs gets and post and builds the url	# 

@@ -25,9 +25,26 @@
 			{/if}
 
 			{section name=q loop=$company}
-				<form method="POST" action="?page=control:company_edit">
+				<form method="POST" action="?page=control:company_edit" enctype="multipart/form-data">
 
 					<div class="row g-3">
+
+						<!-- Company Logo -->
+						<div class="col-12">
+							<label class="form-label">Company Logo</label>
+							<div class="d-flex align-items-center gap-3 flex-wrap">
+								{if $company_logo_url|default:'' != ''}
+									<img src="{$company_logo_url}" alt="{$company[q].COMPANY_NAME|default:'Company Logo'|escape}" style="max-height: 64px; max-width: 160px; width: auto; height: auto;" class="border rounded bg-white p-1">
+								{else}
+									<span class="small text-muted">No logo uploaded yet.</span>
+								{/if}
+
+								<div class="flex-grow-1">
+									<input type="file" class="form-control" name="company_logo" accept="image/*">
+									<div class="form-text">PNG/JPG/GIF/WEBP. Recommended: square logo (e.g. 256×256).</div>
+								</div>
+							</div>
+						</div>
 
 						<!-- Company Info -->
 						<div class="col-md-6">

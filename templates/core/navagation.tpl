@@ -12,9 +12,15 @@
         <div class="app-sidebar-brand">
             <a class="sb-sidebar-brand d-flex align-items-center justify-content-center"
                href="index.php" aria-label="Home">
-                <span class="sb-sidebar-brand-icon" aria-hidden="true">
-                    <i class="bi bi-hexagon-fill"></i>
-                </span>
+                {if $company_logo_url|default:'' != ''}
+                    <span class="sb-sidebar-brand-icon" aria-hidden="true">
+                        <img class="sb-sidebar-logo" src="{$company_logo_url}" alt="{$company_name|default:'Cite CRM'|escape}">
+                    </span>
+                {else}
+                    <span class="sb-sidebar-brand-icon" aria-hidden="true">
+                        <i class="bi bi-hexagon-fill"></i>
+                    </span>
+                {/if}
                 <span class="sb-sidebar-brand-text">
                     {$company_name|default:"Cite CRM"}
                 </span>

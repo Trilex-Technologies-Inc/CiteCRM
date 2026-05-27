@@ -2,7 +2,13 @@
 {section name=i loop=$single_workorder_array}
 <table  width="900" border="1" cellpadding="2" cellspacing="0" style="border-collapse: collapse;">
 	<tr>
-		<td valign="top" width="20%"><img src="images/logo.jpg"></td>
+		<td valign="top" width="20%">
+			{if $company_logo_url|default:'' != ''}
+				<img src="{$company_logo_url}">
+			{else}
+				<img src="images/logo.jpg">
+			{/if}
+		</td>
 		<!-- middle column -->
 		<td valign="top" align="center" width="60%">
 			<font size="+3">Sale person COPY</font><br>

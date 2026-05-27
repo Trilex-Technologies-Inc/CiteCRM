@@ -433,6 +433,16 @@ border-collapse: collapse;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+.sb-sidebar-logo {
+	display: block;
+	max-height: 2.25rem;
+	max-width: 2.25rem;
+	width: auto;
+	height: auto;
+	border-radius: 0.35rem;
+	background: rgba(255, 255, 255, 0.12);
+	padding: 0.15rem;
+}
 
 .app-nav-item {
 	display: flex;
