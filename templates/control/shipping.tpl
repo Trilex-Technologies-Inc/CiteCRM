@@ -46,6 +46,7 @@
 							<div class="col-md-6">
 								<label class="form-label">UPS Login</label>
 								<input type="text" class="form-control" name="ups_login" value="{$setup[w].UPS_LOGIN|default:''|escape}">
+								<div class="form-text">For UPS REST/OAuth, this can be your UPS account number.</div>
 							</div>
 
 							<div class="col-md-6">

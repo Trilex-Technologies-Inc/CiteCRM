@@ -1,8 +1,9 @@
 <?php
 
-function citecrm_ups_get_oauth_token($client_id, $client_secret, $use_sandbox = false) {
+function citecrm_ups_get_oauth_token($client_id, $client_secret, $use_sandbox = true, $merchant_id = '') {
 	$client_id = trim((string)$client_id);
 	$client_secret = (string)$client_secret;
+	$merchant_id = trim((string)$merchant_id);
 	if ($client_id === '' || trim($client_secret) === '') {
 		return array(null, 'Missing UPS Client ID/Secret');
 	}
@@ -20,10 +21,14 @@ function citecrm_ups_get_oauth_token($client_id, $client_secret, $use_sandbox = 
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+	$headers = array(
 		'Content-Type: application/x-www-form-urlencoded',
 		'Authorization: Basic '.$auth,
-	));
+	);
+	if (citecrm_ups_is_merchant_id($merchant_id)) {
+		$headers[] = 'x-merchant-id: '.$merchant_id;
+	}
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
 	$response = curl_exec($ch);
 	$http_code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -31,7 +36,7 @@ function citecrm_ups_get_oauth_token($client_id, $client_secret, $use_sandbox = 
 	curl_close($ch);
 
 	if ($response === false || $http_code < 200 || $http_code >= 300) {
-		$err = $curl_err !== '' ? $curl_err : ('UPS OAuth failed (HTTP '.$http_code.')');
+		$err = $curl_err !== '' ? $curl_err : citecrm_ups_error_from_response($response, 'UPS OAuth failed (HTTP '.$http_code.')');
 		return array(null, $err);
 	}
 
@@ -43,16 +48,19 @@ function citecrm_ups_get_oauth_token($client_id, $client_secret, $use_sandbox = 
 	return array((string)$data['access_token'], '');
 }
 
-function citecrm_ups_rate_rest($access_token, $rate_request, $use_sandbox = false) {
+function citecrm_ups_rate_rest($access_token, $rate_request, $use_sandbox = true) {
 	$access_token = trim((string)$access_token);
 	if ($access_token === '') {
+		echo "Missing UPS access token";
 		return array(null, 'Missing UPS access token');
 	}
 
 	$host = $use_sandbox ? 'https://wwwcie.ups.com' : 'https://onlinetools.ups.com';
 
 	$candidates = array(
-		$host.'/api/rating/v2403/rate',
+		$host.'/api/rating/v2409/Rate',
+		$host.'/api/rating/v2409/Shop',
+		$host.'/api/rating/v2403/Rate',
 		$host.'/api/rating/v1/Rate',
 		$host.'/api/rating/v1/Shop',
 	);
@@ -74,6 +82,8 @@ function citecrm_ups_rate_rest($access_token, $rate_request, $use_sandbox = fals
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',
 			'Authorization: Bearer '.$access_token,
+			'transId: citecrm-'.time(),
+			'transactionSrc: CiteCRM',
 		));
 
 		$response = curl_exec($ch);
@@ -86,7 +96,7 @@ function citecrm_ups_rate_rest($access_token, $rate_request, $use_sandbox = fals
 			continue;
 		}
 		if ($http_code < 200 || $http_code >= 300) {
-			$last_error = 'UPS rate request failed (HTTP '.$http_code.')';
+			$last_error = citecrm_ups_error_from_response($response, 'UPS rate request failed (HTTP '.$http_code.')');
 			continue;
 		}
 
@@ -162,3 +172,180 @@ function citecrm_ups_rate_xml_legacy($ups_access_key, $ups_login, $ups_password,
 	return array(isset($rate[0]) ? $rate[0] : null, $ErrorDescription);
 }
 
+function citecrm_ups_track($access_token, $tracking_number, $use_sandbox = true) {
+	$access_token = trim((string)$access_token);
+	$tracking_number = trim((string)$tracking_number);
+	if ($access_token === '') {
+		return array(null, 'Missing UPS access token');
+	}
+	if ($tracking_number === '') {
+		return array(null, 'Missing UPS tracking number');
+	}
+
+	$host = $use_sandbox ? 'https://wwwcie.ups.com' : 'https://onlinetools.ups.com';
+	$url = $host.'/api/track/v1/details/'.rawurlencode($tracking_number).'?locale=en_US&returnSignature=false';
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HEADER, 0);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		'Content-Type: application/json',
+		'Authorization: Bearer '.$access_token,
+		'transId: citecrm-'.time(),
+		'transactionSrc: CiteCRM',
+	));
+
+	$response = curl_exec($ch);
+	$http_code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	$curl_err = curl_error($ch);
+	curl_close($ch);
+
+	if ($response === false || $http_code < 200 || $http_code >= 300) {
+		$err = $curl_err !== '' ? $curl_err : citecrm_ups_error_from_response($response, 'UPS tracking request failed (HTTP '.$http_code.')');
+		return array(null, $err);
+	}
+
+	$data = json_decode($response, true);
+	if (!is_array($data)) {
+		return array(null, 'UPS tracking returned invalid JSON');
+	}
+
+	return array($data, '');
+}
+
+function citecrm_ups_error_from_response($response, $fallback) {
+	$fallback = (string)$fallback;
+	$data = json_decode((string)$response, true);
+	if (!is_array($data)) {
+		return $fallback;
+	}
+
+	$errors = array();
+	if (isset($data['response']['errors']) && is_array($data['response']['errors'])) {
+		$errors = $data['response']['errors'];
+	} else if (isset($data['errors']) && is_array($data['errors'])) {
+		$errors = $data['errors'];
+	}
+
+	foreach ($errors as $error) {
+		if (!is_array($error)) {
+			continue;
+		}
+
+		$parts = array();
+		if (isset($error['code']) && trim((string)$error['code']) !== '') {
+			$parts[] = trim((string)$error['code']);
+		}
+		if (isset($error['message']) && trim((string)$error['message']) !== '') {
+			$parts[] = trim((string)$error['message']);
+		}
+		if (!empty($parts)) {
+			return 'UPS error: '.implode(' - ', $parts);
+		}
+	}
+
+	return $fallback;
+}
+
+function citecrm_ups_is_merchant_id($merchant_id) {
+	$merchant_id = trim((string)$merchant_id);
+	$length = strlen($merchant_id);
+
+	return $length >= 6 && $length <= 10 && ctype_alnum($merchant_id);
+}
+
+function citecrm_ups_normalize_tracking($data) {
+	$result = array(
+		'status' => '',
+		'status_detail' => '',
+		'estimated_delivery' => '',
+		'latest_event' => '',
+		'latest_event_time' => '',
+		'latest_location' => '',
+		'events' => array(),
+	);
+
+	if (!is_array($data)) {
+		return $result;
+	}
+
+	$package = null;
+	if (isset($data['trackResponse']['shipment'][0]['package'][0])) {
+		$package = $data['trackResponse']['shipment'][0]['package'][0];
+	} else if (isset($data['trackResponse']['shipment']['package'][0])) {
+		$package = $data['trackResponse']['shipment']['package'][0];
+	}
+	if (!is_array($package)) {
+		return $result;
+	}
+
+	if (isset($package['currentStatus']) && is_array($package['currentStatus'])) {
+		if (isset($package['currentStatus']['description'])) {
+			$result['status'] = (string)$package['currentStatus']['description'];
+		} else if (isset($package['currentStatus']['code'])) {
+			$result['status'] = (string)$package['currentStatus']['code'];
+		}
+	}
+
+	if (isset($package['deliveryDate']) && is_array($package['deliveryDate'])) {
+		foreach ($package['deliveryDate'] as $delivery_date) {
+			if (!is_array($delivery_date) || !isset($delivery_date['date'])) {
+				continue;
+			}
+			$type = isset($delivery_date['type']) ? strtoupper((string)$delivery_date['type']) : '';
+			if ($result['estimated_delivery'] === '' || $type === 'DEL') {
+				$result['estimated_delivery'] = (string)$delivery_date['date'];
+			}
+		}
+	}
+
+	$activities = isset($package['activity']) && is_array($package['activity']) ? $package['activity'] : array();
+	foreach ($activities as $activity) {
+		if (!is_array($activity)) {
+			continue;
+		}
+
+		$description = '';
+		if (isset($activity['status']['description'])) {
+			$description = (string)$activity['status']['description'];
+		} else if (isset($activity['status']['type'])) {
+			$description = (string)$activity['status']['type'];
+		}
+
+		$date = isset($activity['date']) ? (string)$activity['date'] : '';
+		$time = isset($activity['time']) ? (string)$activity['time'] : '';
+		$event_time = trim($date.' '.$time);
+		$location = isset($activity['location']['address']) ? citecrm_ups_format_location($activity['location']['address']) : '';
+
+		$result['events'][] = array(
+			'time' => $event_time,
+			'description' => $description,
+			'location' => $location,
+		);
+	}
+
+	if (isset($result['events'][0])) {
+		$result['latest_event'] = $result['events'][0]['description'];
+		$result['latest_event_time'] = $result['events'][0]['time'];
+		$result['latest_location'] = $result['events'][0]['location'];
+	}
+
+	return $result;
+}
+
+function citecrm_ups_format_location($address) {
+	if (!is_array($address)) {
+		return '';
+	}
+
+	$parts = array();
+	foreach (array('city', 'stateProvince', 'postalCode', 'countryCode') as $key) {
+		if (isset($address[$key]) && trim((string)$address[$key]) !== '') {
+			$parts[] = trim((string)$address[$key]);
+		}
+	}
+
+	return implode(', ', $parts);
+}

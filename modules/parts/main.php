@@ -546,7 +546,7 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 				),
 			);
 
-			list($token, $token_err) = citecrm_ups_get_oauth_token($ups_access_key, $ups_password, false);
+			list($token, $token_err) = citecrm_ups_get_oauth_token($ups_access_key, $ups_password, false, $ups_login);
 			if ($token !== null) {
 				list($rate_data, $rate_err) = citecrm_ups_rate_rest($token, $rate_request, false);
 				if (is_array($rate_data)) {

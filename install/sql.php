@@ -1102,8 +1102,8 @@ function create_setup($db)
   `PARTS_MARKUP` DECIMAL(4,2) NOT NULL default '0.00',  -- Changed from (2,2)
   `SHIPPING_PROVIDER` varchar(20) NOT NULL default 'ups',
   `UPS_LOGIN` VARCHAR(50) NOT NULL default '',
-  `UPS_PASSWORD` VARCHAR(50) NOT NULL default '',
-  `UPS_ACCESS_KEY` VARCHAR(50) NOT NULL default '',
+  `UPS_PASSWORD` VARCHAR(250) NOT NULL default '',
+  `UPS_ACCESS_KEY` VARCHAR(250) NOT NULL default '',
   `FEDEX_KEY` varchar(100) NOT NULL default '',
   `FEDEX_PASSWORD` varchar(100) NOT NULL default '',
   `FEDEX_ACCOUNT` varchar(50) NOT NULL default '',
