@@ -21,6 +21,34 @@ require("conf.php");
 
 $smarty->assign('page_title', 'Login');
 
+// Company name/logo for the standalone login page.
+$company_name = 'Cite CRM';
+if (isset($db) && defined('PRFX')) {
+	$rs_company = @$db->Execute("SELECT COMPANY_NAME FROM ".PRFX."TABLE_COMPANY");
+	if ($rs_company && !$rs_company->EOF && !empty($rs_company->fields['COMPANY_NAME'])) {
+		$company_name = (string)$rs_company->fields['COMPANY_NAME'];
+	}
+}
+$smarty->assign('company_name', $company_name);
+
+$company_logo_url = '';
+$logo_candidates = array(
+	'images/company_logo.png',
+	'images/company_logo.jpg',
+	'images/company_logo.jpeg',
+	'images/company_logo.gif',
+	'images/company_logo.webp',
+	'images/logo.jpg',
+);
+foreach ($logo_candidates as $candidate) {
+	if (is_file($candidate)) {
+		$mtime = @filemtime($candidate);
+		$company_logo_url = $candidate . ($mtime ? ('?v=' . $mtime) : '');
+		break;
+	}
+}
+$smarty->assign('company_logo_url', $company_logo_url);
+
 // Captcha settings (Cloudflare Turnstile) for login page.
 $captcha_enabled = 0;
 $captcha_provider = 'turnstile';
