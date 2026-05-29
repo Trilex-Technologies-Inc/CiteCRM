@@ -21,6 +21,18 @@ if ($rs_cols && !$rs_cols->EOF) {
 	$has_dhl_columns = true;
 }
 
+$has_ups_sandbox_column = false;
+$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'UPS_SANDBOX'");
+if ($rs_cols && !$rs_cols->EOF) {
+	$has_ups_sandbox_column = true;
+}
+
+$has_fedex_sandbox_column = false;
+$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'FEDEX_SANDBOX'");
+if ($rs_cols && !$rs_cols->EOF) {
+	$has_fedex_sandbox_column = true;
+}
+
 if (isset($VAR['submit'])) {
 	$q = 'UPDATE '.PRFX.'SETUP SET ';
 
@@ -34,6 +46,10 @@ if (isset($VAR['submit'])) {
 	}
 	if (isset($VAR['ups_password']) && trim((string)$VAR['ups_password']) !== '') {
 		$updates[] = 'UPS_PASSWORD = '.$db->qstr((string)$VAR['ups_password']);
+	}
+	if ($has_ups_sandbox_column) {
+		$ups_sandbox = (isset($VAR['ups_sandbox']) && $VAR['ups_sandbox'] == 1) ? 1 : 0;
+		$updates[] = 'UPS_SANDBOX = '.$db->qstr($ups_sandbox);
 	}
 
 	if ($has_shipping_columns) {
@@ -54,6 +70,10 @@ if (isset($VAR['submit'])) {
 		}
 		if (isset($VAR['fedex_password']) && trim((string)$VAR['fedex_password']) !== '') {
 			$updates[] = 'FEDEX_PASSWORD = '.$db->qstr((string)$VAR['fedex_password']);
+		}
+		if ($has_fedex_sandbox_column) {
+			$fedex_sandbox = (isset($VAR['fedex_sandbox']) && $VAR['fedex_sandbox'] == 1) ? 1 : 0;
+			$updates[] = 'FEDEX_SANDBOX = '.$db->qstr($fedex_sandbox);
 		}
 
 		if ($has_dhl_columns) {
@@ -90,5 +110,7 @@ $setup = $rs->GetArray();
 $smarty->assign('setup', $setup);
 $smarty->assign('has_shipping_columns', $has_shipping_columns);
 $smarty->assign('has_dhl_columns', $has_dhl_columns);
+$smarty->assign('has_ups_sandbox_column', $has_ups_sandbox_column);
+$smarty->assign('has_fedex_sandbox_column', $has_fedex_sandbox_column);
 $smarty->display('control'.SEP.'shipping.tpl');
 ?>

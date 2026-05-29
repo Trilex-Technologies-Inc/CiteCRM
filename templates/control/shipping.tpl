@@ -23,6 +23,11 @@
 							Your database does not have the optional shipping provider columns yet. UPS credentials can still be saved, but selecting a provider (UPS/FedEx/DHL) requires a database upgrade.
 						</div>
 					{else}
+						{if !$has_ups_sandbox_column || !$has_fedex_sandbox_column}
+							<div class="alert alert-warning">
+								Your database is missing the shipping sandbox columns (UPS_SANDBOX/FEDEX_SANDBOX). Run the shipping sandbox upgrade SQL to enable sandbox mode.
+							</div>
+						{/if}
 						<h6 class="mb-3">Provider</h6>
 						<div class="row g-3">
 							<div class="col-12 col-md-6">
@@ -60,6 +65,15 @@
 								<input type="text" class="form-control" name="ups_access_key" value="{$setup[w].UPS_ACCESS_KEY|default:''|escape}">
 								<div class="form-text">For UPS REST/OAuth, set this to your Client ID.</div>
 							</div>
+
+							{if $has_ups_sandbox_column}
+								<div class="col-md-6 d-flex align-items-center">
+									<div class="form-check mt-md-4">
+										<input class="form-check-input" type="checkbox" id="ups_sandbox" name="ups_sandbox" value="1" {if $setup[w].UPS_SANDBOX == 1}checked{/if}>
+										<label class="form-check-label" for="ups_sandbox">Use UPS sandbox</label>
+									</div>
+								</div>
+							{/if}
 						</div>
 					</div>
 
@@ -86,6 +100,15 @@
 								<label class="form-label">FedEx Meter Number</label>
 								<input type="text" class="form-control" name="fedex_meter" value="{$setup[w].FEDEX_METER|default:''|escape}">
 							</div>
+
+							{if $has_fedex_sandbox_column}
+								<div class="col-md-6 d-flex align-items-center">
+									<div class="form-check mt-md-4">
+										<input class="form-check-input" type="checkbox" id="fedex_sandbox" name="fedex_sandbox" value="1" {if $setup[w].FEDEX_SANDBOX == 1}checked{/if}>
+										<label class="form-check-label" for="fedex_sandbox">Use FedEx sandbox</label>
+									</div>
+								</div>
+							{/if}
 						</div>
 					</div>
 

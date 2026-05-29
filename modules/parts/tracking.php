@@ -66,12 +66,30 @@ if ($tracking_available) {
 		$has_fedex_columns = true;
 	}
 
+	$has_ups_sandbox_column = false;
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'UPS_SANDBOX'");
+	if ($rs_cols && !$rs_cols->EOF) {
+		$has_ups_sandbox_column = true;
+	}
+
+	$has_fedex_sandbox_column = false;
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'FEDEX_SANDBOX'");
+	if ($rs_cols && !$rs_cols->EOF) {
+		$has_fedex_sandbox_column = true;
+	}
+
 	$cols = "UPS_LOGIN,UPS_PASSWORD,UPS_ACCESS_KEY";
 	if ($has_shipping_provider_column) {
 		$cols .= ",SHIPPING_PROVIDER";
 	}
+	if ($has_ups_sandbox_column) {
+		$cols .= ",UPS_SANDBOX";
+	}
 	if ($has_fedex_columns) {
 		$cols .= ",FEDEX_KEY,FEDEX_PASSWORD,FEDEX_ACCOUNT,FEDEX_METER";
+	}
+	if ($has_fedex_sandbox_column) {
+		$cols .= ",FEDEX_SANDBOX";
 	}
 
 	$q = "SELECT ".$cols." FROM ".PRFX."SETUP LIMIT 1";
@@ -82,6 +100,8 @@ if ($tracking_available) {
 
 	$setup = $rs->fields;
 	$tracking_provider = $has_shipping_provider_column ? strtolower(trim((string)$setup['SHIPPING_PROVIDER'])) : 'ups';
+	$ups_sandbox = $has_ups_sandbox_column ? ((int)$setup['UPS_SANDBOX'] === 1) : false;
+	$fedex_sandbox = $has_fedex_sandbox_column ? ((int)$setup['FEDEX_SANDBOX'] === 1) : false;
 	if ($tracking_provider !== 'fedex' && $tracking_provider !== 'ups') {
 		$tracking_error = 'Tracking is currently implemented for FedEx and UPS. Please select FedEx or UPS in Shipping Management.';
 	}
@@ -92,11 +112,11 @@ if ($tracking_available) {
 		} else {
 			require_once('include/shipping/fedex.php');
 
-			list($token, $token_err) = citecrm_fedex_get_oauth_token($setup['FEDEX_KEY'], $setup['FEDEX_PASSWORD'], false);
+			list($token, $token_err) = citecrm_fedex_get_oauth_token($setup['FEDEX_KEY'], $setup['FEDEX_PASSWORD'], $fedex_sandbox);
 			if ($token === null) {
 				$tracking_error = $token_err;
 			} else {
-				list($tracking_data, $tracking_err) = citecrm_fedex_track($token, $tracking_no, false);
+				list($tracking_data, $tracking_err) = citecrm_fedex_track($token, $tracking_no, $fedex_sandbox);
 				if ($tracking_data === null) {
 					$tracking_error = $tracking_err;
 				} else {
@@ -107,11 +127,11 @@ if ($tracking_available) {
 	} else if ($tracking_error === '' && $tracking_provider === 'ups') {
 		require_once('include/shipping/ups.php');
 
-		list($token, $token_err) = citecrm_ups_get_oauth_token($setup['UPS_ACCESS_KEY'], $setup['UPS_PASSWORD'], false, $setup['UPS_LOGIN']);
+		list($token, $token_err) = citecrm_ups_get_oauth_token($setup['UPS_ACCESS_KEY'], $setup['UPS_PASSWORD'], $ups_sandbox, $setup['UPS_LOGIN']);
 		if ($token === null) {
 			$tracking_error = $token_err;
 		} else {
-			list($tracking_data, $tracking_err) = citecrm_ups_track($token, $tracking_no, false);
+			list($tracking_data, $tracking_err) = citecrm_ups_track($token, $tracking_no, $ups_sandbox);
 			if ($tracking_data === null) {
 				$tracking_error = $tracking_err;
 			} else {

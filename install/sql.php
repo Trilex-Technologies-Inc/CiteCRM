@@ -1104,10 +1104,12 @@ function create_setup($db)
   `UPS_LOGIN` VARCHAR(50) NOT NULL default '',
   `UPS_PASSWORD` VARCHAR(250) NOT NULL default '',
   `UPS_ACCESS_KEY` VARCHAR(250) NOT NULL default '',
+  `UPS_SANDBOX` int(1) NOT NULL default '0',
   `FEDEX_KEY` varchar(100) NOT NULL default '',
   `FEDEX_PASSWORD` varchar(100) NOT NULL default '',
   `FEDEX_ACCOUNT` varchar(50) NOT NULL default '',
   `FEDEX_METER` varchar(50) NOT NULL default '',
+  `FEDEX_SANDBOX` int(1) NOT NULL default '0',
   `DHL_KEY` varchar(255) NOT NULL DEFAULT '',
   `DHL_SECRET` varchar(255) NOT NULL DEFAULT '',
   `DHL_ACCOUNT` varchar(32) NOT NULL DEFAULT '',
@@ -1144,14 +1146,16 @@ function create_setup($db)
 				`UPS_LOGIN`,
 				`UPS_PASSWORD`,
 				`UPS_ACCESS_KEY`,
+				`UPS_SANDBOX`,
 				`FEDEX_KEY`,
 				`FEDEX_PASSWORD`,
 				`FEDEX_ACCOUNT`,
 				`FEDEX_METER`,
+				`FEDEX_SANDBOX`,
 				`DHL_KEY`,
 				`DHL_SECRET`,
 				`DHL_ACCOUNT`
-			) VALUES (7, 19, '', '', '', '', 0, '', '', 1, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, 'ups', '', '', '', '', '', '', '', '', '', '')";
+			) VALUES (7, 19, '', '', '', '', 0, '', '', 1, 1, 0, 0.00, '', '', '', '', '', '03', 0.00, 'ups', '', '', '', 0, '', '', '', '', 0, '', '', '')";
 
 		if (!$rs = $db->Execute($q)) {
 			return false;

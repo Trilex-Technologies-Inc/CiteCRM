@@ -51,12 +51,30 @@ if($count > 0) {
 		$has_dhl_columns = true;
 	}
 
+	$has_ups_sandbox_column = false;
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'UPS_SANDBOX'");
+	if ($rs_cols && !$rs_cols->EOF) {
+		$has_ups_sandbox_column = true;
+	}
+
+	$has_fedex_sandbox_column = false;
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."SETUP LIKE 'FEDEX_SANDBOX'");
+	if ($rs_cols && !$rs_cols->EOF) {
+		$has_fedex_sandbox_column = true;
+	}
+
 	$cols = "PARTS_LO,PARTS_LOGIN,PARTS_PASSWORD,SERVICE_CODE,PARTS_MARKUP,UPS_LOGIN,UPS_PASSWORD,UPS_ACCESS_KEY";
 	if ($has_shipping_provider_column) {
 		$cols .= ",SHIPPING_PROVIDER";
 	}
+	if ($has_ups_sandbox_column) {
+		$cols .= ",UPS_SANDBOX";
+	}
 	if ($has_fedex_columns) {
 		$cols .= ",FEDEX_KEY,FEDEX_PASSWORD,FEDEX_ACCOUNT,FEDEX_METER";
+	}
+	if ($has_fedex_sandbox_column) {
+		$cols .= ",FEDEX_SANDBOX";
 	}
 	if ($has_dhl_columns) {
 		$cols .= ",DHL_KEY,DHL_SECRET,DHL_ACCOUNT";
@@ -83,6 +101,8 @@ if($count > 0) {
 	$fedex_key = $has_fedex_columns ? (string)$rs->fields['FEDEX_KEY'] : '';
 	$fedex_password = $has_fedex_columns ? (string)$rs->fields['FEDEX_PASSWORD'] : '';
 	$fedex_account = $has_fedex_columns ? (string)$rs->fields['FEDEX_ACCOUNT'] : '';
+	$ups_sandbox = $has_ups_sandbox_column ? ((int)$rs->fields['UPS_SANDBOX'] === 1) : false;
+	$fedex_sandbox = $has_fedex_sandbox_column ? ((int)$rs->fields['FEDEX_SANDBOX'] === 1) : false;
 	$dhl_key = $has_dhl_columns ? (string)$rs->fields['DHL_KEY'] : '';
 	$dhl_secret = $has_dhl_columns ? (string)$rs->fields['DHL_SECRET'] : '';
 	$dhl_account = $has_dhl_columns ? (string)$rs->fields['DHL_ACCOUNT'] : '';
@@ -415,7 +435,7 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 			$rate_err = '';
 			$rate_value = null;
 
-			list($token, $token_err) = citecrm_fedex_get_oauth_token($fedex_key, $fedex_password, false);
+			list($token, $token_err) = citecrm_fedex_get_oauth_token($fedex_key, $fedex_password, $fedex_sandbox);
 			if ($token === null) {
 				$rate_err = $token_err;
 			} else {
@@ -440,7 +460,7 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 					),
 				);
 
-				list($rate_data, $rate_err) = citecrm_fedex_rate($token, $rate_request, false);
+				list($rate_data, $rate_err) = citecrm_fedex_rate($token, $rate_request, $fedex_sandbox);
 				if (is_array($rate_data)) {
 					$details = null;
 					if (isset($rate_data['output']) && isset($rate_data['output']['rateReplyDetails'])) {
@@ -546,9 +566,9 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 				),
 			);
 
-			list($token, $token_err) = citecrm_ups_get_oauth_token($ups_access_key, $ups_password, false, $ups_login);
+			list($token, $token_err) = citecrm_ups_get_oauth_token($ups_access_key, $ups_password, $ups_sandbox, $ups_login);
 			if ($token !== null) {
-				list($rate_data, $rate_err) = citecrm_ups_rate_rest($token, $rate_request, false);
+				list($rate_data, $rate_err) = citecrm_ups_rate_rest($token, $rate_request, $ups_sandbox);
 				if (is_array($rate_data)) {
 					$shipment = null;
 					if (isset($rate_data['RateResponse']) && isset($rate_data['RateResponse']['RatedShipment'])) {
@@ -570,13 +590,15 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 				$rate_err = $token_err;
 			}
 
-			if ($rate_value === null) {
+			if ($rate_value === null && !$ups_sandbox) {
 				list($legacy_rate, $legacy_err) = citecrm_ups_rate_xml_legacy($ups_access_key, $ups_login, $ups_password, $from_zip, $to_zip, $service_code, $length, $width, $height, $cart_weight_total);
 				if (is_array($legacy_rate) && isset($legacy_rate['MonetaryValue'])) {
 					$rate_value = $legacy_rate['MonetaryValue'];
 				} else {
 					$rate_err = $legacy_err !== '' ? $legacy_err : ($rate_err !== '' ? $rate_err : 'Unable to retrieve UPS rate (using $0.00 shipping)');
 				}
+			} else if ($rate_value === null && $ups_sandbox && $rate_err === '') {
+				$rate_err = 'Unable to retrieve UPS sandbox rate (using $0.00 shipping)';
 			}
 
 			if ($rate_value !== null) {
