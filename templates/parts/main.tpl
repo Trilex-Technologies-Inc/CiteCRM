@@ -93,7 +93,10 @@ function setOptions(chosen) {
 															<input type="hidden" name="DESCRIPTION" value="{$inventory_products[ip].PRODUCT_NAME|escape}">
 															<input type="hidden" name="VENDOR" value="{$inventory_products[ip].MANUFACTURER_NAME|escape}">
 															<input type="hidden" name="ITEMID" value="LOCAL-{$inventory_products[ip].PRODUCT_ID}">
-															<input type="hidden" name="Weight" value="0">
+															<input type="hidden" name="Weight" value="{$inventory_products[ip].PRODUCT_WEIGHT|escape}">
+															<input type="hidden" name="Length" value="{$inventory_products[ip].PRODUCT_LENGTH|escape}">
+															<input type="hidden" name="Width" value="{$inventory_products[ip].PRODUCT_WIDTH|escape}">
+															<input type="hidden" name="Height" value="{$inventory_products[ip].PRODUCT_HEIGHT|escape}">
 															<input type="hidden" name="PRICE" value="{$inventory_products[ip].PRODUCT_PRICE|string_format:"%.2f"}">
 															<input type="hidden" name="CAT2" value="{$CAT2}">
 															<input type="hidden" name="add_part" value="1">

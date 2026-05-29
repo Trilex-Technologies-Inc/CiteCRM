@@ -21,6 +21,18 @@ function normalize_price($price) {
 	return number_format((float)$price, 2, '.', '');
 }
 
+function normalize_product_measurement($value) {
+	$value = trim((string)$value);
+	if ($value === '') {
+		return '0.00';
+	}
+	$value = preg_replace('/[^0-9.]/', '', $value);
+	if ($value === '' || !is_numeric($value)) {
+		return null;
+	}
+	return number_format((float)$value, 2, '.', '');
+}
+
 function inventory_table_has_column($db, $table, $column) {
 	$q = "SELECT COUNT(*) AS cnt
 		  FROM information_schema.COLUMNS
@@ -46,6 +58,26 @@ function inventory_categories_self_related($db) {
 
 function inventory_products_has_cat_id($db) {
 	return inventory_table_has_column($db, PRFX.'TABLE_PRODUCT', 'CAT_ID');
+}
+
+function inventory_ensure_product_shipping_columns($db) {
+	$table = PRFX.'TABLE_PRODUCT';
+	$columns = array(
+		'PRODUCT_WEIGHT' => "ALTER TABLE `".$table."` ADD COLUMN `PRODUCT_WEIGHT` decimal(10,2) NOT NULL default '0.00' AFTER `PRODUCT_PRICE`",
+		'PRODUCT_LENGTH' => "ALTER TABLE `".$table."` ADD COLUMN `PRODUCT_LENGTH` decimal(10,2) NOT NULL default '0.00' AFTER `PRODUCT_WEIGHT`",
+		'PRODUCT_WIDTH' => "ALTER TABLE `".$table."` ADD COLUMN `PRODUCT_WIDTH` decimal(10,2) NOT NULL default '0.00' AFTER `PRODUCT_LENGTH`",
+		'PRODUCT_HEIGHT' => "ALTER TABLE `".$table."` ADD COLUMN `PRODUCT_HEIGHT` decimal(10,2) NOT NULL default '0.00' AFTER `PRODUCT_WIDTH`",
+	);
+
+	foreach ($columns as $column => $sql) {
+		if (!inventory_table_has_column($db, $table, $column)) {
+			if (!$db->Execute($sql)) {
+				return false;
+			}
+		}
+	}
+
+	return true;
 }
 
 // AJAX: fetch subcategories (child categories) for a category (used by product add/edit forms)
@@ -97,6 +129,10 @@ if (!$supports_parent || !$supports_cat_id) {
 	force_page('core', 'error&error_msg=Database upgrade required: missing CAT.PARENT_ID and/or TABLE_PRODUCT.CAT_ID.&menu=1&type=validation');
 	exit;
 }
+if (!inventory_ensure_product_shipping_columns($db)) {
+	force_page('core', 'error&error_msg=Database upgrade required: unable to add product shipping columns.&menu=1&type=database');
+	exit;
+}
 $q = "SELECT ID, DESCRIPTION
 	  FROM ".PRFX."CAT
 	  $where
@@ -131,6 +167,10 @@ if (isset($VAR['submit'])) {
 		$name = isset($VAR['product_name']) ? trim($VAR['product_name']) : '';
 		$description = isset($VAR['product_description']) ? trim($VAR['product_description']) : '';
 		$price = isset($VAR['product_price']) ? normalize_price($VAR['product_price']) : '0.00';
+		$weight = isset($VAR['product_weight']) ? normalize_product_measurement($VAR['product_weight']) : '0.00';
+		$length = isset($VAR['product_length']) ? normalize_product_measurement($VAR['product_length']) : '0.00';
+		$width = isset($VAR['product_width']) ? normalize_product_measurement($VAR['product_width']) : '0.00';
+		$height = isset($VAR['product_height']) ? normalize_product_measurement($VAR['product_height']) : '0.00';
 		$active = isset($VAR['product_active']) ? (int)$VAR['product_active'] : 1;
 
 		if ($manufacturer_id <= 0) {
@@ -153,6 +193,10 @@ if (isset($VAR['submit'])) {
 			force_page('inventory', 'products&page_title=Products&error_msg=Invalid price.');
 			exit;
 		}
+		if ($weight === null || $length === null || $width === null || $height === null) {
+			force_page('inventory', 'products&page_title=Products&error_msg=Invalid shipping weight or dimensions.');
+			exit;
+		}
 
 		$q = "INSERT INTO ".PRFX."TABLE_PRODUCT SET
 				MANUFACTURER_ID=".$db->qstr($manufacturer_id).",
@@ -161,6 +205,10 @@ if (isset($VAR['submit'])) {
 				PRODUCT_NAME=".$db->qstr($name).",
 				PRODUCT_DESCRIPTION=".$db->qstr($description).",
 				PRODUCT_PRICE=".$db->qstr($price).",
+				PRODUCT_WEIGHT=".$db->qstr($weight).",
+				PRODUCT_LENGTH=".$db->qstr($length).",
+				PRODUCT_WIDTH=".$db->qstr($width).",
+				PRODUCT_HEIGHT=".$db->qstr($height).",
 				PRODUCT_ACTIVE=".$db->qstr($active ? 1 : 0);
 		if(!$rs = $db->execute($q)) {
 			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
@@ -180,6 +228,10 @@ if (isset($VAR['submit'])) {
 		$name = isset($VAR['product_name']) ? trim($VAR['product_name']) : '';
 		$description = isset($VAR['product_description']) ? trim($VAR['product_description']) : '';
 		$price = isset($VAR['product_price']) ? normalize_price($VAR['product_price']) : '0.00';
+		$weight = isset($VAR['product_weight']) ? normalize_product_measurement($VAR['product_weight']) : '0.00';
+		$length = isset($VAR['product_length']) ? normalize_product_measurement($VAR['product_length']) : '0.00';
+		$width = isset($VAR['product_width']) ? normalize_product_measurement($VAR['product_width']) : '0.00';
+		$height = isset($VAR['product_height']) ? normalize_product_measurement($VAR['product_height']) : '0.00';
 		$active = isset($VAR['product_active']) ? (int)$VAR['product_active'] : 1;
 
 		if ($product_id <= 0) {
@@ -206,6 +258,10 @@ if (isset($VAR['submit'])) {
 			force_page('inventory', 'products&page_title=Products&error_msg=Invalid price.');
 			exit;
 		}
+		if ($weight === null || $length === null || $width === null || $height === null) {
+			force_page('inventory', 'products&page_title=Products&error_msg=Invalid shipping weight or dimensions.');
+			exit;
+		}
 
 		$q = "UPDATE ".PRFX."TABLE_PRODUCT SET
 				MANUFACTURER_ID=".$db->qstr($manufacturer_id).",
@@ -214,6 +270,10 @@ if (isset($VAR['submit'])) {
 				PRODUCT_NAME=".$db->qstr($name).",
 				PRODUCT_DESCRIPTION=".$db->qstr($description).",
 				PRODUCT_PRICE=".$db->qstr($price).",
+				PRODUCT_WEIGHT=".$db->qstr($weight).",
+				PRODUCT_LENGTH=".$db->qstr($length).",
+				PRODUCT_WIDTH=".$db->qstr($width).",
+				PRODUCT_HEIGHT=".$db->qstr($height).",
 				PRODUCT_ACTIVE=".$db->qstr($active ? 1 : 0)."
 			  WHERE PRODUCT_ID=".$db->qstr($product_id);
 		if(!$rs = $db->execute($q)) {
@@ -253,7 +313,8 @@ if ($search !== '') {
 	$where = "WHERE (p.PRODUCT_NAME LIKE $like OR p.PRODUCT_SKU LIKE $like OR m.MANUFACTURER_NAME LIKE $like)";
 }
 
-$q = "SELECT p.PRODUCT_ID, p.MANUFACTURER_ID, p.PRODUCT_SKU, p.PRODUCT_NAME, p.PRODUCT_DESCRIPTION, p.PRODUCT_PRICE, p.PRODUCT_ACTIVE,
+$q = "SELECT p.PRODUCT_ID, p.MANUFACTURER_ID, p.PRODUCT_SKU, p.PRODUCT_NAME, p.PRODUCT_DESCRIPTION, p.PRODUCT_PRICE,
+			p.PRODUCT_WEIGHT, p.PRODUCT_LENGTH, p.PRODUCT_WIDTH, p.PRODUCT_HEIGHT, p.PRODUCT_ACTIVE,
 			p.CAT_ID AS SUBCAT_ID,
 			m.MANUFACTURER_NAME,
 			parent.ID AS CAT_ID, parent.DESCRIPTION AS CAT_DESCRIPTION,

@@ -12,6 +12,61 @@
 if(!xml2php("parts")) {
 	$smarty->assign('error_msg',"Error in language file");
 }
+
+function parts_table_has_column($db, $table, $column) {
+	$q = "SELECT COUNT(*) AS cnt
+		  FROM information_schema.COLUMNS
+		  WHERE TABLE_SCHEMA = DATABASE()
+		    AND TABLE_NAME = ".$db->qstr($table)."
+		    AND COLUMN_NAME = ".$db->qstr($column);
+	$rs = $db->Execute($q);
+	return $rs && (int)$rs->fields['cnt'] > 0;
+}
+
+function parts_ensure_cart_shipping_columns($db) {
+	$table = PRFX.'CART';
+	$columns = array(
+		'Length' => "ALTER TABLE `".$table."` ADD COLUMN `Length` varchar(20) NOT NULL default '' AFTER `Weight`",
+		'Width' => "ALTER TABLE `".$table."` ADD COLUMN `Width` varchar(20) NOT NULL default '' AFTER `Length`",
+		'Height' => "ALTER TABLE `".$table."` ADD COLUMN `Height` varchar(20) NOT NULL default '' AFTER `Width`",
+	);
+
+	foreach ($columns as $column => $sql) {
+		if (!parts_table_has_column($db, $table, $column)) {
+			if (!$db->Execute($sql)) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+function parts_ensure_product_shipping_columns($db) {
+	$table = PRFX.'TABLE_PRODUCT';
+	$columns = array(
+		'PRODUCT_WEIGHT' => "ALTER TABLE `".$table."` ADD COLUMN `PRODUCT_WEIGHT` decimal(10,2) NOT NULL default '0.00' AFTER `PRODUCT_PRICE`",
+		'PRODUCT_LENGTH' => "ALTER TABLE `".$table."` ADD COLUMN `PRODUCT_LENGTH` decimal(10,2) NOT NULL default '0.00' AFTER `PRODUCT_WEIGHT`",
+		'PRODUCT_WIDTH' => "ALTER TABLE `".$table."` ADD COLUMN `PRODUCT_WIDTH` decimal(10,2) NOT NULL default '0.00' AFTER `PRODUCT_LENGTH`",
+		'PRODUCT_HEIGHT' => "ALTER TABLE `".$table."` ADD COLUMN `PRODUCT_HEIGHT` decimal(10,2) NOT NULL default '0.00' AFTER `PRODUCT_WIDTH`",
+	);
+
+	foreach ($columns as $column => $sql) {
+		if (!parts_table_has_column($db, $table, $column)) {
+			if (!$db->Execute($sql)) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+if (!parts_ensure_cart_shipping_columns($db) || !parts_ensure_product_shipping_columns($db)) {
+	force_page('core', 'error&error_msg=Database upgrade required: unable to add shipping columns.&menu=1&type=database');
+	exit;
+}
+
 /* if we have work order assign it */
 if(isset($VAR['wo_id'])) {
 	$smarty->assign('wo_id', $VAR['wo_id']);
@@ -106,6 +161,13 @@ if($count > 0) {
 	$dhl_key = $has_dhl_columns ? (string)$rs->fields['DHL_KEY'] : '';
 	$dhl_secret = $has_dhl_columns ? (string)$rs->fields['DHL_SECRET'] : '';
 	$dhl_account = $has_dhl_columns ? (string)$rs->fields['DHL_ACCOUNT'] : '';
+
+	$q = "SELECT COMPANY_ZIP FROM ".PRFX."TABLE_COMPANY";
+	if(!$rs = $db->execute($q)) {
+		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+		exit;
+	}
+	$from_zip = $rs->fields['COMPANY_ZIP'];
 
 	/* assign service coed to smarty */
 	if($service_code == "03") {
@@ -285,15 +347,11 @@ if(!isset($VAR['check_out'])) {
 			$weight = array('Weight' => $xml['value']);
 		}
 		
-		if($xml['tag'] == "ZIPCODE" && $xml['value'] != ""){
-			$from_zip = $xml['value'];
-		}
 		if($xml['tag'] == "PART" && $xml['type'] == "close" ){
 			$parts[] =  array_merge($sku,$part_id,$vendor,$description,$price,$weight);
 		}
 	}
 	
-	$from_zip = isset($from_zip) ? $from_zip : '';
 $parts    = isset($parts) ? $parts : array();
 
 $smarty->assign('from_zip', $from_zip);
@@ -307,6 +365,7 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 	$inventory_products = array();
 	if ($cat2 !== '') {
 		$q = "SELECT p.PRODUCT_ID, p.PRODUCT_SKU, p.PRODUCT_NAME, p.PRODUCT_DESCRIPTION, p.PRODUCT_PRICE,
+					p.PRODUCT_WEIGHT, p.PRODUCT_LENGTH, p.PRODUCT_WIDTH, p.PRODUCT_HEIGHT,
 					COALESCE(m.MANUFACTURER_NAME,'') AS MANUFACTURER_NAME
 			  FROM ".PRFX."TABLE_PRODUCT p
 			  LEFT JOIN ".PRFX."TABLE_MANUFACTURER m ON (m.MANUFACTURER_ID = p.MANUFACTURER_ID)
@@ -337,7 +396,10 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 				DESCRIPTION	=". $db->qstr($VAR['DESCRIPTION']).",
 				VENDOR 		=". $db->qstr($VAR['VENDOR']).",
 				ITEMID 		=". $db->qstr($VAR['ITEMID']).",
-				Weight 		=". $db->qstr($VAR['Weight']).",
+				Weight 		=". $db->qstr(isset($VAR['Weight']) ? $VAR['Weight'] : '').",
+				Length 		=". $db->qstr(isset($VAR['Length']) ? $VAR['Length'] : '').",
+				Width 		=". $db->qstr(isset($VAR['Width']) ? $VAR['Width'] : '').",
+				Height 		=". $db->qstr(isset($VAR['Height']) ? $VAR['Height'] : '').",
 				PRICE 			=". $db->qstr($VAR['PRICE']) .",
 				SUB_TOTAL		=". $db->qstr($sub) .",
 				ZIP				=". $db->qstr($VAR['from_zip']) .",
@@ -395,11 +457,9 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 		// Initialize totals before accumulating
 		$sub_total         = 0;
 		$cart_weight_total = 0;
-		$from_zip          = '';
 		
 		foreach($arr as $key=>$val) {
 			$sub_total         = $sub_total + $val['SUB_TOTAL'];
-			$from_zip          = $val['ZIP'];
 			$amount            = $val['AMOUNT'] * $val['Weight'];
 			$cart_weight_total = $cart_weight_total + $amount;
 		}
@@ -410,12 +470,36 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 				exit;
 			}
 
-			$to_zip  = $rs->fields['COMPANY_ZIP'];
-			$to_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
-			if ($to_country === '') {
-				$to_country = 'US';
+			$from_zip = trim((string)$rs->fields['COMPANY_ZIP']);
+			$origin_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
+			if ($origin_country === '') {
+				$origin_country = 'US';
 			}
-			$to_city = trim((string)$rs->fields['COMPANY_CITY']);
+			$origin_city = trim((string)$rs->fields['COMPANY_CITY']);
+			if ($origin_city === '') {
+				$origin_city = 'Unknown';
+			}
+
+			$to_zip = '';
+			$to_country = 'US';
+			$to_city = 'Unknown';
+			if (isset($VAR['wo_id']) && (int)$VAR['wo_id'] > 0) {
+				$q = "SELECT c.CUSTOMER_ZIP, c.CUSTOMER_CITY
+					  FROM ".PRFX."TABLE_WORK_ORDER w
+					  LEFT JOIN ".PRFX."TABLE_CUSTOMER c ON w.CUSTOMER_ID = c.CUSTOMER_ID
+					  WHERE w.WORK_ORDER_ID=".$db->qstr((int)$VAR['wo_id'])."
+					  LIMIT 1";
+				if(!$rs = $db->execute($q)) {
+					force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+					exit;
+				}
+
+				$to_zip = trim((string)$rs->fields['CUSTOMER_ZIP']);
+				$to_city = trim((string)$rs->fields['CUSTOMER_CITY']);
+			}
+			if ($to_zip === '') {
+				$to_zip = $from_zip;
+			}
 			if ($to_city === '') {
 				$to_city = 'Unknown';
 			}
@@ -423,6 +507,20 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 			$length		= 10;
 			$width		   = 10;
 			$height		= 10;
+			foreach($arr as $key=>$val) {
+				if (isset($val['Length']) && (float)$val['Length'] > 0) {
+					$length = max($length, (float)$val['Length']);
+				}
+				if (isset($val['Width']) && (float)$val['Width'] > 0) {
+					$width = max($width, (float)$val['Width']);
+				}
+				if (isset($val['Height']) && (float)$val['Height'] > 0) {
+					$height = max($height, (float)$val['Height']);
+				}
+			}
+			if ($cart_weight_total <= 0) {
+				$cart_weight_total = 1;
+			}
 	
 		$ResponseStatusCode = 1;
 		$ErrorDescription = '';
@@ -442,7 +540,7 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 				$rate_request = array(
 					'accountNumber' => array('value' => trim((string)$fedex_account)),
 					'requestedShipment' => array(
-						'shipper' => array('address' => array('postalCode' => (string)$from_zip, 'countryCode' => 'US')),
+						'shipper' => array('address' => array('postalCode' => (string)$from_zip, 'countryCode' => (string)$origin_country)),
 						'recipient' => array('address' => array('postalCode' => (string)$to_zip, 'countryCode' => (string)$to_country)),
 						'pickupType' => 'DROPOFF_AT_FEDEX_LOCATION',
 						'rateRequestType' => array('ACCOUNT'),
@@ -461,6 +559,7 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 				);
 
 				list($rate_data, $rate_err) = citecrm_fedex_rate($token, $rate_request, $fedex_sandbox);
+			
 				if (is_array($rate_data)) {
 					$details = null;
 					if (isset($rate_data['output']) && isset($rate_data['output']['rateReplyDetails'])) {
@@ -490,9 +589,6 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 
 			$rate_err = '';
 			$rate_value = null;
-
-			$origin_country = 'US';
-			$origin_city = isset($warehouse_city) && trim((string)$warehouse_city) !== '' ? trim((string)$warehouse_city) : 'Unknown';
 
 			$planned_date = date('Y-m-d');
 			$is_customs_declarable = ($origin_country !== $to_country);
@@ -545,9 +641,9 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 						'RequestOption' => 'Rate',
 					),
 					'Shipment' => array(
-						'Shipper' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => 'US')),
-						'ShipTo' => array('Address' => array('PostalCode' => (string)$to_zip, 'CountryCode' => (string)$to_country)),
-						'ShipFrom' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => 'US')),
+						'Shipper' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => (string)$origin_country)),
+						'ShipTo' => array('Address' => array('PostalCode' => (string)$to_zip, 'CountryCode' => (string)$origin_country)),
+						'ShipFrom' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => (string)$origin_country)),
 						'Service' => array('Code' => (string)$service_code),
 						'Package' => array(
 							'PackagingType' => array('Code' => '02'),
@@ -569,6 +665,7 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 			list($token, $token_err) = citecrm_ups_get_oauth_token($ups_access_key, $ups_password, $ups_sandbox, $ups_login);
 			if ($token !== null) {
 				list($rate_data, $rate_err) = citecrm_ups_rate_rest($token, $rate_request, $ups_sandbox);
+				
 				if (is_array($rate_data)) {
 					$shipment = null;
 					if (isset($rate_data['RateResponse']) && isset($rate_data['RateResponse']['RatedShipment'])) {

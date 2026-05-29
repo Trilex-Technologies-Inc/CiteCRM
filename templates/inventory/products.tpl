@@ -77,6 +77,22 @@
 					<label class="form-label">Price</label>
 					<input type="text" name="product_price" class="form-control" placeholder="0.00">
 				</div>
+				<div class="col-sm-6 col-lg-2">
+					<label class="form-label">Weight (lbs)</label>
+					<input type="text" name="product_weight" class="form-control" placeholder="0.00">
+				</div>
+				<div class="col-sm-6 col-lg-2">
+					<label class="form-label">Length (in)</label>
+					<input type="text" name="product_length" class="form-control" placeholder="0.00">
+				</div>
+				<div class="col-sm-6 col-lg-2">
+					<label class="form-label">Width (in)</label>
+					<input type="text" name="product_width" class="form-control" placeholder="0.00">
+				</div>
+				<div class="col-sm-6 col-lg-2">
+					<label class="form-label">Height (in)</label>
+					<input type="text" name="product_height" class="form-control" placeholder="0.00">
+				</div>
 				<div class="col-sm-6 col-lg-1">
 					<label class="form-label">Active</label>
 					<select name="product_active" class="form-select">
@@ -111,6 +127,10 @@
 							<th style="min-width: 200px;">Subcategory</th>
 							<th style="width: 140px;">SKU</th>
 							<th style="width: 120px;">Price</th>
+							<th style="width: 120px;">Weight</th>
+							<th style="width: 120px;">Length</th>
+							<th style="width: 120px;">Width</th>
+							<th style="width: 120px;">Height</th>
 							<th class="text-center" style="width: 120px;">Active</th>
 							<th style="min-width: 240px;">Description</th>
 							<th class="text-center" style="width: 220px;">Actions</th>
@@ -155,6 +175,18 @@
 								</td>
 								<td>
 										<input type="text" name="product_price" class="form-control form-control-sm" value="{$p.PRODUCT_PRICE|escape}">
+								</td>
+								<td>
+										<input type="text" name="product_weight" class="form-control form-control-sm" value="{$p.PRODUCT_WEIGHT|escape}">
+								</td>
+								<td>
+										<input type="text" name="product_length" class="form-control form-control-sm" value="{$p.PRODUCT_LENGTH|escape}">
+								</td>
+								<td>
+										<input type="text" name="product_width" class="form-control form-control-sm" value="{$p.PRODUCT_WIDTH|escape}">
+								</td>
+								<td>
+										<input type="text" name="product_height" class="form-control form-control-sm" value="{$p.PRODUCT_HEIGHT|escape}">
 								</td>
 								<td class="text-center">
 										<select name="product_active" class="form-select form-select-sm" style="width: 100px; margin: 0 auto;">
