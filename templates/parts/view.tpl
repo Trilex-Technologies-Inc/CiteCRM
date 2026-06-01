@@ -11,6 +11,10 @@
 					{$translate_part_order_num} {$order[q].ORDER_ID}
 				</div>
 				<div class="d-flex gap-2 align-items-center">
+					<a class="btn btn-sm btn-primary"
+					   href="?page=parts:ship&order_id={$order[q].ORDER_ID}&page_title=Send%20Product">
+						Send Product
+					</a>
 					<a class="btn btn-sm btn-outline-secondary"
 					   href="?page=parts:print_results&wo_id={$order[q].WO_ID}&escape=1"
 					   target="new">
@@ -52,9 +56,9 @@
 								<div class="col-6 text-muted">{$translate_parts_tracking}</div>
 								<div class="col-6 text-end">
 									{if $order[q].TRACKING_NO == '0'}
-										<a href="?page=parts:tracking&invoice_id={$order[q].INVOICE_ID}&order_id={$order[q].ORDER_ID}">Get Tracking</a>
+										<a href="?page=parts:ship&order_id={$order[q].ORDER_ID}&page_title=Send%20Product">Send Product</a>
 									{else}
-										<span class="fw-semibold">{$order[q].TRACKING_NO}</span>
+										<a class="fw-semibold" href="?page=parts:tracking&invoice_id={$order[q].INVOICE_ID}&order_id={$order[q].ORDER_ID}">{$order[q].TRACKING_NO}</a>
 									{/if}
 								</div>
 							</div>
@@ -155,4 +159,3 @@
 		</div>
 	{/section}
 </div>
-

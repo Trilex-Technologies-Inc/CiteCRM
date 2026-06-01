@@ -120,9 +120,11 @@
 								<td class="text-end fw-semibold">${$order[i].TOTAL|string_format:"%.2f"}</td>
 								<td>{$order[i].DATE_LAST|date_format:"%m-%d-%Y"}</td>
 								<td>
-									
-										<a href="?page=parts:tracking&invoice_id={$order[i].INVOICE_ID}&order_id={$order[i].ORDER_ID}">Get Tracking</a>
-									
+									{if $order[i].TRACKING_NO == 0}
+										<a href="?page=parts:ship&order_id={$order[i].ORDER_ID}&page_title=Send%20Product">Send Product</a>
+									{else}
+										<a href="?page=parts:tracking&invoice_id={$order[i].INVOICE_ID}&order_id={$order[i].ORDER_ID}">{$order[i].TRACKING_NO}</a>
+									{/if}
 								</td>
 								<td>
 									{if $order[i].STATUS == 1}

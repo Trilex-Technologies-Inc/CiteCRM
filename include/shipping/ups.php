@@ -172,6 +172,109 @@ function citecrm_ups_rate_xml_legacy($ups_access_key, $ups_login, $ups_password,
 	return array(isset($rate[0]) ? $rate[0] : null, $ErrorDescription);
 }
 
+function citecrm_ups_create_shipment($access_token, $shipment_request, $use_sandbox = true) {
+	$access_token = trim((string)$access_token);
+	if ($access_token === '') {
+		return array(null, 'Missing UPS access token');
+	}
+
+	$host = $use_sandbox ? 'https://wwwcie.ups.com' : 'https://onlinetools.ups.com';
+	$url = $host.'/api/shipments/v2409/ship';
+
+	$payload = json_encode($shipment_request);
+	if ($payload === false) {
+		return array(null, 'Unable to encode UPS shipment request');
+	}
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HEADER, 0);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		'Content-Type: application/json',
+		'Authorization: Bearer '.$access_token,
+		'transId: citecrm-'.time(),
+		'transactionSrc: CiteCRM',
+	));
+
+	$response = curl_exec($ch);
+	$http_code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	$curl_err = curl_error($ch);
+	curl_close($ch);
+
+	if ($response === false || $http_code < 200 || $http_code >= 300) {
+		$err = $curl_err !== '' ? $curl_err : citecrm_ups_error_from_response($response, 'UPS shipment request failed (HTTP '.$http_code.')');
+		return array(null, $err);
+	}
+
+	$data = json_decode($response, true);
+	if (!is_array($data)) {
+		return array(null, 'UPS shipment returned invalid JSON');
+	}
+
+	return array($data, '');
+}
+
+function citecrm_ups_extract_shipment_result($data) {
+	$result = array(
+		'shipment_id' => '',
+		'tracking_number' => '',
+		'label_format' => '',
+		'label_image' => '',
+	);
+
+	if (!is_array($data) || !isset($data['ShipmentResponse']['ShipmentResults'])) {
+		return $result;
+	}
+
+	$shipment = $data['ShipmentResponse']['ShipmentResults'];
+	if (!is_array($shipment)) {
+		return $result;
+	}
+
+	if (isset($shipment['ShipmentIdentificationNumber'])) {
+		$result['shipment_id'] = (string)$shipment['ShipmentIdentificationNumber'];
+	}
+
+	$package = isset($shipment['PackageResults']) ? $shipment['PackageResults'] : null;
+	if (is_array($package) && isset($package[0]) && is_array($package[0])) {
+		$package = $package[0];
+	}
+
+	if (is_array($package)) {
+		if (isset($package['TrackingNumber'])) {
+			$result['tracking_number'] = (string)$package['TrackingNumber'];
+		}
+		if (isset($package['ShippingLabel']) && is_array($package['ShippingLabel'])) {
+			$label = $package['ShippingLabel'];
+			if (isset($label['ImageFormat']['Code'])) {
+				$result['label_format'] = (string)$label['ImageFormat']['Code'];
+			}
+			if (isset($label['GraphicImage'])) {
+				$result['label_image'] = (string)$label['GraphicImage'];
+			}
+		}
+		if ($result['label_image'] === '' && isset($package['LabelImage']) && is_array($package['LabelImage'])) {
+			$label = $package['LabelImage'];
+			if (isset($label['LabelImageFormat']['Code'])) {
+				$result['label_format'] = (string)$label['LabelImageFormat']['Code'];
+			}
+			if (isset($label['GraphicImage'])) {
+				$result['label_image'] = (string)$label['GraphicImage'];
+			}
+		}
+	}
+
+	if ($result['tracking_number'] === '' && $result['shipment_id'] !== '') {
+		$result['tracking_number'] = $result['shipment_id'];
+	}
+
+	return $result;
+}
+
 function citecrm_ups_track($access_token, $tracking_number, $use_sandbox = true) {
 	$access_token = trim((string)$access_token);
 	$tracking_number = trim((string)$tracking_number);

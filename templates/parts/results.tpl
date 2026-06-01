@@ -7,11 +7,17 @@
 	<div class="card shadow-sm mb-3">
 		<div class="card-header d-flex align-items-center justify-content-between">
 			<div class="fw-semibold">{$translate_parts_order_complete}</div>
-			<a class="btn btn-outline-secondary btn-sm"
-			   href="?page=parts:print_results&wo_id={$invoice_details.WORKORDER}&escape=1"
-			   target="new">
-				{$translate_parts_print}
-			</a>
+			<div class="d-flex gap-2">
+				<a class="btn btn-primary btn-sm"
+				   href="?page=parts:ship&order_id={$invoice_details.DB_ORDER_ID}&page_title=Send%20Product">
+					Send Product
+				</a>
+				<a class="btn btn-outline-secondary btn-sm"
+				   href="?page=parts:print_results&wo_id={$invoice_details.WORKORDER}&escape=1"
+				   target="new">
+					{$translate_parts_print}
+				</a>
+			</div>
 		</div>
 		<div class="card-body">
 			{if $error_msg != ""}
@@ -52,7 +58,13 @@
 							</div>
 							<div class="list-group-item d-flex justify-content-between">
 								<span class="fw-semibold">{$translate_parts_tracking}</span>
-								<span>{$invoice_details.TRACKING_NO}</span>
+								<span>
+									{if $invoice_details.TRACKING_NO == 0}
+										Not shipped yet
+									{else}
+										{$invoice_details.TRACKING_NO}
+									{/if}
+								</span>
 							</div>
 							<div class="list-group-item d-flex justify-content-between">
 								<span class="fw-semibold">{$translate_parts_weight}</span>

@@ -28,6 +28,7 @@
 						<th>Shipping</th>
 						<th>Total</th>
 						<th>Tracking</th>
+						<th>Action</th>
 						<th>Status</th>
 					</tr>
 					</thead>
@@ -46,10 +47,16 @@
 						<td>${$order[p].TOTAL}</td>
 						<td>
 							{if $order[p].TRACKING_NO == 0}
-								<a href="">Get Tracking</a>
+								<a href="?page=parts:ship&order_id={$order[p].ORDER_ID}&page_title=Send%20Product">Send Product</a>
 							{else}
-								{$order[p].TRACKING_NO}
+								<a href="?page=parts:tracking&invoice_id={$order[p].INVOICE_ID}&order_id={$order[p].ORDER_ID}">{$order[p].TRACKING_NO}</a>
 							{/if}
+						</td>
+						<td>
+							<a class="btn btn-sm btn-outline-primary"
+							   href="?page=parts:ship&order_id={$order[p].ORDER_ID}&page_title=Send%20Product">
+								Send Product
+							</a>
 						</td>
 						<td>
 							{if $order[p].STATUS == '1'}Open{/if}

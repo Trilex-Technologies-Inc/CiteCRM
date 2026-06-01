@@ -37,7 +37,7 @@
 						{if $tracking_available}
 							<div class="fw-semibold">{$tracking_no}</div>
 						{else}
-							<div class="text-muted">Tracking not yet available.</div>
+							<a href="?page=parts:ship&order_id={$order.ORDER_ID}&page_title=Send%20Product">Send Product</a>
 						{/if}
 					</div>
 				</div>

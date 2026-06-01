@@ -70,19 +70,6 @@ function get_shipping_provider_settings($db) {
     );
 }
 
-function citecrm_generate_tracking_no($db) {
-    for ($attempt = 0; $attempt < 5; $attempt++) {
-        $tracking_no = 'CITE'.date('ymd').strtoupper(substr(md5(uniqid('', true).mt_rand()), 0, 8)).mt_rand(100, 999);
-        $q = "SELECT ORDER_ID FROM ".PRFX."ORDERS WHERE TRACKING_NO=".$db->qstr($tracking_no)." LIMIT 1";
-        $rs = $db->Execute($q);
-        if (!$rs || $rs->EOF) {
-            return $tracking_no;
-        }
-    }
-
-    return 'CITE'.date('ymdHis').mt_rand(1000, 9999);
-}
-
 // Get shipping provider settings
 $shipping_settings = get_shipping_provider_settings($db);
 $q = "SELECT ".$shipping_settings['cols']." FROM ".PRFX."SETUP ";
@@ -505,7 +492,7 @@ $total = number_format(((float)$cart_total + $shipping_charges), 2, '.', '');
 
 // Local invoice id
 $crm_invoice_id = (int)time() + (int)mt_rand(0, 999);
-$tracking_no = citecrm_generate_tracking_no($db);
+$tracking_no = '0';
 
 /* Insert Order */
 $q = "INSERT INTO ".PRFX."ORDERS SET
@@ -594,7 +581,7 @@ if($wo_id != '') {
     }
     
     /* update work order Status */
-    $msg = "Parts Ordered. Cite CRM Order ID: ".$crm_invoice_id." Tracking: ".$tracking_no." Amount: $".$cart_total." Shipping: $".$shipping." Total: $".number_format($cart_total + $shipping, 2, '.', ',') . " - Carrier: " . strtoupper($shipping_provider);
+    $msg = "Parts Ordered. Cite CRM Order ID: ".$crm_invoice_id." Tracking: Not shipped yet. Amount: $".$cart_total." Shipping: $".$shipping." Total: $".number_format($cart_total + $shipping, 2, '.', ',') . " - Carrier: " . strtoupper($shipping_provider);
     
     $sql = "INSERT INTO ".PRFX."TABLE_WORK_ORDER_STATUS SET
         WORK_ORDER_ID = ".$db->qstr($wo_id).",
@@ -701,7 +688,7 @@ if ($customer_email !== '' && filter_var($customer_email, FILTER_VALIDATE_EMAIL)
         $lines[] = 'Customer: '.$customer_name;
     }
     $lines[] = 'Order ID: '.$crm_invoice_id;
-    $lines[] = 'Tracking: '.$tracking_no;
+    $lines[] = 'Tracking: Not shipped yet';
     if ($wo_id !== '' && (int)$wo_id > 0) {
         $lines[] = 'Work Order: '.$wo_id;
     }
@@ -777,6 +764,7 @@ if(!$rs = $db->execute($q)) {
     exit;
 }
 $invoice_details = array(
+    'DB_ORDER_ID' => $rs->fields['ORDER_ID'],
     'ORDER_ID' => $rs->fields['INVOICE_ID'],
     'CART_TOTAL' => $rs->fields['SUB_TOTAL'],
     'SHIPPING' => $rs->fields['SHIPPING'],
