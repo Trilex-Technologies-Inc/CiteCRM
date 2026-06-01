@@ -51,6 +51,10 @@
 								<span>{$invoice_details.TOTAL_ITEMS}</span>
 							</div>
 							<div class="list-group-item d-flex justify-content-between">
+								<span class="fw-semibold">{$translate_parts_tracking}</span>
+								<span>{$invoice_details.TRACKING_NO}</span>
+							</div>
+							<div class="list-group-item d-flex justify-content-between">
 								<span class="fw-semibold">{$translate_parts_weight}</span>
 								<span>{$invoice_details.WEIGHT} lbs</span>
 							</div>
