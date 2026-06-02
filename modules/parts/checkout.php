@@ -290,7 +290,7 @@ if ($shipping_provider === 'fedex') {
                 'recipient' => array(
                     'address' => array(
                         'postalCode' => (string)$to_zip,
-                        'countryCode' => (string)$origin_country
+                        'countryCode' => (string)$to_country
                     )
                 ),
                 'pickupType' => 'DROPOFF_AT_FEDEX_LOCATION',
@@ -407,7 +407,7 @@ if ($shipping_provider === 'fedex') {
                 'ShipTo' => array(
                     'Address' => array(
                         'PostalCode' => (string)$to_zip,
-                        'CountryCode' => (string)$origin_country
+                        'CountryCode' => (string)$to_country
                     )
                 ),
                 'ShipFrom' => array(

@@ -1122,7 +1122,7 @@ function create_setup($db)
 		return false;
 	} else {
 
-			$q = "INSERT INTO `" . PRFX . "SETUP` (
+		$q = "INSERT INTO `" . PRFX . "SETUP` (
 				`OFFICE_HOUR_START`,
 				`OFFICE_HOUR_END`,
 				`AN_LOGIN_ID`,
