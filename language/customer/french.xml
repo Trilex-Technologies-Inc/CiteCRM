@@ -25,6 +25,7 @@
   <customer_mobile>Mobile</customer_mobile> 
   <customer_city>Ville</customer_city> 
   <customer_state>&#x00E9;tat</customer_state> 
+  <customer_country>Pays</customer_country> 
   <customer_zip>Code postal</customer_zip> 
   <customer_type>Type</customer_type> 
   <customer_residential>R&#x00E9;sidentiel</customer_residential> 

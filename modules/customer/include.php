@@ -270,6 +270,10 @@ function checkZip($zip){
 	
 	function insert_new_customer($db,$VAR) {
 		$VAR["zip"] = _normalize_customer_zip($db, isset($VAR["zip"]) ? $VAR["zip"] : '');
+		$country = isset($VAR["country"]) ? strtoupper(trim((string)$VAR["country"])) : '';
+		if ($country !== '') {
+			$country = substr($country, 0, 3);
+		}
 		$brand_new = (!empty($VAR['brand_new']) || (!empty($VAR['customer_brand_new']))) ? 1 : 0;
 	
 		$sql = "INSERT INTO ".PRFX."TABLE_CUSTOMER SET
@@ -277,6 +281,7 @@ function checkZip($zip){
 				CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]      ).", 
 				CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]         ).", 
 				CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]        ).", 
+				CUSTOMER_COUNTRY		= ". $db->qstr( $country            ).", 
 				CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]          ).",
 			CUSTOMER_PHONE			= ". $db->qstr( $VAR["homePhone"]    ).",
 			CUSTOMER_WORK_PHONE	= ". $db->qstr( $VAR["workPhone"]    ).",
@@ -326,6 +331,10 @@ function edit_info($db, $customer_id){
 
 	function update_customer($db,$VAR) {
 		$VAR["zip"] = _normalize_customer_zip($db, isset($VAR["zip"]) ? $VAR["zip"] : '');
+		$country = isset($VAR["country"]) ? strtoupper(trim((string)$VAR["country"])) : '';
+		if ($country !== '') {
+			$country = substr($country, 0, 3);
+		}
 		$brand_new = (!empty($VAR['brand_new']) || (!empty($VAR['customer_brand_new']))) ? 1 : 0;
 	
 		$sql = "UPDATE ".PRFX."TABLE_CUSTOMER SET
@@ -333,6 +342,7 @@ function edit_info($db, $customer_id){
 				CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]		).", 
 				CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]			).", 
 				CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]			).", 
+				CUSTOMER_COUNTRY		= ". $db->qstr( $country            ).", 
 				CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]				).",
 			CUSTOMER_PHONE			= ". $db->qstr( $VAR["homePhone"]		).",
 			CUSTOMER_WORK_PHONE	= ". $db->qstr( $VAR["workPhone"]		).",

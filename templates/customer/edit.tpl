@@ -143,7 +143,7 @@
                            class="form-control">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">
                         <span class="text-danger">*</span>
                         <strong>{$translate_customer_state}</strong>
@@ -154,7 +154,18 @@
                            class="form-control">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">
+                        <strong>{$translate_customer_country}</strong>
+                    </label>
+                    <input type="text"
+                           name="country"
+                           value="{$customer[q].CUSTOMER_COUNTRY}"
+                           maxlength="3"
+                           class="form-control">
+                </div>
+
+                <div class="col-md-3 mb-3">
                     <label class="form-label">
                         <span class="text-danger">*</span>
                         <strong>{$translate_customer_zip}</strong>

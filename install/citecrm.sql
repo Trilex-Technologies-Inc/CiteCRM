@@ -54,6 +54,7 @@ CREATE TABLE `TABLE_CUSTOMER` (
   `CUSTOMER_ADDRESS` varchar(30) default NULL,
   `CUSTOMER_CITY` varchar(20) default NULL,
   `CUSTOMER_STATE` varchar(20) default NULL,
+  `CUSTOMER_COUNTRY` varchar(3) default NULL,
   `CUSTOMER_ZIP` varchar(8) default NULL,
   `CUSTOMER_PHONE` varchar(13) default NULL,
   `CUSTOMER_WORK_PHONE` varchar(13) NOT NULL default '',

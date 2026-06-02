@@ -112,14 +112,21 @@
                         <input type="text" name="city" value="{$company_city}" class="form-control">
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span> <b>{$translate_customer_state}</b>
                         </label>
                         <input type="text" name="state" value="{$company_state}" class="form-control">
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">
+                            <b>{$translate_customer_country}</b>
+                        </label>
+                        <input type="text" name="country" value="{$company_country}" maxlength="3" class="form-control">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span> <b>{$translate_customer_zip}</b>
                         </label>

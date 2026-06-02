@@ -27,6 +27,7 @@
 		<customer_mobile>Mobile</customer_mobile>
 		<customer_city>City</customer_city>
 		<customer_state>State</customer_state>
+		<customer_country>Country</customer_country>
 		<customer_zip>Zip</customer_zip>
 		<customer_type>Type</customer_type>
 		<customer_residential>Residential</customer_residential>
