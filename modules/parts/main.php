@@ -483,11 +483,17 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 			$to_zip = '';
 			$to_country = 'US';
 			$to_city = 'Unknown';
+			$has_customer_country = false;
+			$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."TABLE_CUSTOMER LIKE 'CUSTOMER_COUNTRY'");
+			if ($rs_cols && !$rs_cols->EOF) {
+				$has_customer_country = true;
+			}
 			if (isset($VAR['wo_id']) && (int)$VAR['wo_id'] > 0) {
-				$q = "SELECT c.CUSTOMER_ZIP, c.CUSTOMER_CITY
+				$customer_country_select = $has_customer_country ? ", c.CUSTOMER_COUNTRY" : "";
+				$q = "SELECT c.CUSTOMER_ZIP, c.CUSTOMER_CITY".$customer_country_select."
 					  FROM ".PRFX."TABLE_WORK_ORDER w
 					  LEFT JOIN ".PRFX."TABLE_CUSTOMER c ON w.CUSTOMER_ID = c.CUSTOMER_ID
-					  WHERE w.WORK_ORDER_ID=".$db->qstr((int)$VAR['wo_id'])."
+					  WHERE w.WORK_ORDER_ID=".$db->qstr((int)$VAR['wo_id'])." 
 					  LIMIT 1";
 				if(!$rs = $db->execute($q)) {
 					force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
@@ -496,9 +502,12 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 
 				$to_zip = trim((string)$rs->fields['CUSTOMER_ZIP']);
 				$to_city = trim((string)$rs->fields['CUSTOMER_CITY']);
-			}
-			if ($to_zip === '') {
-				$to_zip = $from_zip;
+				if ($has_customer_country) {
+					$to_country = strtoupper(substr(trim((string)$rs->fields['CUSTOMER_COUNTRY']), 0, 2));
+					if ($to_country === '') {
+						$to_country = $origin_country;
+					}
+				}
 			}
 			if ($to_city === '') {
 				$to_city = 'Unknown';
@@ -642,7 +651,7 @@ $smarty->assign('CAT2', isset($VAR['CAT2']) ? $VAR['CAT2'] : null);
 					),
 					'Shipment' => array(
 						'Shipper' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => (string)$origin_country)),
-						'ShipTo' => array('Address' => array('PostalCode' => (string)$to_zip, 'CountryCode' => (string)$origin_country)),
+						'ShipTo' => array('Address' => array('PostalCode' => (string)$to_zip, 'CountryCode' => (string)$to_country)),
 						'ShipFrom' => array('Address' => array('PostalCode' => (string)$from_zip, 'CountryCode' => (string)$origin_country)),
 						'Service' => array('Code' => (string)$service_code),
 						'Package' => array(

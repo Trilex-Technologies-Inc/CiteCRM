@@ -123,7 +123,15 @@
                         <label class="form-label">
                             <b>{$translate_customer_country}</b>
                         </label>
-                        <input type="text" name="country" value="{$company_country}" maxlength="3" class="form-control">
+                        <select name="country" class="form-select">
+                            <option value="">Select country</option>
+                            {section name=c loop=$country}
+                                <option value="{$country[c].code}"
+                                    {if $selected_country == $country[c].code}selected{/if}>
+                                    {$country[c].name}
+                                </option>
+                            {/section}
+                        </select>
                     </div>
 
                     <div class="col-md-3 mb-3">

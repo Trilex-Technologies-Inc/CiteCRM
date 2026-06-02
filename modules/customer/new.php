@@ -14,6 +14,22 @@ if(!xml2php("customer")) {
 	$smarty->assign('error_msg',"Error in language file");
 }
 
+$q = "SELECT * FROM " . PRFX . "COUNTRY";
+if (!$rs = $db->execute($q)) {
+	force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+	exit;
+}
+$country = $rs->GetArray();
+$smarty->assign('country', $country);
+
+$selected_country = '';
+if (isset($VAR['country']) && trim((string)$VAR['country']) !== '') {
+	$selected_country = strtoupper(trim((string)$VAR['country']));
+} else if (isset($company_country) && trim((string)$company_country) !== '') {
+	$selected_country = strtoupper(trim((string)$company_country));
+}
+$smarty->assign('selected_country', $selected_country);
+
 $smarty->assign('has_brand_new_column', customer_has_brand_new_column($db));
 if(isset($VAR['submit'])) {
 
