@@ -72,6 +72,28 @@ if (!inventory_ensure_warehouse_table($db) || !inventory_ensure_product_warehous
 	exit;
 }
 
+$q = "SELECT * FROM ".PRFX."COUNTRY";
+if (!$rs = $db->execute($q)) {
+	force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+	exit;
+}
+$country = $rs->GetArray();
+$smarty->assign('country', $country);
+
+$company_country_default = '';
+$q = "SELECT COMPANY_COUNTRY FROM ".PRFX."TABLE_COMPANY";
+if ($rs_company = $db->execute($q)) {
+	$company_country_default = strtoupper(trim((string)$rs_company->fields['COMPANY_COUNTRY']));
+}
+
+$selected_country = '';
+if (isset($VAR['warehouse_country']) && trim((string)$VAR['warehouse_country']) !== '') {
+	$selected_country = strtoupper(trim((string)$VAR['warehouse_country']));
+} else if ($company_country_default !== '') {
+	$selected_country = $company_country_default;
+}
+$smarty->assign('selected_country', $selected_country);
+
 if (isset($VAR['submit'])) {
 	$submit = $VAR['submit'];
 
@@ -83,7 +105,10 @@ if (isset($VAR['submit'])) {
 		$city = isset($VAR['warehouse_city']) ? trim($VAR['warehouse_city']) : '';
 		$state = isset($VAR['warehouse_state']) ? trim($VAR['warehouse_state']) : '';
 		$zip = isset($VAR['warehouse_zip']) ? trim($VAR['warehouse_zip']) : '';
-		$country = isset($VAR['warehouse_country']) ? trim($VAR['warehouse_country']) : '';
+		$country = isset($VAR['warehouse_country']) ? strtoupper(trim((string)$VAR['warehouse_country'])) : '';
+		if ($country !== '') {
+			$country = substr($country, 0, 3);
+		}
 		$active = isset($VAR['warehouse_active']) ? (int)$VAR['warehouse_active'] : 1;
 
 		if ($submit === 'Edit' && $id <= 0) {

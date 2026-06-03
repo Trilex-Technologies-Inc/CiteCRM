@@ -58,7 +58,15 @@
 				</div>
 				<div class="col-sm-6 col-lg-2">
 					<label class="form-label">Country</label>
-					<input type="text" name="warehouse_country" class="form-control">
+					<select name="warehouse_country" class="form-select">
+						<option value="">Select country</option>
+						{section name=c loop=$country}
+							<option value="{$country[c].code}"
+								{if $selected_country == $country[c].code}selected{/if}>
+								{$country[c].name}
+							</option>
+						{/section}
+					</select>
 				</div>
 				<div class="col-sm-6 col-lg-1">
 					<label class="form-label">Active</label>
@@ -121,7 +129,15 @@
 										<input type="text" name="warehouse_zip" class="form-control form-control-sm" value="{$w.WAREHOUSE_ZIP|escape}">
 								</td>
 								<td>
-										<input type="text" name="warehouse_country" class="form-control form-control-sm" value="{$w.WAREHOUSE_COUNTRY|escape}">
+										<select name="warehouse_country" class="form-select form-select-sm">
+											<option value="">Select country</option>
+											{section name=c loop=$country}
+												<option value="{$country[c].code}"
+													{if $w.WAREHOUSE_COUNTRY == $country[c].code}selected{/if}>
+													{$country[c].name}
+												</option>
+											{/section}
+										</select>
 								</td>
 								<td class="text-center">
 										<select name="warehouse_active" class="form-select form-select-sm" style="width: 90px; margin: 0 auto;">
