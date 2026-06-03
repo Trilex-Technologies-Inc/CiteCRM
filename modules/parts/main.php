@@ -165,12 +165,18 @@ $dhl_key = $has_dhl_columns ? (string)$rs->fields['DHL_KEY'] : '';
 $dhl_secret = $has_dhl_columns ? (string)$rs->fields['DHL_SECRET'] : '';
 $dhl_account = $has_dhl_columns ? (string)$rs->fields['DHL_ACCOUNT'] : '';
 
-$q = "SELECT COMPANY_ZIP FROM " . PRFX . "TABLE_COMPANY";
-if (!$rs = $db->execute($q)) {
-	force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
-	exit;
+$q = "SELECT WAREHOUSE_ZIP FROM " . PRFX . "TABLE_WAREHOUSE WHERE WAREHOUSE_CODE=" . $db->qstr($local) . " LIMIT 1";
+$rs = $db->execute($q);
+if ($rs && !$rs->EOF && trim((string)$rs->fields['WAREHOUSE_ZIP']) !== '') {
+	$from_zip = trim((string)$rs->fields['WAREHOUSE_ZIP']);
+} else {
+	$q = "SELECT COMPANY_ZIP FROM " . PRFX . "TABLE_COMPANY";
+	if (!$rs = $db->execute($q)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+		exit;
+	}
+	$from_zip = $rs->fields['COMPANY_ZIP'];
 }
-$from_zip = $rs->fields['COMPANY_ZIP'];
 
 /* assign service coed to smarty */
 if ($service_code == "03") {
@@ -467,20 +473,106 @@ if (isset($VAR['submit'])) {
 			$cart_weight_total = $cart_weight_total + $amount;
 		}
 
-		$q = "SELECT COMPANY_ZIP, COMPANY_COUNTRY, COMPANY_CITY FROM " . PRFX . "TABLE_COMPANY";
-		if (!$rs = $db->execute($q)) {
-			force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
-			exit;
+		// Determine per-product warehouse preference: if all cart SKUs map to the same non-zero WAREHOUSE_ID, use that warehouse as origin.
+		$warehouse_id_set = array();
+		$sku_list = array();
+		foreach ($arr as $row) {
+			$sku = isset($row['SKU']) ? trim((string)$row['SKU']) : '';
+			if ($sku !== '') {
+				$sku_list[] = $sku;
+			}
+		}
+		$sku_list = array_values(array_unique($sku_list));
+		if (count($sku_list) > 0) {
+			$q = "SELECT PRODUCT_SKU, WAREHOUSE_ID FROM " . PRFX . "TABLE_PRODUCT WHERE PRODUCT_SKU IN (" . implode(',', array_map(array($db, 'qstr'), $sku_list)) . ")";
+			if ($rs = $db->execute($q)) {
+				while (!$rs->EOF) {
+					$w = (int)$rs->fields['WAREHOUSE_ID'];
+					if ($w > 0) {
+						$warehouse_id_set[$w] = true;
+					}
+					$rs->MoveNext();
+				}
+			}
 		}
 
-		$from_zip = trim((string)$rs->fields['COMPANY_ZIP']);
-		$origin_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
-		if ($origin_country === '') {
-			$origin_country = 'US';
-		}
-		$origin_city = trim((string)$rs->fields['COMPANY_CITY']);
-		if ($origin_city === '') {
-			$origin_city = 'Unknown';
+		if (count($warehouse_id_set) === 1) {
+			$use_wid = (int)array_keys($warehouse_id_set)[0];
+			$q = "SELECT WAREHOUSE_ZIP, WAREHOUSE_COUNTRY, WAREHOUSE_CITY FROM " . PRFX . "TABLE_WAREHOUSE WHERE WAREHOUSE_ID=" . $db->qstr($use_wid) . " LIMIT 1";
+			$rs = $db->execute($q);
+			if ($rs && !$rs->EOF && trim((string)$rs->fields['WAREHOUSE_ZIP']) !== '') {
+				$from_zip = trim((string)$rs->fields['WAREHOUSE_ZIP']);
+				$origin_country = strtoupper(substr(trim((string)$rs->fields['WAREHOUSE_COUNTRY']), 0, 2));
+				if ($origin_country === '') {
+					$origin_country = 'US';
+				}
+				$origin_city = trim((string)$rs->fields['WAREHOUSE_CITY']);
+				if ($origin_city === '') {
+					$origin_city = 'Unknown';
+				}
+			} else {
+				// fallback to PARTS_LO/company
+				$q = "SELECT WAREHOUSE_ZIP, WAREHOUSE_COUNTRY, WAREHOUSE_CITY FROM " . PRFX . "TABLE_WAREHOUSE WHERE WAREHOUSE_CODE=" . $db->qstr($local) . " LIMIT 1";
+				$rs = $db->execute($q);
+				if ($rs && !$rs->EOF && trim((string)$rs->fields['WAREHOUSE_ZIP']) !== '') {
+					$from_zip = trim((string)$rs->fields['WAREHOUSE_ZIP']);
+					$origin_country = strtoupper(substr(trim((string)$rs->fields['WAREHOUSE_COUNTRY']), 0, 2));
+					if ($origin_country === '') {
+						$origin_country = 'US';
+					}
+					$origin_city = trim((string)$rs->fields['WAREHOUSE_CITY']);
+					if ($origin_city === '') {
+						$origin_city = 'Unknown';
+					}
+				} else {
+					$q = "SELECT COMPANY_ZIP, COMPANY_COUNTRY, COMPANY_CITY FROM " . PRFX . "TABLE_COMPANY";
+					if (!$rs = $db->execute($q)) {
+						force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+						exit;
+					}
+
+					$from_zip = trim((string)$rs->fields['COMPANY_ZIP']);
+					$origin_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
+					if ($origin_country === '') {
+						$origin_country = 'US';
+					}
+					$origin_city = trim((string)$rs->fields['COMPANY_CITY']);
+					if ($origin_city === '') {
+						$origin_city = 'Unknown';
+					}
+				}
+			}
+		} else {
+			// multiple or no per-product warehouses: preserve existing PARTS_LO/company logic
+			$q = "SELECT WAREHOUSE_ZIP, WAREHOUSE_COUNTRY, WAREHOUSE_CITY FROM " . PRFX . "TABLE_WAREHOUSE WHERE WAREHOUSE_CODE=" . $db->qstr($local) . " LIMIT 1";
+			$rs = $db->execute($q);
+			if ($rs && !$rs->EOF && trim((string)$rs->fields['WAREHOUSE_ZIP']) !== '') {
+				$from_zip = trim((string)$rs->fields['WAREHOUSE_ZIP']);
+				$origin_country = strtoupper(substr(trim((string)$rs->fields['WAREHOUSE_COUNTRY']), 0, 2));
+				if ($origin_country === '') {
+					$origin_country = 'US';
+				}
+				$origin_city = trim((string)$rs->fields['WAREHOUSE_CITY']);
+				if ($origin_city === '') {
+					$origin_city = 'Unknown';
+				}
+			} else {
+				$q = "SELECT COMPANY_ZIP, COMPANY_COUNTRY, COMPANY_CITY FROM " . PRFX . "TABLE_COMPANY";
+				if (!$rs = $db->execute($q)) {
+					force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+					exit;
+				}
+
+				$from_zip = trim((string)$rs->fields['COMPANY_ZIP']);
+				$origin_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
+				if ($origin_country === '') {
+					$origin_country = 'US';
+				}
+				$origin_city = trim((string)$rs->fields['COMPANY_CITY']);
+				if ($origin_city === '') {
+					$origin_city = 'Unknown';
+				}
+			}
 		}
 
 		$to_zip = '';

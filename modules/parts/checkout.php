@@ -112,24 +112,119 @@ $dhl_key = $shipping_settings['has_dhl_columns'] ? (string)$rs->fields['DHL_KEY'
 $dhl_secret = $shipping_settings['has_dhl_columns'] ? (string)$rs->fields['DHL_SECRET'] : '';
 $dhl_account = $shipping_settings['has_dhl_columns'] ? (string)$rs->fields['DHL_ACCOUNT'] : '';
 
-// Get origin address
-$q = "SELECT COMPANY_ZIP, COMPANY_COUNTRY, COMPANY_CITY, COMPANY_STATE, COMPANY_ADDRESS FROM " . PRFX . "TABLE_COMPANY";
-if (!$rs = $db->execute($q)) {
-    force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
-    exit;
+// Determine per-product warehouse preference: if all cart SKUs map to the same non-zero WAREHOUSE_ID, use that warehouse as origin.
+$warehouse_id_set = array();
+$sku_list = array();
+
+// IMPORTANT: Initialize cart_rows as an empty array to prevent undefined variable errors
+$cart_rows = array();
+
+foreach ($cart_rows as $row) {
+    $sku = isset($row['SKU']) ? trim((string)$row['SKU']) : '';
+    if ($sku !== '') {
+        $sku_list[] = $sku;
+    }
+}
+$sku_list = array_values(array_unique($sku_list));
+if (count($sku_list) > 0) {
+    $q = "SELECT PRODUCT_SKU, WAREHOUSE_ID FROM " . PRFX . "TABLE_PRODUCT WHERE PRODUCT_SKU IN (" . implode(',', array_map(array($db, 'qstr'), $sku_list)) . ")";
+    if ($rs = $db->execute($q)) {
+        while (!$rs->EOF) {
+            $w = (int)$rs->fields['WAREHOUSE_ID'];
+            if ($w > 0) {
+                $warehouse_id_set[$w] = true;
+            }
+            $rs->MoveNext();
+        }
+    }
 }
 
-$from_zip = $rs->fields['COMPANY_ZIP'];
-$origin_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
-if ($origin_country === '') {
-    $origin_country = 'US';
+if (count($warehouse_id_set) === 1) {
+    $use_wid = (int)array_keys($warehouse_id_set)[0];
+    $q = "SELECT WAREHOUSE_ZIP, WAREHOUSE_COUNTRY, WAREHOUSE_CITY, WAREHOUSE_STATE, WAREHOUSE_ADDRESS FROM " . PRFX . "TABLE_WAREHOUSE WHERE WAREHOUSE_ID=" . $db->qstr($use_wid) . " LIMIT 1";
+    $rs = $db->execute($q);
+    if ($rs && !$rs->EOF && trim((string)$rs->fields['WAREHOUSE_ZIP']) !== '') {
+        $from_zip = trim((string)$rs->fields['WAREHOUSE_ZIP']);
+        $origin_country = strtoupper(substr(trim((string)$rs->fields['WAREHOUSE_COUNTRY']), 0, 2));
+        if ($origin_country === '') {
+            $origin_country = 'US';
+        }
+        $origin_city = trim((string)$rs->fields['WAREHOUSE_CITY']);
+        if ($origin_city === '') {
+            $origin_city = 'Unknown';
+        }
+        $origin_state = trim((string)$rs->fields['WAREHOUSE_STATE']);
+        $origin_address = trim((string)$rs->fields['WAREHOUSE_ADDRESS']);
+    } else {
+        // fallback to PARTS_LO/company
+        $q = "SELECT WAREHOUSE_ZIP, WAREHOUSE_COUNTRY, WAREHOUSE_CITY, WAREHOUSE_STATE, WAREHOUSE_ADDRESS FROM " . PRFX . "TABLE_WAREHOUSE WHERE WAREHOUSE_CODE=" . $db->qstr($local) . " LIMIT 1";
+        $rs = $db->execute($q);
+        if ($rs && !$rs->EOF && trim((string)$rs->fields['WAREHOUSE_ZIP']) !== '') {
+            $from_zip = trim((string)$rs->fields['WAREHOUSE_ZIP']);
+            $origin_country = strtoupper(substr(trim((string)$rs->fields['WAREHOUSE_COUNTRY']), 0, 2));
+            if ($origin_country === '') {
+                $origin_country = 'US';
+            }
+            $origin_city = trim((string)$rs->fields['WAREHOUSE_CITY']);
+            if ($origin_city === '') {
+                $origin_city = 'Unknown';
+            }
+            $origin_state = trim((string)$rs->fields['WAREHOUSE_STATE']);
+            $origin_address = trim((string)$rs->fields['WAREHOUSE_ADDRESS']);
+        } else {
+            $q = "SELECT COMPANY_ZIP, COMPANY_COUNTRY, COMPANY_CITY, COMPANY_STATE, COMPANY_ADDRESS FROM " . PRFX . "TABLE_COMPANY";
+            if (!$rs = $db->execute($q)) {
+                force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+                exit;
+            }
+            $from_zip = $rs->fields['COMPANY_ZIP'];
+            $origin_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
+            if ($origin_country === '') {
+                $origin_country = 'US';
+            }
+            $origin_city = trim((string)$rs->fields['COMPANY_CITY']);
+            if ($origin_city === '') {
+                $origin_city = 'Unknown';
+            }
+            $origin_state = trim((string)$rs->fields['COMPANY_STATE']);
+            $origin_address = trim((string)$rs->fields['COMPANY_ADDRESS']);
+        }
+    }
+} else {
+    // multiple or no per-product warehouses: preserve existing PARTS_LO/company logic
+    $q = "SELECT WAREHOUSE_ZIP, WAREHOUSE_COUNTRY, WAREHOUSE_CITY, WAREHOUSE_STATE, WAREHOUSE_ADDRESS FROM " . PRFX . "TABLE_WAREHOUSE WHERE WAREHOUSE_CODE=" . $db->qstr($local) . " LIMIT 1";
+    $rs = $db->execute($q);
+    if ($rs && !$rs->EOF && trim((string)$rs->fields['WAREHOUSE_ZIP']) !== '') {
+        $from_zip = trim((string)$rs->fields['WAREHOUSE_ZIP']);
+        $origin_country = strtoupper(substr(trim((string)$rs->fields['WAREHOUSE_COUNTRY']), 0, 2));
+        if ($origin_country === '') {
+            $origin_country = 'US';
+        }
+        $origin_city = trim((string)$rs->fields['WAREHOUSE_CITY']);
+        if ($origin_city === '') {
+            $origin_city = 'Unknown';
+        }
+        $origin_state = trim((string)$rs->fields['WAREHOUSE_STATE']);
+        $origin_address = trim((string)$rs->fields['WAREHOUSE_ADDRESS']);
+    } else {
+        $q = "SELECT COMPANY_ZIP, COMPANY_COUNTRY, COMPANY_CITY, COMPANY_STATE, COMPANY_ADDRESS FROM " . PRFX . "TABLE_COMPANY";
+        if (!$rs = $db->execute($q)) {
+            force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+            exit;
+        }
+        $from_zip = $rs->fields['COMPANY_ZIP'];
+        $origin_country = strtoupper(substr(trim((string)$rs->fields['COMPANY_COUNTRY']), 0, 2));
+        if ($origin_country === '') {
+            $origin_country = 'US';
+        }
+        $origin_city = trim((string)$rs->fields['COMPANY_CITY']);
+        if ($origin_city === '') {
+            $origin_city = 'Unknown';
+        }
+        $origin_state = trim((string)$rs->fields['COMPANY_STATE']);
+        $origin_address = trim((string)$rs->fields['COMPANY_ADDRESS']);
+    }
 }
-$origin_city = trim((string)$rs->fields['COMPANY_CITY']);
-if ($origin_city === '') {
-    $origin_city = 'Unknown';
-}
-$origin_state = trim((string)$rs->fields['COMPANY_STATE']);
-$origin_address = trim((string)$rs->fields['COMPANY_ADDRESS']);
 
 $workorder_id = isset($VAR['wo_id']) ? $VAR['wo_id'] : '';
 
@@ -197,20 +292,35 @@ if ($workorder_id !== '' && (int)$workorder_id > 0) {
 
 $q = "SELECT SKU, AMOUNT, DESCRIPTION, VENDOR, PRICE, SUB_TOTAL, Weight, Length, Width, Height
       FROM " . PRFX . "CART" . $cart_where;
+      
 if (!$rs = $db->execute($q)) {
     force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
     exit;
 }
 
-$cart_rows = $rs->GetArray();
+// Initialize cart_rows as an empty array
+$cart_rows = array();
+
+// Check if we have results
+if ($rs && !$rs->EOF) {
+    $cart_rows = $rs->GetArray();
+}
+
+// If no results with WO_ID filter, try getting all cart items
 if (!is_array($cart_rows) || count($cart_rows) === 0) {
     if ($cart_where !== '') {
         $q = "SELECT SKU, AMOUNT, DESCRIPTION, VENDOR, PRICE, SUB_TOTAL, Weight, Length, Width, Height FROM " . PRFX . "CART";
         if ($rs2 = $db->execute($q)) {
-            $cart_rows = $rs2->GetArray();
+            if ($rs2 && !$rs2->EOF) {
+                $cart_rows = $rs2->GetArray();
+            } else {
+                $cart_rows = array();
+            }
         }
     }
 }
+
+// Validate cart has items
 if (!is_array($cart_rows) || count($cart_rows) === 0) {
     force_page('parts', 'main&error_msg=You have no parts in your Cart. Please select the parts you wish to order and click add.&wo_id=' . $workorder_id . '&page_title=Order%20Parts');
     exit;
@@ -792,3 +902,4 @@ $smarty->assign('shipping_error', $shipping_error);
 $smarty->assign('shipping_provider', strtoupper($shipping_provider));
 
 $smarty->display('parts' . SEP . 'results.tpl');
+?>
