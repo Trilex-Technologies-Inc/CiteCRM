@@ -444,8 +444,8 @@ if ($shipping_provider === 'fedex') {
             $shipment_resp = null;
             if (isset($rate_data['RateResponse']) && isset($rate_data['RateResponse']['RatedShipment'])) {
                 $shipment_resp = $rate_data['RateResponse']['RatedShipment'];
-                if (isset($shipment_resp[0])) {
-                    $shipment_resp = $shipment_resp[0];
+                if (isset($shipment_resp[2])) {
+                    $shipment_resp = $shipment_resp[2];
                 }
             }
 

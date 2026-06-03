@@ -24,6 +24,9 @@
 			<a class="btn btn-sm btn-outline-secondary" href="?page=inventory:products&page_title=Products">
 				<i class="bi bi-box-seam"></i> Products
 			</a>
+			<a class="btn btn-sm btn-outline-secondary" href="?page=inventory:warehouses&page_title=Warehouses">
+				<i class="bi bi-houses"></i> Warehouses
+			</a>
 		</div>
 		<div class="card-body">
 			<form method="post" action="?page=inventory:manufacturers" class="row g-2 align-items-end">
@@ -113,4 +116,3 @@
 		</div>
 	</div>
 </div>
-

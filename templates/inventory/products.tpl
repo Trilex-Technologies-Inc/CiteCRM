@@ -21,9 +21,14 @@
 			<div>
 				<i class="bi bi-box-seam me-2 text-secondary"></i> Products
 			</div>
-			<a class="btn btn-sm btn-outline-secondary" href="?page=inventory:manufacturers&page_title=Manufacturers">
-				<i class="bi bi-building"></i> Manufacturers
-			</a>
+			<div class="d-flex gap-2">
+				<a class="btn btn-sm btn-outline-secondary" href="?page=inventory:manufacturers&page_title=Manufacturers">
+					<i class="bi bi-building"></i> Manufacturers
+				</a>
+				<a class="btn btn-sm btn-outline-secondary" href="?page=inventory:warehouses&page_title=Warehouses">
+					<i class="bi bi-houses"></i> Warehouses
+				</a>
+			</div>
 		</div>
 		<div class="card-body">
 			<form method="get" action="index.php" class="row g-2 align-items-end mb-3">
@@ -31,7 +36,7 @@
 				<input type="hidden" name="page_title" value="Products">
 				<div class="col-sm-8 col-lg-6">
 					<label class="form-label">Search</label>
-					<input type="text" name="q" value="{$q|escape}" class="form-control" placeholder="Product name / SKU / manufacturer">
+					<input type="text" name="q" value="{$q|escape}" class="form-control" placeholder="Product name / SKU / manufacturer / warehouse">
 				</div>
 				<div class="col-auto">
 					<button class="btn btn-outline-secondary" type="submit">
@@ -47,6 +52,15 @@
 						<option value="">Select…</option>
 						{foreach from=$manufacturer_options item=o}
 							<option value="{$o.MANUFACTURER_ID}">{$o.MANUFACTURER_NAME|escape}</option>
+						{/foreach}
+					</select>
+				</div>
+				<div class="col-sm-6 col-lg-3">
+					<label class="form-label">Warehouse</label>
+					<select name="warehouse_id" class="form-select">
+						<option value="0">No warehouse</option>
+						{foreach from=$warehouse_options item=w}
+							<option value="{$w.WAREHOUSE_ID}">{$w.WAREHOUSE_NAME|escape}{if $w.WAREHOUSE_CODE != ''} ({$w.WAREHOUSE_CODE|escape}){/if}</option>
 						{/foreach}
 					</select>
 				</div>
@@ -123,6 +137,7 @@
 							<th style="width: 90px;">ID</th>
 							<th style="min-width: 180px;">Name</th>
 							<th style="min-width: 160px;">Manufacturer</th>
+							<th style="min-width: 160px;">Warehouse</th>
 							<th style="min-width: 180px;">Category</th>
 							<th style="min-width: 200px;">Subcategory</th>
 							<th style="width: 140px;">SKU</th>
@@ -150,6 +165,14 @@
 											<option value="">Select…</option>
 											{foreach from=$manufacturer_options item=o}
 												<option value="{$o.MANUFACTURER_ID}" {if $o.MANUFACTURER_ID == $p.MANUFACTURER_ID}selected{/if}>{$o.MANUFACTURER_NAME|escape}</option>
+											{/foreach}
+										</select>
+								</td>
+								<td>
+										<select name="warehouse_id" class="form-select form-select-sm">
+											<option value="0">No warehouse</option>
+											{foreach from=$warehouse_options item=w}
+												<option value="{$w.WAREHOUSE_ID}" {if $w.WAREHOUSE_ID == $p.WAREHOUSE_ID}selected{/if}>{$w.WAREHOUSE_NAME|escape}{if $w.WAREHOUSE_CODE != ''} ({$w.WAREHOUSE_CODE|escape}){/if}</option>
 											{/foreach}
 										</select>
 								</td>

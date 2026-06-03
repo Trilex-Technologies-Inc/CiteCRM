@@ -80,6 +80,43 @@ function inventory_ensure_product_shipping_columns($db) {
 	return true;
 }
 
+function inventory_ensure_warehouse_table($db) {
+	$table = PRFX.'TABLE_WAREHOUSE';
+	if (inventory_table_exists($db, $table)) {
+		return true;
+	}
+
+	$q = "CREATE TABLE IF NOT EXISTS `".$table."` (
+		  `WAREHOUSE_ID` int(11) NOT NULL auto_increment,
+		  `WAREHOUSE_NAME` varchar(120) NOT NULL default '',
+		  `WAREHOUSE_CODE` varchar(40) NOT NULL default '',
+		  `WAREHOUSE_ADDRESS` varchar(255) NOT NULL default '',
+		  `WAREHOUSE_CITY` varchar(80) NOT NULL default '',
+		  `WAREHOUSE_STATE` varchar(80) NOT NULL default '',
+		  `WAREHOUSE_ZIP` varchar(20) NOT NULL default '',
+		  `WAREHOUSE_COUNTRY` varchar(80) NOT NULL default '',
+		  `WAREHOUSE_ACTIVE` tinyint(1) NOT NULL default '1',
+		  PRIMARY KEY  (`WAREHOUSE_ID`),
+		  UNIQUE KEY `WAREHOUSE_NAME` (`WAREHOUSE_NAME`),
+		  KEY `WAREHOUSE_CODE` (`WAREHOUSE_CODE`)
+		) ENGINE=MyISAM";
+
+	return (bool)$db->Execute($q);
+}
+
+function inventory_ensure_product_warehouse_column($db) {
+	$table = PRFX.'TABLE_PRODUCT';
+	if (inventory_table_has_column($db, $table, 'WAREHOUSE_ID')) {
+		return true;
+	}
+
+	if (!$db->Execute("ALTER TABLE `".$table."` ADD COLUMN `WAREHOUSE_ID` int(11) NOT NULL default '0' AFTER `MANUFACTURER_ID`")) {
+		return false;
+	}
+	$db->Execute("ALTER TABLE `".$table."` ADD KEY `WAREHOUSE_ID` (`WAREHOUSE_ID`)");
+	return true;
+}
+
 // AJAX: fetch subcategories (child categories) for a category (used by product add/edit forms)
 if (isset($VAR['ajax']) && $VAR['ajax'] === 'subcats') {
 	$cat_id = isset($VAR['cat_id']) ? trim((string)$VAR['cat_id']) : '';
@@ -133,6 +170,10 @@ if (!inventory_ensure_product_shipping_columns($db)) {
 	force_page('core', 'error&error_msg=Database upgrade required: unable to add product shipping columns.&menu=1&type=database');
 	exit;
 }
+if (!inventory_ensure_warehouse_table($db) || !inventory_ensure_product_warehouse_column($db)) {
+	force_page('core', 'error&error_msg=Database upgrade required: unable to add warehouse catalog support.&menu=1&type=database');
+	exit;
+}
 $q = "SELECT ID, DESCRIPTION
 	  FROM ".PRFX."CAT
 	  $where
@@ -142,6 +183,16 @@ if(!$rs = $db->execute($q)) {
 	exit;
 }
 $smarty->assign('category_options', $rs->GetArray());
+
+$q = "SELECT WAREHOUSE_ID, WAREHOUSE_NAME, WAREHOUSE_CODE
+	  FROM ".PRFX."TABLE_WAREHOUSE
+	  WHERE WAREHOUSE_ACTIVE=1
+	  ORDER BY WAREHOUSE_NAME";
+if(!$rs = $db->execute($q)) {
+	force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+	exit;
+}
+$smarty->assign('warehouse_options', $rs->GetArray());
 
 function product_subcat_matches_cat($db, $cat_id, $subcat_id) {
 	$cat_id = trim((string)$cat_id);
@@ -156,11 +207,24 @@ function product_subcat_matches_cat($db, $cat_id, $subcat_id) {
 	return $rs && (int)$rs->fields['cnt'] > 0;
 }
 
+function product_warehouse_exists($db, $warehouse_id) {
+	$warehouse_id = (int)$warehouse_id;
+	if ($warehouse_id <= 0) {
+		return true;
+	}
+	$q = "SELECT COUNT(*) AS cnt
+		  FROM ".PRFX."TABLE_WAREHOUSE
+		  WHERE WAREHOUSE_ID=".$db->qstr($warehouse_id);
+	$rs = $db->Execute($q);
+	return $rs && (int)$rs->fields['cnt'] > 0;
+}
+
 if (isset($VAR['submit'])) {
 	$submit = $VAR['submit'];
 
 	if ($submit === 'New') {
 		$manufacturer_id = isset($VAR['manufacturer_id']) ? (int)$VAR['manufacturer_id'] : 0;
+		$warehouse_id = isset($VAR['warehouse_id']) ? (int)$VAR['warehouse_id'] : 0;
 		$cat_id = isset($VAR['cat_id']) ? trim((string)$VAR['cat_id']) : '';
 		$subcat_id = isset($VAR['subcat_id']) ? trim((string)$VAR['subcat_id']) : '';
 		$sku = isset($VAR['product_sku']) ? trim($VAR['product_sku']) : '';
@@ -175,6 +239,10 @@ if (isset($VAR['submit'])) {
 
 		if ($manufacturer_id <= 0) {
 			force_page('inventory', 'products&page_title=Products&error_msg=Please select a manufacturer.');
+			exit;
+		}
+		if (!product_warehouse_exists($db, $warehouse_id)) {
+			force_page('inventory', 'products&page_title=Products&error_msg=Please select a valid warehouse.');
 			exit;
 		}
 		if ($cat_id === '') {
@@ -200,6 +268,7 @@ if (isset($VAR['submit'])) {
 
 		$q = "INSERT INTO ".PRFX."TABLE_PRODUCT SET
 				MANUFACTURER_ID=".$db->qstr($manufacturer_id).",
+				WAREHOUSE_ID=".$db->qstr($warehouse_id).",
 				CAT_ID=".$db->qstr($subcat_id).",
 				PRODUCT_SKU=".$db->qstr($sku).",
 				PRODUCT_NAME=".$db->qstr($name).",
@@ -222,6 +291,7 @@ if (isset($VAR['submit'])) {
 	if ($submit === 'Edit') {
 		$product_id = isset($VAR['product_id']) ? (int)$VAR['product_id'] : 0;
 		$manufacturer_id = isset($VAR['manufacturer_id']) ? (int)$VAR['manufacturer_id'] : 0;
+		$warehouse_id = isset($VAR['warehouse_id']) ? (int)$VAR['warehouse_id'] : 0;
 		$cat_id = isset($VAR['cat_id']) ? trim((string)$VAR['cat_id']) : '';
 		$subcat_id = isset($VAR['subcat_id']) ? trim((string)$VAR['subcat_id']) : '';
 		$sku = isset($VAR['product_sku']) ? trim($VAR['product_sku']) : '';
@@ -240,6 +310,10 @@ if (isset($VAR['submit'])) {
 		}
 		if ($manufacturer_id <= 0) {
 			force_page('inventory', 'products&page_title=Products&error_msg=Please select a manufacturer.');
+			exit;
+		}
+		if (!product_warehouse_exists($db, $warehouse_id)) {
+			force_page('inventory', 'products&page_title=Products&error_msg=Please select a valid warehouse.');
 			exit;
 		}
 		if ($cat_id === '') {
@@ -265,6 +339,7 @@ if (isset($VAR['submit'])) {
 
 		$q = "UPDATE ".PRFX."TABLE_PRODUCT SET
 				MANUFACTURER_ID=".$db->qstr($manufacturer_id).",
+				WAREHOUSE_ID=".$db->qstr($warehouse_id).",
 				CAT_ID=".$db->qstr($subcat_id).",
 				PRODUCT_SKU=".$db->qstr($sku).",
 				PRODUCT_NAME=".$db->qstr($name).",
@@ -310,17 +385,19 @@ $search = isset($VAR['q']) ? trim($VAR['q']) : '';
 $where = '';
 if ($search !== '') {
 	$like = $db->qstr('%'.$search.'%');
-	$where = "WHERE (p.PRODUCT_NAME LIKE $like OR p.PRODUCT_SKU LIKE $like OR m.MANUFACTURER_NAME LIKE $like)";
+	$where = "WHERE (p.PRODUCT_NAME LIKE $like OR p.PRODUCT_SKU LIKE $like OR m.MANUFACTURER_NAME LIKE $like OR w.WAREHOUSE_NAME LIKE $like OR w.WAREHOUSE_CODE LIKE $like)";
 }
 
-$q = "SELECT p.PRODUCT_ID, p.MANUFACTURER_ID, p.PRODUCT_SKU, p.PRODUCT_NAME, p.PRODUCT_DESCRIPTION, p.PRODUCT_PRICE,
+$q = "SELECT p.PRODUCT_ID, p.MANUFACTURER_ID, p.WAREHOUSE_ID, p.PRODUCT_SKU, p.PRODUCT_NAME, p.PRODUCT_DESCRIPTION, p.PRODUCT_PRICE,
 			p.PRODUCT_WEIGHT, p.PRODUCT_LENGTH, p.PRODUCT_WIDTH, p.PRODUCT_HEIGHT, p.PRODUCT_ACTIVE,
 			p.CAT_ID AS SUBCAT_ID,
 			m.MANUFACTURER_NAME,
+			w.WAREHOUSE_NAME, w.WAREHOUSE_CODE,
 			parent.ID AS CAT_ID, parent.DESCRIPTION AS CAT_DESCRIPTION,
 			child.DESCRIPTION AS SUBCAT_DESCRIPTION, child.ID AS SUBCAT_CODE
 	  FROM ".PRFX."TABLE_PRODUCT p
 	  LEFT JOIN ".PRFX."TABLE_MANUFACTURER m ON (m.MANUFACTURER_ID = p.MANUFACTURER_ID)
+	  LEFT JOIN ".PRFX."TABLE_WAREHOUSE w ON (w.WAREHOUSE_ID = p.WAREHOUSE_ID)
 	  LEFT JOIN ".PRFX."CAT child ON (child.ID = p.CAT_ID)
 	  LEFT JOIN ".PRFX."CAT parent ON (parent.ID = child.PARENT_ID)
 	  $where

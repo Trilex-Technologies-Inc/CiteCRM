@@ -475,6 +475,22 @@ if (!create_table_manufacturer($db)) {
 }
 
 ##################################
+# create_table_warehouse			#
+##################################
+if (!create_table_warehouse($db)) {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_WAREHOUSE</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
+			</tr>\n");
+	$error_flag = true;
+} else {
+	echo ("<tr>\n
+				<td>Create table " . PRFX . "TABLE_WAREHOUSE</td>\n
+				<td><font color=\"green\"><b>OK</b></font></td>\n
+			</tr>\n");
+}
+
+##################################
 # create_table_product				#
 ##################################
 if (!create_table_product($db)) {
@@ -486,6 +502,22 @@ if (!create_table_product($db)) {
 } else {
 	echo ("<tr>\n
 				<td>Create table " . PRFX . "TABLE_PRODUCT</td>\n
+				<td><font color=\"green\"><b>OK</b></font></td>\n
+			</tr>\n");
+}
+
+##################################
+# ensure_product_warehouse_column	#
+##################################
+if (!ensure_product_warehouse_column($db)) {
+	echo ("<tr>\n
+				<td>Ensure column " . PRFX . "TABLE_PRODUCT.WAREHOUSE_ID</td>\n
+				<td><font color=\"red\"><b>Failed:</b></font> " . $db->ErrorMsg() . "</td>\n
+			</tr>\n");
+	$error_flag = true;
+} else {
+	echo ("<tr>\n
+				<td>Ensure column " . PRFX . "TABLE_PRODUCT.WAREHOUSE_ID</td>\n
 				<td><font color=\"green\"><b>OK</b></font></td>\n
 			</tr>\n");
 }
@@ -1377,11 +1409,37 @@ function create_table_manufacturer($db)
 	}
 }
 
+function create_table_warehouse($db)
+{
+	$q = "CREATE TABLE IF NOT EXISTS `" . PRFX . "TABLE_WAREHOUSE` (
+	  `WAREHOUSE_ID` int(11) NOT NULL auto_increment,
+	  `WAREHOUSE_NAME` varchar(120) NOT NULL default '',
+	  `WAREHOUSE_CODE` varchar(40) NOT NULL default '',
+	  `WAREHOUSE_ADDRESS` varchar(255) NOT NULL default '',
+	  `WAREHOUSE_CITY` varchar(80) NOT NULL default '',
+	  `WAREHOUSE_STATE` varchar(80) NOT NULL default '',
+	  `WAREHOUSE_ZIP` varchar(20) NOT NULL default '',
+	  `WAREHOUSE_COUNTRY` varchar(80) NOT NULL default '',
+	  `WAREHOUSE_ACTIVE` tinyint(1) NOT NULL default '1',
+	  PRIMARY KEY  (`WAREHOUSE_ID`),
+	  UNIQUE KEY `WAREHOUSE_NAME` (`WAREHOUSE_NAME`),
+	  KEY `WAREHOUSE_CODE` (`WAREHOUSE_CODE`)
+	) ENGINE=MyISAM";
+
+	$rs = $db->Execute($q);
+	if (!$rs) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 function create_table_product($db)
 {
 	$q = "CREATE TABLE IF NOT EXISTS `" . PRFX . "TABLE_PRODUCT` (
 	  `PRODUCT_ID` int(11) NOT NULL auto_increment,
 	  `MANUFACTURER_ID` int(11) NOT NULL default '0',
+	  `WAREHOUSE_ID` int(11) NOT NULL default '0',
 	  `CAT_ID` varchar(10) NOT NULL default '',
 	  `SUBCAT_ID` int(20) NOT NULL default '0',
 	  `PRODUCT_SKU` varchar(60) NOT NULL default '',
@@ -1395,6 +1453,7 @@ function create_table_product($db)
 	  `PRODUCT_ACTIVE` tinyint(1) NOT NULL default '1',
 	  PRIMARY KEY  (`PRODUCT_ID`),
 	  KEY `MANUFACTURER_ID` (`MANUFACTURER_ID`),
+	  KEY `WAREHOUSE_ID` (`WAREHOUSE_ID`),
 	  KEY `CAT_ID` (`CAT_ID`),
 	  KEY `SUBCAT_ID` (`SUBCAT_ID`),
 	  KEY `PRODUCT_SKU` (`PRODUCT_SKU`)
@@ -1406,6 +1465,20 @@ function create_table_product($db)
 	} else {
 		return true;
 	}
+}
+
+function ensure_product_warehouse_column($db)
+{
+	$table = PRFX . "TABLE_PRODUCT";
+
+	if (!column_exists($db, $table, "WAREHOUSE_ID")) {
+		if (!$db->Execute("ALTER TABLE `" . $table . "` ADD COLUMN `WAREHOUSE_ID` int(11) NOT NULL default '0' AFTER `MANUFACTURER_ID`")) {
+			return false;
+		}
+		$db->Execute("ALTER TABLE `" . $table . "` ADD KEY `WAREHOUSE_ID` (`WAREHOUSE_ID`)");
+	}
+
+	return true;
 }
 
 function ensure_product_category_columns($db)

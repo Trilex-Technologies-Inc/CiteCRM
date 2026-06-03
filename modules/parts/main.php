@@ -682,8 +682,8 @@ if (isset($VAR['submit'])) {
 					$shipment = null;
 					if (isset($rate_data['RateResponse']) && isset($rate_data['RateResponse']['RatedShipment'])) {
 						$shipment = $rate_data['RateResponse']['RatedShipment'];
-						if (isset($shipment[0])) {
-							$shipment = $shipment[0];
+						if (isset($shipment[2])) {
+							$shipment = $shipment[2];
 						}
 					}
 
