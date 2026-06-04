@@ -292,7 +292,7 @@ if ($workorder_id !== '' && (int)$workorder_id > 0) {
 
 $q = "SELECT SKU, AMOUNT, DESCRIPTION, VENDOR, PRICE, SUB_TOTAL, Weight, Length, Width, Height
       FROM " . PRFX . "CART" . $cart_where;
-      
+
 if (!$rs = $db->execute($q)) {
     force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
     exit;
@@ -902,4 +902,3 @@ $smarty->assign('shipping_error', $shipping_error);
 $smarty->assign('shipping_provider', strtoupper($shipping_provider));
 
 $smarty->display('parts' . SEP . 'results.tpl');
-?>
