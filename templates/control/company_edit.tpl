@@ -130,6 +130,12 @@
 								   {if $setup[w].PDF_PRINT == 1}checked{/if}>
 							<label class="form-check-label">Enable PDF Printing</label>
 						</div>
+						<div class="mb-3>
+				<label class="form-label">Tax ID</label>
+				<input type="text" class="form-control w-25"
+					   name="company_tax_id"
+					   value="{$company[q].COMPANY_TAX_ID}">
+			</div>
 
 						<div class="mb-3">
 							<label class="form-label">Tax Amount (%)</label>

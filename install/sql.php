@@ -736,6 +736,7 @@ function create_table_company($db)
   `COMPNAY_PHONE` varchar(20) NOT NULL default '',
   `COMPNAY_MOBILE` varchar(20) NOT NULL default '',
   `COMPANY_TOLL_FREE` varchar(20) NOT NULL default '',
+  `COMPANY_TAX_ID` varchar(60) NOT NULL default '',
   `COMPANY_EMAIL` varchar(100) NOT NULL default '',
   PRIMARY KEY  (`COMPANY_NAME`)
 ) ENGINE=MyISAM;";

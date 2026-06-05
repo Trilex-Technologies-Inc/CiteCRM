@@ -56,6 +56,7 @@
 				<div class="name">{$item.COMPANY_NAME}</div>
 				<div>{$item.COMPANY_ADDRESS}</div>
 				<div>{$item.COMPANY_CITY}, {$item.COMPANY_STATE} {$item.COMPANY_ZIP}</div>
+				{if $item.COMPANY_TAX_ID != ''}<div>Tax ID: {$item.COMPANY_TAX_ID}</div>{/if}
 				<div>{$item.COMPNAY_PHONE}</div>
 			{/foreach}
 		</div>

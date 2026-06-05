@@ -85,6 +85,7 @@
 							{$company[x].COMPANY_NAME}<br>
 							{$company[x].COMPANY_ADDRESS}<br>
 							{$company[x].COMPANY_CITY}, {$company[x].COMPANY_STATE} {$company[x].COMPANY_ZIP}<br>
+							{if $company[x].COMPANY_TAX_ID != ''}Tax ID: {$company[x].COMPANY_TAX_ID}<br>{/if}
 							{$company[x].COMPNAY_PHONE}<br>
 						</div>
 					{/section}

@@ -108,6 +108,12 @@ if($rs_cols && !$rs_cols->EOF) {
 	$has_shipping_columns = true;
 }
 
+/* Optional company tax ID column support for older installs */
+$rs_cols = $db->Execute("SHOW COLUMNS FROM ".PRFX."TABLE_COMPANY LIKE 'COMPANY_TAX_ID'");
+if($rs_cols && $rs_cols->EOF) {
+	$db->Execute("ALTER TABLE ".PRFX."TABLE_COMPANY ADD COLUMN COMPANY_TAX_ID varchar(60) NOT NULL default ''");
+}
+
 if(isset($VAR['ups_password']) && $VAR['ups_password'] != '') {
 	$q .= 'UPS_PASSWORD		= '. $db->qstr( $VAR['ups_password']		) .', ';
 }
@@ -143,7 +149,8 @@ unset($q);
 			COMPANY_COUNTRY		= '. $db->qstr( isset($VAR['country']) && $VAR['country'] != '' ? $VAR['country'] : ' ' ) .',
 			COMPNAY_PHONE		= '. $db->qstr( isset($VAR['phone']) && $VAR['phone'] != '' ? $VAR['phone'] : ' ' ) .',
 			COMPNAY_MOBILE		= '. $db->qstr( isset($VAR['mobile_phone']) && $VAR['mobile_phone'] != '' ? $VAR['mobile_phone'] : ' ' ) .', 
-			COMPANY_TOLL_FREE	= '. $db->qstr( isset($VAR['toll_free']) && $VAR['toll_free'] != '' ? $VAR['toll_free'] : ' ' );
+			COMPANY_TOLL_FREE	= '. $db->qstr( isset($VAR['toll_free']) && $VAR['toll_free'] != '' ? $VAR['toll_free'] : ' ' ) .',
+			COMPANY_TAX_ID		= '. $db->qstr( isset($VAR['company_tax_id']) && $VAR['company_tax_id'] != '' ? $VAR['company_tax_id'] : ' ' );
 		
 
 	
