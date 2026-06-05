@@ -27,10 +27,13 @@
 				<div class="row g-3">
 					<div class="col-lg-7">
 						<div class="border rounded p-3 h-100">
-							<div class="fs-5 fw-bold mb-2">Cite CRM</div>
-							<div>323 SE Riverside AV</div>
-							<div>Grants Pass, Oregon 97526</div>
-							<div>1-866-471-1343</div>
+							<div class="fs-5 fw-bold mb-2">{$company_name}</div>
+							<div>{$company_address}</div>
+							<div>{$company_city}, {$company_state} {$company_zip}</div>
+							{if $company_phone != ''}<div>{$company_phone}</div>{/if}
+							{if $company_toll_free != ''}<div>{$company_toll_free}</div>{/if}
+							{if $company_email != ''}<div>{$company_email}</div>{/if}
+							{if $company_tax_id != ''}<div>Tax ID: {$company_tax_id}</div>{/if}
 						</div>
 					</div>
 
@@ -79,6 +82,7 @@
 									<div>{$company_address}</div>
 									<div>{$company_city}, {$company_state} {$company_zip}</div>
 									<div>{$company_phone}</div>
+									{if $company_tax_id != ''}<div>Tax ID: {$company_tax_id}</div>{/if}
 								</div>
 								<div class="col-lg-4">
 									<div class="text-muted fw-semibold mb-1">{$translate_parts_wo_id}</div>

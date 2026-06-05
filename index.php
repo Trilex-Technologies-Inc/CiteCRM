@@ -99,6 +99,7 @@ $smarty->assign('company_phone', $rs->fields['COMPNAY_PHONE']);
 $smarty->assign('company_email', $rs->fields['COMPANY_EMAIL']);
 $smarty->assign('company_toll_free', $rs->fields['COMPANY_TOLL_FREE']);
 $smarty->assign('compnay_mobile', $rs->fields['COMPNAY_MOBILE']);
+$smarty->assign('company_tax_id', isset($rs->fields['COMPANY_TAX_ID']) ? $rs->fields['COMPANY_TAX_ID'] : '');
 
 // Company logo (optional). If present, show in sidebar.
 $company_logo_url = '';
