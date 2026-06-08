@@ -23,38 +23,36 @@ if(isset($VAR['submit']) ) {
 
 	/* if we are changing password update */
 	if($VAR['password'] != '') {
-		$update = "SET EMPLOYEE_PASSWD  		=". $db->qstr( md5($VAR['password']) ).",
-							EMPLOYEE_EMAIL			=". $db->qstr( $VAR['email']         ).", 
-							EMPLOYEE_FIRST_NAME		=". $db->qstr( $VAR['firstName']     ).",
-							EMPLOYEE_LAST_NAME		=". $db->qstr( $VAR['lastName']      ).",
-							EMPLOYEE_DISPLAY_NAME =". $db->qstr( $VAR['displayName']   ).",
-							EMPLOYEE_SSN				=". $db->qstr( $VAR['']              ).",
-							EMPLOYEE_ADDRESS		=". $db->qstr( $VAR['address']       ).",
-							EMPLOYEE_CITY			=". $db->qstr( $VAR['city']          ).",
-							EMPLOYEE_STATE			=". $db->qstr( $VAR['state']         ).", 
-							EMPLOYEE_ZIP 			=". $db->qstr( $VAR['zip']           ).",
-							EMPLOYEE_TYPE			=". $db->qstr( $VAR['type']          ).", 
-							EMPLOYEE_WORK_PHONE	=". $db->qstr( $VAR['workPhone']     ).",
-							EMPLOYEE_HOME_PHONE 	=". $db->qstr( $VAR['homePhone']     ).",
-							EMPLOYEE_MOBILE_PHONE	=". $db->qstr( $VAR['mobilePhone']   ).",
-							EMPLOYEE_STATUS			=". $db->qstr( $VAR['active']        ); 
-	} else {
-		$update ="		SET
-							EMPLOYEE_EMAIL			=". $db->qstr( $VAR['email']         ).",
-							EMPLOYEE_FIRST_NAME		=". $db->qstr( $VAR['firstName']     ).",
-							EMPLOYEE_LAST_NAME		=". $db->qstr( $VAR['lastName']      ).",
-							EMPLOYEE_DISPLAY_NAME =". $db->qstr( $VAR['displayName']   ).",
-							EMPLOYEE_SSN				=". $db->qstr( $VAR['']              ).",
-							EMPLOYEE_ADDRESS		=". $db->qstr( $VAR['address']       ).",
-							EMPLOYEE_CITY			=". $db->qstr( $VAR['city']          ).",
-							EMPLOYEE_STATE			=". $db->qstr( $VAR['state']         ).", 
-							EMPLOYEE_ZIP 			=". $db->qstr( $VAR['zip']           ).",
-							EMPLOYEE_TYPE			=". $db->qstr( $VAR['type']          ).", 
-							EMPLOYEE_WORK_PHONE	=". $db->qstr( $VAR['workPhone']     ).",
-							EMPLOYEE_HOME_PHONE 	=". $db->qstr( $VAR['homePhone']     ).",
-							EMPLOYEE_MOBILE_PHONE	=". $db->qstr( $VAR['mobilePhone']   ).",
-							EMPLOYEE_STATUS			=". $db->qstr( $VAR['active']        ); 
-	}
+			$update = "SET EMPLOYEE_PASSWD  		=". $db->qstr( md5($VAR['password']) ).",
+								EMPLOYEE_EMAIL			=". $db->qstr( $VAR['email']         ).", 
+								EMPLOYEE_FIRST_NAME		=". $db->qstr( $VAR['firstName']     ).",
+								EMPLOYEE_LAST_NAME		=". $db->qstr( $VAR['lastName']      ).",
+								EMPLOYEE_DISPLAY_NAME =". $db->qstr( $VAR['displayName']   ).",
+								EMPLOYEE_ADDRESS		=". $db->qstr( $VAR['address']       ).",
+								EMPLOYEE_CITY			=". $db->qstr( $VAR['city']          ).",
+								EMPLOYEE_STATE			=". $db->qstr( $VAR['state']         ).", 
+								EMPLOYEE_ZIP 			=". $db->qstr( $VAR['zip']           ).",
+								EMPLOYEE_TYPE			=". $db->qstr( $VAR['type']          ).", 
+								EMPLOYEE_WORK_PHONE	=". $db->qstr( $VAR['workPhone']     ).",
+								EMPLOYEE_HOME_PHONE 	=". $db->qstr( $VAR['homePhone']     ).",
+								EMPLOYEE_MOBILE_PHONE	=". $db->qstr( $VAR['mobilePhone']   ).",
+								EMPLOYEE_STATUS			=". $db->qstr( $VAR['active']        ); 
+		} else {
+			$update ="		SET
+								EMPLOYEE_EMAIL			=". $db->qstr( $VAR['email']         ).",
+								EMPLOYEE_FIRST_NAME		=". $db->qstr( $VAR['firstName']     ).",
+								EMPLOYEE_LAST_NAME		=". $db->qstr( $VAR['lastName']      ).",
+								EMPLOYEE_DISPLAY_NAME =". $db->qstr( $VAR['displayName']   ).",
+								EMPLOYEE_ADDRESS		=". $db->qstr( $VAR['address']       ).",
+								EMPLOYEE_CITY			=". $db->qstr( $VAR['city']          ).",
+								EMPLOYEE_STATE			=". $db->qstr( $VAR['state']         ).", 
+								EMPLOYEE_ZIP 			=". $db->qstr( $VAR['zip']           ).",
+								EMPLOYEE_TYPE			=". $db->qstr( $VAR['type']          ).", 
+								EMPLOYEE_WORK_PHONE	=". $db->qstr( $VAR['workPhone']     ).",
+								EMPLOYEE_HOME_PHONE 	=". $db->qstr( $VAR['homePhone']     ).",
+								EMPLOYEE_MOBILE_PHONE	=". $db->qstr( $VAR['mobilePhone']   ).",
+								EMPLOYEE_STATUS			=". $db->qstr( $VAR['active']        ); 
+		}
 
 	$q = "UPDATE ".PRFX."TABLE_EMPLOYEE ". $update ."
 			WHERE  EMPLOYEE_ID= ".$db->qstr($VAR['employee_id']);

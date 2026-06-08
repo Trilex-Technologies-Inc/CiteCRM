@@ -25,9 +25,26 @@
 			{/if}
 
 			{section name=q loop=$company}
-				<form method="POST" action="?page=control:company_edit">
+				<form method="POST" action="?page=control:company_edit" enctype="multipart/form-data">
 
 					<div class="row g-3">
+
+						<!-- Company Logo -->
+						<div class="col-12">
+							<label class="form-label">Company Logo</label>
+							<div class="d-flex align-items-center gap-3 flex-wrap">
+								{if $company_logo_url|default:'' != ''}
+									<img src="{$company_logo_url}" alt="{$company[q].COMPANY_NAME|default:'Company Logo'|escape}" style="max-height: 64px; max-width: 160px; width: auto; height: auto;" class="border rounded bg-white p-1">
+								{else}
+									<span class="small text-muted">No logo uploaded yet.</span>
+								{/if}
+
+								<div class="flex-grow-1">
+									<input type="file" class="form-control" name="company_logo" accept="image/*">
+									<div class="form-text">PNG/JPG/GIF/WEBP. Recommended: square logo (e.g. 256×256).</div>
+								</div>
+							</div>
+						</div>
 
 						<!-- Company Info -->
 						<div class="col-md-6">
@@ -113,6 +130,12 @@
 								   {if $setup[w].PDF_PRINT == 1}checked{/if}>
 							<label class="form-check-label">Enable PDF Printing</label>
 						</div>
+						<div class="mb-3>
+				<label class="form-label">Tax ID</label>
+				<input type="text" class="form-control w-25"
+					   name="company_tax_id"
+					   value="{$company[q].COMPANY_TAX_ID}">
+			</div>
 
 						<div class="mb-3">
 							<label class="form-label">Tax Amount (%)</label>
@@ -134,64 +157,6 @@
 							<textarea class="form-control"
 									  rows="3"
 									  name="welcome">{$setup[w].WELCOME_NOTE}</textarea>
-						</div>
-
-						<hr class="my-4">
-
-						<!-- Parts Settings -->
-						<h6>Parts Ordering Settings</h6>
-
-						<div class="row g-3">
-
-							<div class="col-md-6">
-								<label class="form-label">Parts Login</label>
-								<input type="text" class="form-control"
-									   name="parts_login"
-									   value="{$setup[w].PARTS_LOGIN}">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">Parts Password</label>
-								<input type="password" class="form-control"
-									   name="parts_password">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">Parts Markup (%)</label>
-								<input type="text" class="form-control"
-									   name="parts_markup"
-									   value="{$setup[w].PARTS_MARKUP}">
-							</div>
-
-						</div>
-
-						<hr class="my-4">
-
-						<!-- UPS Settings -->
-						<h6>UPS Shipping Settings</h6>
-
-						<div class="row g-3">
-
-							<div class="col-md-6">
-								<label class="form-label">UPS Login</label>
-								<input type="text" class="form-control"
-									   name="ups_login"
-									   value="{$setup[w].UPS_LOGIN}">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">UPS Password</label>
-								<input type="password" class="form-control"
-									   name="ups_password">
-							</div>
-
-							<div class="col-md-6">
-								<label class="form-label">UPS Access Key</label>
-								<input type="text" class="form-control"
-									   name="ups_access_key"
-									   value="{$setup[w].UPS_ACCESS_KEY}">
-							</div>
-
 						</div>
 
 					{/section}

@@ -12,11 +12,12 @@
 		<billing_trans_log>Transaction Log</billing_trans_log>
 		<billing_trans>Trans Id</billing_trans>
 		<billing_type>Type</billing_type>
-		<billing_credit_card>Credit Card</billing_credit_card>
+		<billing_credit_card>Authorize.Net (Credit Card)</billing_credit_card>
 		<billing_check>Check</billing_check>
 		<billing_cash>Cash</billing_cash>
 		<billing_gift>Gift Certificate</billing_gift>
 		<billing_paypal>Pay Pal</billing_paypal>
+		<billing_stripe>Stripe</billing_stripe>
 		<billing_memo>Memo:</billing_memo>
 		<billing_cc_num>Card Number</billing_cc_num>
 		<billing_type>Type</billing_type>
@@ -24,7 +25,7 @@
 		<billing_exp>Expiration</billing_exp>
 		<billing_check_no>Document #</billing_check_no>
 		<billing_gift_code>Gift Code</billing_gift_code>
-		<billing_gift_code_2>Enter the 16 digit code</billing_gift_code_2>
+		<billing_gift_code_2>Enter the 13 digit code</billing_gift_code_2>
 		<billing_gift_code_3>Redemption Code:</billing_gift_code_3>
 		<billing_created>Created:</billing_created>
 		<billing_expires>Expires:</billing_expires>

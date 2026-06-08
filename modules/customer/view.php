@@ -18,6 +18,7 @@ if(!xml2php("customer")) {
 }
 
 $alpha = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
+$smarty->assign('has_brand_new_column', customer_has_brand_new_column($db));
 
 	if(!isset($VAR["page_no"])) {
 		$page_no = 1;

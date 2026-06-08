@@ -68,7 +68,7 @@ function validate_new_workorder(frm) {
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>{$translate_workorder_new_title}</h3>
         <a href="http://www.citecrm.com/docs/#work_orders" target="_blank">
-            <img src="images/icons/16x16/help.gif" alt="Help">
+            <i class="bi bi-question-circle-fill fs-5 text-secondary" aria-hidden="true"></i>
         </a>
     </div>
 
@@ -82,8 +82,10 @@ function validate_new_workorder(frm) {
         <div class="card-header d-flex justify-content-between">
             <span>{$translate_workorder_cutomer_contact_title}</span>
             <a href="?page=customer:edit&customer_id={$customer_details[i].CUSTOMER_ID}">
-                <img src="images/icons/16x16/small_edit.gif" alt="Edit Customer" 
-                     onMouseOver="ddrivetip('Edit Customer')" onMouseOut="hideddrivetip()">
+                <i class="bi bi-pencil-square text-secondary fs-5"
+                   aria-hidden="true"
+                   onMouseOver="ddrivetip('Edit Customer')"
+                   onMouseOut="hideddrivetip()"></i>
             </a>
         </div>
         <div class="card-body">

@@ -1,25 +1,16 @@
 <!-- Add New Customer results TPL -->
 <table width="100%" cellpadding="0" cellspacing="0" class="olotable">
 	<tr>
-		<td class="olohead">
-			<!-- Tool Bar -->
-			<table  class="toolbar" cellpadding="0" cellspacing="0" width="100%">
-				<tr>
-					<td >
-						<table  cellpadding="4" cellspacing="0">
-							<tr>
-		   						{include file="core/tool_bar.tpl"}
-								<td class="button">	
-									<a href="?page=customer:new">
-										<img src="images/icons/new_employee.gif" border="0"
-											onMouseOver="ddrivetip('Add New Employee')" onMouseOut="hideddrivetip()">
-									</a>
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
+			<td class="olohead">
+				<!-- Tool Bar -->
+				<div class="mb-3 d-flex align-items-center justify-content-between">
+					<div class="flex-grow-1">
+						{include file="core/tool_bar.tpl"}
+					</div>
+					<a class="btn btn-sm btn-primary" href="?page=employees:new&page_title=New Employee">
+						Add
+					</a>
+				</div>
 			<table width="100%" border="0" cellpadding="8" cellspacing="0">
 				<tr>
 					<td class="olotd">

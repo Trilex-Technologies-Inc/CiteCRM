@@ -143,7 +143,7 @@
                            class="form-control">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">
                         <span class="text-danger">*</span>
                         <strong>{$translate_customer_state}</strong>
@@ -154,15 +154,31 @@
                            class="form-control">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">
+                        <strong>{$translate_customer_country}</strong>
+                    </label>
+                    <select name="country" class="form-select">
+                        <option value="">Select country</option>
+                        {section name=c loop=$country}
+                            <option value="{$country[c].code}"
+                                {if $customer[q].CUSTOMER_COUNTRY == $country[c].code}selected{/if}>
+                                {$country[c].name}
+                            </option>
+                        {/section}
+                    </select>
+                </div>
+
+                <div class="col-md-3 mb-3">
                     <label class="form-label">
                         <span class="text-danger">*</span>
                         <strong>{$translate_customer_zip}</strong>
                     </label>
                     <input type="text"
-                           name="zip"
-                           value="{$customer[q].CUSTOMER_ZIP}"
-                           class="form-control">
+	                       name="zip"
+	                       value="{$customer[q].CUSTOMER_ZIP}"
+	                       maxlength="20"
+	                       class="form-control">
                 </div>
             </div>
 
@@ -211,6 +227,17 @@
                     <span class="input-group-text">%</span>
                 </div>
             </div>
+
+            {if $has_brand_new_column}
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="brand_new" name="brand_new" value="1" {if $customer[q].CUSTOMER_BRAND_NEW == 1}checked{/if}>
+                    <label class="form-check-label" for="brand_new">Brand new</label>
+                </div>
+            {else}
+                <div class="alert alert-warning mb-3">
+                    Your database is missing the optional <code>CUSTOMER_BRAND_NEW</code> column. Run the upgrade SQL to enable the “Brand new” customer flag.
+                </div>
+            {/if}
 
             <div class="mt-4">
                 <input name="submit" value="Submit" type="submit" class="btn btn-primary">

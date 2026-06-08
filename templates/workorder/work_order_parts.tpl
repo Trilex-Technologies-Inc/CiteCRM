@@ -1,6 +1,17 @@
 <div class="card mb-3">
-	<div class="card-header">
-		{$translate_workorder_parts}
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<span>{$translate_workorder_parts}</span>
+		{if $single_workorder_array[i].WORK_ORDER_STATUS != 6}
+			{if $part|default:0 == 0}
+				<a class="btn btn-sm btn-primary"
+				   href="?page=parts:main&wo_id={$single_workorder_array[i].WORK_ORDER_ID}&page_title=New%20Parts%20Order"
+				   data-bs-toggle="tooltip"
+				   title="New Part Order">
+					<i class="bi bi-cart-plus me-1" aria-hidden="true"></i>
+					New Part Order
+				</a>
+			{/if}
+		{/if}
 	</div>
 
 	<div class="card-body p-0">
@@ -17,6 +28,7 @@
 						<th>Shipping</th>
 						<th>Total</th>
 						<th>Tracking</th>
+						<th>Action</th>
 						<th>Status</th>
 					</tr>
 					</thead>
@@ -35,10 +47,16 @@
 						<td>${$order[p].TOTAL}</td>
 						<td>
 							{if $order[p].TRACKING_NO == 0}
-								<a href="">Get Tracking</a>
+								<a href="?page=parts:ship&order_id={$order[p].ORDER_ID}&page_title=Send%20Product">Send Product</a>
 							{else}
-								{$order[p].TRACKING_NO}
+								<a href="?page=parts:tracking&invoice_id={$order[p].INVOICE_ID}&order_id={$order[p].ORDER_ID}">{$order[p].TRACKING_NO}</a>
 							{/if}
+						</td>
+						<td>
+							<a class="btn btn-sm btn-outline-primary"
+							   href="?page=parts:ship&order_id={$order[p].ORDER_ID}&page_title=Send%20Product">
+								Send Product
+							</a>
 						</td>
 						<td>
 							{if $order[p].STATUS == '1'}Open{/if}

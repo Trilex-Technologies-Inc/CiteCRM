@@ -15,10 +15,17 @@ if(!xml2php("invoice")) {
 	$smarty->assign('error_msg',"Error in language file");
 }
 
-// Grab customers Information
-$wo_id       = isset($VAR['wo_id']) ? $VAR['wo_id'] : null;
-$customer_id = isset($VAR['customer_id']) ? $VAR['customer_id'] : null;
-$submit      = isset($VAR['submit']) ? $VAR['submit'] : null;
+	// Grab customers Information
+	$wo_id       = isset($VAR['wo_id']) ? $VAR['wo_id'] : null;
+	$customer_id = null;
+	if (isset($VAR['customer_id'])) {
+		$customer_id = $VAR['customer_id'];
+	} elseif (isset($VAR['customer_ID'])) { // legacy
+		$customer_id = $VAR['customer_ID'];
+	} elseif (isset($VAR['CUSTOMER_ID'])) { // legacy
+		$customer_id = $VAR['CUSTOMER_ID'];
+	}
+	$submit      = isset($VAR['submit']) ? $VAR['submit'] : null;
 
 
 /* Generic error control */
@@ -35,16 +42,24 @@ if(!$wo_id) {
 	$smarty->assign('wo_id', $wo_id);
 }
 	
-/* check if we have a customer id and if so get details */
-if($customer_id == "" || $customer_id == "0"){
+	/* check if we have a customer id and if so get details */
+	if($customer_id == "" || $customer_id == "0"){
+		// Try to infer customer from the work order (common when POSTing the form without customer_id in the action URL)
+		$q = "SELECT CUSTOMER_ID FROM ".PRFX."TABLE_WORK_ORDER WHERE WORK_ORDER_ID=".$db->qstr($wo_id)." LIMIT 1";
+		if($rs = $db->execute($q)) {
+			$customer_id = $rs->fields['CUSTOMER_ID'];
+		}
+	}
+
+	if($customer_id == "" || $customer_id == "0"){
 		force_page('core', 'error&error_msg=No Customer ID&menu=1');
 		exit;
-} else {
-	$q = "SELECT * FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_ID=".$db->qstr($customer_id);
-	if(!$rs = $db->execute($q)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1');
-		exit;
-	}
+	} else {
+		$q = "SELECT * FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_ID=".$db->qstr($customer_id);
+		if(!$rs = $db->execute($q)) {
+			force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1');
+			exit;
+		}
 
 	$customer_details = $rs->GetAssoc();
 
@@ -70,11 +85,11 @@ if(isset($submit)){
 	$due_date			= strtotime($VAR['due_date']);
 	$create_by		= $VAR['create_by'];
 	$wo_id				= $VAR['wo_id'];
-	$sub_total     = number_format($VAR['sub_total'], 2,'.', '');
-	$shipping      = number_format($VAR['shipping'], 2,'.', '');
+	$sub_total     = number_format(isset($VAR['sub_total']) ? $VAR['sub_total'] : 0, 2,'.', '');
+	$shipping      = number_format(isset($VAR['shipping']) ? $VAR['shipping'] : 0, 2,'.', '');
 
 	/* insert Labor into database */
-	if($VAR['hour'] > 0 ) {
+	if(isset($VAR['hour']) && is_array($VAR['hour']) && count($VAR['hour']) > 0 ) {
 		$i = 1;
 		$sql = "INSERT INTO ".PRFX."TABLE_INVOICE_LABOR (INVOICE_ID, EMPLOYEE_ID, INVOICE_LABOR_DESCRIPTION, INVOICE_LABOR_RATE, INVOICE_LABOR_UNIT, INVOICE_LABOR_SUBTOTAL) VALUES ";
 		
@@ -96,7 +111,7 @@ if(isset($submit)){
 	}
 	
 	/* insert Parts if set */
-	if($VAR['count'] > 0 ) {
+	if(isset($VAR['count']) && is_array($VAR['count']) && count($VAR['count']) > 0 ) {
 		$i = 1;
 		$sql = "INSERT INTO ".PRFX."TABLE_INVOICE_PARTS (INVOICE_ID,INVOICE_PARTS_MANUF,INVOCIE_PARTS_MFID,INVOICE_PARTS_DESCRIPTION,INVOICE_PARTS_WARANTY,INVOICE_PARTS_AMOUNT,INVOICE_PARTS_COUNT,INVOICE_PARTS_SUBTOTA) VALUES ";
 		foreach($VAR['count'] as $key=>$val) {

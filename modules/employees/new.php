@@ -17,6 +17,7 @@ $VAR['page_title'] = "Add New Employee";
  
 if(isset($VAR['submit'])) {
 	$smarty->assign('VAR', $VAR);
+	$smarty->assign('employee_type', employee_type($db));
 	
 	if (!check_employee_ex($db,$VAR)) {
 			$smarty->assign('error_msg', 'The employees Display Name, '.$VAR["displayName"].',  already exists! Please use a differnt name.');
@@ -32,6 +33,7 @@ if(isset($VAR['submit'])) {
 
 } else {
 
+	$smarty->assign('employee_type', employee_type($db));
 	$smarty->display('employees'.SEP.'new.tpl');
 
 }

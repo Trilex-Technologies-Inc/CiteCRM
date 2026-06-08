@@ -10,29 +10,41 @@
 #																	#
 ####################################################
 /* load translation for this module */
-if(!xml2php("employees")) {
-	$smarty->assign('error_msg',"Error in language file");
+if (!xml2php("employees")) {
+	$smarty->assign('error_msg', "Error in language file");
 }
 
 #####################################
 #	Display							#
 #####################################
 
-function display_customer_info($db, $customer_id){
+function customer_has_brand_new_column($db)
+{
+	static $has_column = null;
+	if ($has_column !== null) {
+		return $has_column;
+	}
+	$rs_cols = $db->Execute("SHOW COLUMNS FROM " . PRFX . "TABLE_CUSTOMER LIKE 'CUSTOMER_BRAND_NEW'");
+	$has_column = ($rs_cols && !$rs_cols->EOF);
+	return $has_column;
+}
 
-	$sql = "SELECT * FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_ID=".$db->qstr($customer_id);
-	
-	if(!$result = $db->Execute($sql)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+function display_customer_info($db, $customer_id)
+{
+
+	$sql = "SELECT * FROM " . PRFX . "TABLE_CUSTOMER WHERE CUSTOMER_ID=" . $db->qstr($customer_id);
+
+	if (!$result = $db->Execute($sql)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
 		exit;
 	} else {
 		$customer_array = array();
 	}
-	
-	while($row = $result->FetchRow()){
-		 array_push($customer_array, $row);
+
+	while ($row = $result->FetchRow()) {
+		array_push($customer_array, $row);
 	}
-	
+
 	return $customer_array;
 }
 
@@ -41,109 +53,111 @@ function display_customer_info($db, $customer_id){
 #	Search							#
 #####################################
 
-function display_customer_search($db, $name, $page_no, $smarty) {
-    global $smarty;
-    
-    // Define the number of results per page
-    $max_results = 10;
-    
-    // Figure out the limit for the Execute based
-    // on the current page number.
-    $from = (($page_no * $max_results) - $max_results);  
-    
-    $sql = "SELECT * FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME LIKE ". $db->qstr("$name%") ." ORDER BY CUSTOMER_DISPLAY_NAME LIMIT $from, $max_results";
-    
-    //print $sql;
-    
-    if(!$result = $db->Execute($sql)) {
-        force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-        exit;
-    } else {
-        $customer_search_result = array();
-    }
-    
-    while($row = $result->FetchRow()){
-         array_push($customer_search_result, $row);
-    }
-    
-    // Figure out the total number of results in DB: 
-    $results = $db->Execute("SELECT COUNT(*) as Num FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME LIKE ".$db->qstr("$name%") );
-    
-    if(!$total_results = $results->FetchRow()) {
-        force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-        exit;
-    } else {
-        $smarty->assign('total_results', $total_results['Num']);
-    }
-        
-    // Figure out the total number of pages. Always round up using ceil()
-    $total_pages = ceil($total_results["Num"] / $max_results); 
-    $smarty->assign('total_pages', $total_pages);
-    
-    // Initialize prev and next variables
-    $prev = 0;
-    $next = 0;
-    
-    // Assign the first page
-    if($page_no > 1) {
-        $prev = ($page_no - 1);     
-    }     
+function display_customer_search($db, $name, $page_no, $smarty)
+{
+	global $smarty;
 
-    // Build Next Link
-    if($page_no < $total_pages){
-        $next = ($page_no + 1); 
-    }
-    
-    $smarty->assign('name', $name);
-    $smarty->assign('page_no', $page_no);
-    $smarty->assign("previous", $prev);    
-    $smarty->assign("next", $next);
-    
-    return $customer_search_result;
+	// Define the number of results per page
+	$max_results = 10;
+
+	// Figure out the limit for the Execute based
+	// on the current page number.
+	$from = (($page_no * $max_results) - $max_results);
+
+	$sql = "SELECT * FROM " . PRFX . "TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME LIKE " . $db->qstr("$name%") . " ORDER BY CUSTOMER_DISPLAY_NAME LIMIT $from, $max_results";
+
+	//print $sql;
+
+	if (!$result = $db->Execute($sql)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+		exit;
+	} else {
+		$customer_search_result = array();
+	}
+
+	while ($row = $result->FetchRow()) {
+		array_push($customer_search_result, $row);
+	}
+
+	// Figure out the total number of results in DB: 
+	$results = $db->Execute("SELECT COUNT(*) as Num FROM " . PRFX . "TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME LIKE " . $db->qstr("$name%"));
+
+	if (!$total_results = $results->FetchRow()) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+		exit;
+	} else {
+		$smarty->assign('total_results', $total_results['Num']);
+	}
+
+	// Figure out the total number of pages. Always round up using ceil()
+	$total_pages = ceil($total_results["Num"] / $max_results);
+	$smarty->assign('total_pages', $total_pages);
+
+	// Initialize prev and next variables
+	$prev = 0;
+	$next = 0;
+
+	// Assign the first page
+	if ($page_no > 1) {
+		$prev = ($page_no - 1);
+	}
+
+	// Build Next Link
+	if ($page_no < $total_pages) {
+		$next = ($page_no + 1);
+	}
+
+	$smarty->assign('name', $name);
+	$smarty->assign('page_no', $page_no);
+	$smarty->assign("previous", $prev);
+	$smarty->assign("next", $next);
+
+	return $customer_search_result;
 }
 
 ###############################
 #	Open Work Orders				#
 ##############################
 
-function display_open_workorders($db, $customer_id){
+function display_open_workorders($db, $customer_id)
+{
 
-$sql = "SELECT ".PRFX."TABLE_WORK_ORDER.*,
-			 ".PRFX."TABLE_CUSTOMER.*,
-			 ".PRFX."TABLE_EMPLOYEE.*,
-			 ".PRFX."TABLE_SCHEDUAL.SCHEDUAL_START,
-			 ".PRFX."TABLE_SCHEDUAL.SCHEDUAL_END, 
-			 ".PRFX."TABLE_SCHEDUAL.SCHEDUAL_NOTES,
-			 ".PRFX."CONFIG_WORK_ORDER_STATUS.CONFIG_WORK_ORDER_STATUS
-			 FROM ".PRFX."TABLE_WORK_ORDER
-			 LEFT JOIN ".PRFX."TABLE_CUSTOMER ON ".PRFX."TABLE_WORK_ORDER.CUSTOMER_ID 				= ".PRFX."TABLE_CUSTOMER.CUSTOMER_ID
-			 LEFT JOIN ".PRFX."TABLE_EMPLOYEE ON ".PRFX."TABLE_WORK_ORDER.WORK_ORDER_ASSIGN_TO 	= ".PRFX."TABLE_EMPLOYEE.EMPLOYEE_ID
-			 LEFT JOIN ".PRFX."TABLE_SCHEDUAL ON ".PRFX."TABLE_WORK_ORDER.WORK_ORDER_ID 				= ".PRFX."TABLE_SCHEDUAL.WORK_ORDER_ID
-			 LEFT JOIN ".PRFX."CONFIG_WORK_ORDER_STATUS ON ".PRFX."TABLE_WORK_ORDER.WORK_ORDER_CURENT_STATUS = ".PRFX."CONFIG_WORK_ORDER_STATUS.CONFIG_WORK_ORDER_STATUS_ID 
-			 WHERE ".PRFX."TABLE_WORK_ORDER.WORK_ORDER_STATUS ='10' AND ".PRFX."TABLE_WORK_ORDER.CUSTOMER_ID=".$db->qstr($customer_id);
+	$sql = "SELECT " . PRFX . "TABLE_WORK_ORDER.*,
+			 " . PRFX . "TABLE_CUSTOMER.*,
+			 " . PRFX . "TABLE_EMPLOYEE.*,
+			 " . PRFX . "TABLE_SCHEDUAL.SCHEDUAL_START,
+			 " . PRFX . "TABLE_SCHEDUAL.SCHEDUAL_END, 
+			 " . PRFX . "TABLE_SCHEDUAL.SCHEDUAL_NOTES,
+			 " . PRFX . "CONFIG_WORK_ORDER_STATUS.CONFIG_WORK_ORDER_STATUS
+			 FROM " . PRFX . "TABLE_WORK_ORDER
+			 LEFT JOIN " . PRFX . "TABLE_CUSTOMER ON " . PRFX . "TABLE_WORK_ORDER.CUSTOMER_ID 				= " . PRFX . "TABLE_CUSTOMER.CUSTOMER_ID
+			 LEFT JOIN " . PRFX . "TABLE_EMPLOYEE ON " . PRFX . "TABLE_WORK_ORDER.WORK_ORDER_ASSIGN_TO 	= " . PRFX . "TABLE_EMPLOYEE.EMPLOYEE_ID
+			 LEFT JOIN " . PRFX . "TABLE_SCHEDUAL ON " . PRFX . "TABLE_WORK_ORDER.WORK_ORDER_ID 				= " . PRFX . "TABLE_SCHEDUAL.WORK_ORDER_ID
+			 LEFT JOIN " . PRFX . "CONFIG_WORK_ORDER_STATUS ON " . PRFX . "TABLE_WORK_ORDER.WORK_ORDER_CURENT_STATUS = " . PRFX . "CONFIG_WORK_ORDER_STATUS.CONFIG_WORK_ORDER_STATUS_ID 
+			 WHERE " . PRFX . "TABLE_WORK_ORDER.WORK_ORDER_STATUS ='10' AND " . PRFX . "TABLE_WORK_ORDER.CUSTOMER_ID=" . $db->qstr($customer_id);
 
-	if(!$result = $db->Execute($sql)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+	if (!$result = $db->Execute($sql)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
 		exit;
 	} else {
 		$open_work_orders_array = $result->GetArray();
 	}
-	
+
 	return $open_work_orders_array;
-	
 }
 
 #####################################
 #   Unpaid Invoices                 #
 #####################################
 
-function display_unpaid_invoices($db,$customer_id){
-	$q = "SELECT ".PRFX."TABLE_INVOICE.*, ".PRFX."TABLE_EMPLOYEE.EMPLOYEE_DISPLAY_NAME 
-			FROM ".PRFX."TABLE_INVOICE
-			LEFT JOIN ".PRFX."TABLE_EMPLOYEE ON (".PRFX."TABLE_INVOICE.EMPLOYEE_ID = ".PRFX."TABLE_EMPLOYEE.EMPLOYEE_ID) WHERE CUSTOMER_ID=".$db->qstr($customer_id)." AND INVOICE_PAID='0' ";
-	
-	if(!$rs = $db->execute($q)){
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+function display_unpaid_invoices($db, $customer_id)
+{
+	$q = "SELECT " . PRFX . "TABLE_INVOICE.*, " . PRFX . "TABLE_EMPLOYEE.EMPLOYEE_DISPLAY_NAME 
+			FROM " . PRFX . "TABLE_INVOICE
+			LEFT JOIN " . PRFX . "TABLE_EMPLOYEE ON (" . PRFX . "TABLE_INVOICE.EMPLOYEE_ID = " . PRFX . "TABLE_EMPLOYEE.EMPLOYEE_ID) WHERE CUSTOMER_ID=" . $db->qstr($customer_id) . " AND INVOICE_PAID='0' ";
+
+	if (!$rs = $db->execute($q)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
 		exit;
 	} else {
 		$unpaid_invoices = $rs->GetArray();
@@ -155,45 +169,46 @@ function display_unpaid_invoices($db,$customer_id){
 #   Paid Invoices	                #
 ###################################
 
-function display_paid_invoices($db,$customer_id){
+function display_paid_invoices($db, $customer_id)
+{
 
-	$q = "SELECT ".PRFX."TABLE_INVOICE.*, ".PRFX."TABLE_EMPLOYEE.EMPLOYEE_DISPLAY_NAME 
-			FROM ".PRFX."TABLE_INVOICE
-			LEFT JOIN ".PRFX."TABLE_EMPLOYEE ON (".PRFX."TABLE_INVOICE.EMPLOYEE_ID = ".PRFX."TABLE_EMPLOYEE.EMPLOYEE_ID)
-			WHERE CUSTOMER_ID=".$db->qstr($customer_id)." AND INVOICE_PAID='1' ";
-	
-	if(!$rs = $db->execute($q)){
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;	
+	$q = "SELECT " . PRFX . "TABLE_INVOICE.*, " . PRFX . "TABLE_EMPLOYEE.EMPLOYEE_DISPLAY_NAME 
+			FROM " . PRFX . "TABLE_INVOICE
+			LEFT JOIN " . PRFX . "TABLE_EMPLOYEE ON (" . PRFX . "TABLE_INVOICE.EMPLOYEE_ID = " . PRFX . "TABLE_EMPLOYEE.EMPLOYEE_ID)
+			WHERE CUSTOMER_ID=" . $db->qstr($customer_id) . " AND INVOICE_PAID='1' ";
+
+	if (!$rs = $db->execute($q)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+		exit;
 	} else {
 		$paid_invoices = $rs->GetArray();
 	}
-	
-	return $paid_invoices;
 
+	return $paid_invoices;
 }
 
 #####################################
 #	Validation						#
 #####################################
 
-function checkPhone($phone){
+function checkPhone($phone)
+{
 
 	$match =  "/^(\d{3}\-\d{3}\-\d{4})$/";
-	
-	if(preg_match($match, $phone)) {
+
+	if (preg_match($match, $phone)) {
 		return true;
 	} else {
 		return false;
 	}
-      
 }
-    
-function checkZip($zip){
+
+function checkZip($zip)
+{
 
 	$match = "/[^0-9]+$/ ";
-	
-	if(preg_match($match, $zip)) {
+
+	if (preg_match($match, $zip)) {
 		return true;
 	} else {
 		return false;
@@ -203,66 +218,115 @@ function checkZip($zip){
 #####################################
 #	Duplicate						#
 #####################################
-	
-function check_customer_ex($db, $displayName) {
-	$sql = "SELECT COUNT(*) AS num_users FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME=".$db->qstr($displayName);
-	
-	if(!$result = $db->Execute($sql)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+
+function check_customer_ex($db, $displayName)
+{
+	$sql = "SELECT COUNT(*) AS num_users FROM " . PRFX . "TABLE_CUSTOMER WHERE CUSTOMER_DISPLAY_NAME=" . $db->qstr($displayName);
+
+	if (!$result = $db->Execute($sql)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
 		exit;
 	} else {
 		$row = $result->FetchRow();
 	}
 
 	if ($row['num_users'] == 1) {
-		return false;	
+		return false;
 	} else {
 		return true;
 	}
+}
+
+function _get_customer_zip_maxlen($db)
+{
+	static $max_len = null;
+	if ($max_len !== null) {
+		return $max_len;
+	}
+
+	// Default to the historical schema width (prevents "Data too long..." errors).
+	$max_len = 8;
+	$q = "SHOW COLUMNS FROM " . PRFX . "TABLE_CUSTOMER LIKE 'CUSTOMER_ZIP'";
+	if ($rs = $db->Execute($q)) {
+		$row = $rs->FetchRow();
+		if (isset($row['Type'])) {
+			if (preg_match('/varchar\\((\\d+)\\)/i', $row['Type'], $m)) {
+				$max_len = (int)$m[1];
+			}
+		}
+	}
+
+	if ($max_len < 1) {
+		$max_len = 8;
+	}
+	return $max_len;
+}
+
+function _normalize_customer_zip($db, $zip)
+{
+	$zip = isset($zip) ? trim((string)$zip) : '';
+	$max_len = _get_customer_zip_maxlen($db);
+	if (strlen($zip) > $max_len) {
+		$zip = substr($zip, 0, $max_len);
+	}
+	return $zip;
 }
 
 #####################################
 #	Add								#
 #####################################
 
-function insert_new_customer($db,$VAR) {
+function insert_new_customer($db, $VAR)
+{
+	$VAR["zip"] = _normalize_customer_zip($db, isset($VAR["zip"]) ? $VAR["zip"] : '');
+	$country = isset($VAR["country"]) ? strtoupper(trim((string)$VAR["country"])) : '';
+	if ($country !== '') {
+		$country = substr($country, 0, 3);
+	}
+	$brand_new = (!empty($VAR['brand_new']) || (!empty($VAR['customer_brand_new']))) ? 1 : 0;
 
-	$sql = "INSERT INTO ".PRFX."TABLE_CUSTOMER SET
-			CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]  ).",
-			CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]      ).", 
-			CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]         ).", 
-			CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]        ).", 
-			CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]          ).",
-			CUSTOMER_PHONE			= ". $db->qstr( $VAR["homePhone"]    ).",
-			CUSTOMER_WORK_PHONE	= ". $db->qstr( $VAR["workPhone"]    ).",
-			CUSTOMER_MOBILE_PHONE	= ". $db->qstr( $VAR["mobilePhone"]  ).",
-			CUSTOMER_EMAIL			= ". $db->qstr( $VAR["email"]        ).", 
-			CUSTOMER_TYPE			= ". $db->qstr( $VAR["customerType"] ).", 
-			CREATE_DATE				= ". $db->qstr( time()                      ).",
-			LAST_ACTIVE				= ". $db->qstr( time()                      ).",
-			CUSTOMER_FIRST_NAME		= ". $db->qstr( $VAR["firstName"]    ).", 
-			DISCOUNT 					= ". $db->qstr( $VAR['discount']		).", 
-			CUSTOMER_LAST_NAME		= ". $db->qstr( $VAR["lastName"]     ); 
-			
-	if(!$result = $db->Execute($sql)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+	$sql = "INSERT INTO " . PRFX . "TABLE_CUSTOMER SET
+				CUSTOMER_DISPLAY_NAME	= " . $db->qstr($VAR["displayName"]) . ",
+				CUSTOMER_ADDRESS		= " . $db->qstr($VAR["address"]) . ", 
+				CUSTOMER_CITY			= " . $db->qstr($VAR["city"]) . ", 
+				CUSTOMER_STATE			= " . $db->qstr($VAR["state"]) . ", 
+				CUSTOMER_COUNTRY		= " . $db->qstr($country) . ", 
+				CUSTOMER_ZIP				= " . $db->qstr($VAR["zip"]) . ",
+			CUSTOMER_PHONE			= " . $db->qstr($VAR["homePhone"]) . ",
+			CUSTOMER_WORK_PHONE	= " . $db->qstr($VAR["workPhone"]) . ",
+			CUSTOMER_MOBILE_PHONE	= " . $db->qstr($VAR["mobilePhone"]) . ",
+			CUSTOMER_EMAIL			= " . $db->qstr($VAR["email"]) . ", 
+			CUSTOMER_TYPE			= " . $db->qstr($VAR["customerType"]) . ", 
+			CREATE_DATE				= " . $db->qstr(time()) . ",
+			LAST_ACTIVE				= " . $db->qstr(time()) . ",
+			CUSTOMER_FIRST_NAME		= " . $db->qstr($VAR["firstName"]) . ", 
+			DISCOUNT 					= " . $db->qstr($VAR['discount']) . ", 
+			CUSTOMER_LAST_NAME		= " . $db->qstr($VAR["lastName"]);
+
+	if (customer_has_brand_new_column($db)) {
+		$sql .= ",
+			CUSTOMER_BRAND_NEW		= " . $db->qstr($brand_new);
+	}
+
+	if (!$result = $db->Execute($sql)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
 		exit;
-    } else {
+	} else {
 		$customer_id = $db->Insert_ID();
 		return  $customer_id;
-    }
-	
-} 
+	}
+}
 
 #####################################
 #	Edit							#
 #####################################
 
-function edit_info($db, $customer_id){
-	$sql = "SELECT * FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_ID=".$db->qstr($customer_id);
-	
-	if(!$result = $db->Execute($sql)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+function edit_info($db, $customer_id)
+{
+	$sql = "SELECT * FROM " . PRFX . "TABLE_CUSTOMER WHERE CUSTOMER_ID=" . $db->qstr($customer_id);
+
+	if (!$result = $db->Execute($sql)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
 		exit;
 	} else {
 		$row = $result->FetchRow();
@@ -274,71 +338,87 @@ function edit_info($db, $customer_id){
 #	Update							#
 #####################################
 
-function update_customer($db,$VAR) {
+function update_customer($db, $VAR)
+{
+	$VAR["zip"] = _normalize_customer_zip($db, isset($VAR["zip"]) ? $VAR["zip"] : '');
+	$country = isset($VAR["country"]) ? strtoupper(trim((string)$VAR["country"])) : '';
+	if ($country !== '') {
+		$country = substr($country, 0, 3);
+	}
+	$brand_new = (!empty($VAR['brand_new']) || (!empty($VAR['customer_brand_new']))) ? 1 : 0;
 
-	$sql = "UPDATE ".PRFX."TABLE_CUSTOMER SET
-			CUSTOMER_DISPLAY_NAME	= ". $db->qstr( $VAR["displayName"]	).",
-			CUSTOMER_ADDRESS		= ". $db->qstr( $VAR["address"]		).", 
-			CUSTOMER_CITY			= ". $db->qstr( $VAR["city"]			).", 
-			CUSTOMER_STATE			= ". $db->qstr( $VAR["state"]			).", 
-			CUSTOMER_ZIP				= ". $db->qstr( $VAR["zip"]				).",
-			CUSTOMER_PHONE			= ". $db->qstr( $VAR["homePhone"]		).",
-			CUSTOMER_WORK_PHONE	= ". $db->qstr( $VAR["workPhone"]		).",
-			CUSTOMER_MOBILE_PHONE	= ". $db->qstr( $VAR["mobilePhone"]	).",
-			CUSTOMER_EMAIL			= ". $db->qstr( $VAR["email"]			).", 
-			CUSTOMER_TYPE			= ". $db->qstr( $VAR["customerType"]	).", 
-			CUSTOMER_FIRST_NAME		= ". $db->qstr( $VAR["firstName"]		).", 
-			CUSTOMER_LAST_NAME		= ". $db->qstr( $VAR["lastName"]		).",
-			DISCOUNT 					= ". $db->qstr( $VAR['discount']		)."
-			WHERE CUSTOMER_ID		= ". $db->qstr( $VAR['customer_id']	);
+	$sql = "UPDATE " . PRFX . "TABLE_CUSTOMER SET
+				CUSTOMER_DISPLAY_NAME	= " . $db->qstr($VAR["displayName"]) . ",
+				CUSTOMER_ADDRESS		= " . $db->qstr($VAR["address"]) . ", 
+				CUSTOMER_CITY			= " . $db->qstr($VAR["city"]) . ", 
+				CUSTOMER_STATE			= " . $db->qstr($VAR["state"]) . ", 
+				CUSTOMER_COUNTRY		= " . $db->qstr($country) . ", 
+				CUSTOMER_ZIP				= " . $db->qstr($VAR["zip"]) . ",
+			CUSTOMER_PHONE			= " . $db->qstr($VAR["homePhone"]) . ",
+			CUSTOMER_WORK_PHONE	= " . $db->qstr($VAR["workPhone"]) . ",
+			CUSTOMER_MOBILE_PHONE	= " . $db->qstr($VAR["mobilePhone"]) . ",
+			CUSTOMER_EMAIL			= " . $db->qstr($VAR["email"]) . ", 
+			CUSTOMER_TYPE			= " . $db->qstr($VAR["customerType"]) . ", 
+			CUSTOMER_FIRST_NAME		= " . $db->qstr($VAR["firstName"]) . ", 
+			CUSTOMER_LAST_NAME		= " . $db->qstr($VAR["lastName"]) . ",
+			DISCOUNT 					= " . $db->qstr($VAR['discount']);
 
-			
-	if(!$result = $db->Execute($sql)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+	if (customer_has_brand_new_column($db)) {
+		$sql .= ",
+			CUSTOMER_BRAND_NEW		= " . $db->qstr($brand_new);
+	}
+
+	$sql .= "
+			WHERE CUSTOMER_ID		= " . $db->qstr($VAR['customer_id']);
+
+
+	if (!$result = $db->Execute($sql)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
 		exit;
-    } else {
-      return true;
-    }
-	
-} 
+	} else {
+		return true;
+	}
+}
 
 #####################################
 #	Delete							#
 #####################################
 
-function delete_customer($db,$customer_id){
-	$sql = "DELETE FROM ".PRFX."TABLE_CUSTOMER WHERE CUSTOMER_ID=".$db->qstr($customer_id);
-	
-	if(!$rs = $db->Execute($sql)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
-		exit;	
+function delete_customer($db, $customer_id)
+{
+	$sql = "DELETE FROM " . PRFX . "TABLE_CUSTOMER WHERE CUSTOMER_ID=" . $db->qstr($customer_id);
+
+	if (!$rs = $db->Execute($sql)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+		exit;
 	} else {
 		return true;
-	}	
+	}
 }
 
 /* The select aray we will change this to database options later */
-	$customer_type = array('Residential'=>'Residential', 'Comercial'=>'Comercial');
+$customer_type = array('Residential' => 'Residential', 'Comercial' => 'Comercial');
 
-function display_gift($db, $customer_id) {
-	$q = "SELECT * FROM ".PRFX."GIFT_CERT WHERE CUSTOMER_ID=".$db->qstr( $customer_id );
-	if(!$rs = $db->execute($q)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+function display_gift($db, $customer_id)
+{
+	$q = "SELECT * FROM " . PRFX . "GIFT_CERT WHERE CUSTOMER_ID=" . $db->qstr($customer_id);
+	if (!$rs = $db->execute($q)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
 		exit;
 	}
-		
+
 	$arr = $rs->GetArray();
 	return $arr;
 }
 
-function display_memo($db,$customer_id) {
-	$q = "SELECT * FROM ".PRFX."CUSTOMER_NOTES WHERE CUSTOMER_ID=".$db->qstr( $customer_id );
-	if(!$rs = $db->execute($q)) {
-		force_page('core', 'error&error_msg=MySQL Error: '.$db->ErrorMsg().'&menu=1&type=database');
+function display_memo($db, $customer_id)
+{
+	$q = "SELECT * FROM " . PRFX . "CUSTOMER_NOTES WHERE CUSTOMER_ID=" . $db->qstr($customer_id);
+	if (!$rs = $db->execute($q)) {
+		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
 		exit;
 	}
-		
+
 	$arr = $rs->GetArray();
 	return $arr;
 }
-?>

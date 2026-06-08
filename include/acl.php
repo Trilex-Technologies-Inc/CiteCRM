@@ -1,81 +1,206 @@
 <?php
 ####################################################
-# IN Cite CRM	Customer Relations Management			#	
-#	 Copyright (C) 2003 - 2005 In-Site CRM				#
-#  www.incitecrm.com  dev@onsitecrm.com					#
-#  This program is distributed under the terms and 	#
-#  conditions of the GPL										#
-#  Account include file										#
-#  Version 0.0.1	Sat Nov 26 20:46:40 PST 2005		#
-#																	#
+# IN Cite CRM Customer Relations Management
+# Compatible with old PHP versions (PHP 5.6+)
+# Replaced deprecated mcrypt with OpenSSL
 ####################################################
 
+function check_acl($db, $module, $page)
+{
+    if (!isset($_SESSION['login_id']) || empty($_SESSION['login_id'])) {
+        return false;
+    }
 
-function check_acl($db,$module,$page	) {
-	if (!isset($_SESSION['login_id']) || empty($_SESSION['login_id'])) {
-		// No logged-in user; deny access cleanly
-		return false;
-	}
+    $uid = $_SESSION['login_id'];
 
-	$uid = $_SESSION['login_id'];
-	
-	/* get group id */
-	$q = 'SELECT '.PRFX.'CONFIG_EMPLOYEE_TYPE.TYPE_NAME
-			FROM '.PRFX.'TABLE_EMPLOYEE,'.PRFX.'CONFIG_EMPLOYEE_TYPE 
-			WHERE '.PRFX.'TABLE_EMPLOYEE.EMPLOYEE_TYPE  = '.PRFX.'CONFIG_EMPLOYEE_TYPE.TYPE_ID AND EMPLOYEE_ID='.$db->qstr($uid);
-	if(!$rs = $db->execute($q)) {
-		force_page('core','error&error_msg=Could not get Group ID for user');
-		exit;
-	} else {
-		$gid = $rs->fields['TYPE_NAME'];
-	}
+    /* get group id */
+    $q = 'SELECT ' . PRFX . 'CONFIG_EMPLOYEE_TYPE.TYPE_NAME
+            FROM ' . PRFX . 'TABLE_EMPLOYEE,' . PRFX . 'CONFIG_EMPLOYEE_TYPE
+            WHERE ' . PRFX . 'TABLE_EMPLOYEE.EMPLOYEE_TYPE =
+                  ' . PRFX . 'CONFIG_EMPLOYEE_TYPE.TYPE_ID
+            AND EMPLOYEE_ID=' . $db->qstr($uid);
 
-	/* check page to see if we have access */
-	if(!isset($module)) {
-		$page= "core:main";
-	} else {
-		$page= $module.":".$page;
-	}
+    if (!$rs = $db->execute($q)) {
+        force_page('core', 'error&error_msg=Could not get Group ID for user');
+        exit;
+    } else {
+        $gid = $rs->fields['TYPE_NAME'];
+    }
 
-	$q = 'SELECT '.$gid.' as ACL FROM '.PRFX.'ACL WHERE page='.$db->qstr($page);
+    // Validate role name
+    if (!preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $gid)) {
+        return false;
+    }
 
-	if(!$rs = $db->execute($q)) {
-		force_page('core','error&error_msg=Could not get Page ACL');
-		exit;
-	} else {
-		$acl = $rs->fields['ACL'];
-		if($acl != 1) {
-			return false;	
-		} else {
-			return true;	
-		}
-	}
+    /* check page access */
+    if (!isset($module)) {
+        $page = "core:main";
+    } else {
+        $page = $module . ":" . $page;
+    }
+
+    // Ensure ACL column exists
+    $q = "SHOW COLUMNS FROM " . PRFX . "ACL LIKE " . $db->qstr($gid);
+
+    if (!$rs = $db->execute($q)) {
+        force_page('core', 'error&error_msg=Could not validate Role ACL Column');
+        exit;
+    }
+
+    if ($rs->EOF) {
+        return false;
+    }
+
+    // Ensure page row exists
+    $q = 'SELECT ACL_ID
+          FROM ' . PRFX . 'ACL
+          WHERE page=' . $db->qstr($page) . '
+          LIMIT 1';
+
+    if (!$rs = $db->execute($q)) {
+        force_page('core', 'error&error_msg=Could not get Page ACL');
+        exit;
+    }
+
+    if ($rs->EOF) {
+
+        $cols = array();
+
+        $q = "SHOW COLUMNS FROM " . PRFX . "ACL";
+
+        if ($cols_rs = $db->execute($q)) {
+            $cols = $cols_rs->GetArray();
+        }
+
+        $sets = array();
+
+        foreach ($cols as $col) {
+
+            if (!isset($col['Field'])) {
+                continue;
+            }
+
+            $field = $col['Field'];
+
+            if ($field == 'ACL_ID' || $field == 'page') {
+                continue;
+            }
+
+            $default_allow = in_array(
+                $field,
+                array('Admin', 'Manager', 'Supervisor'),
+                true
+            ) ? 1 : 0;
+
+            $sets[] = "`" . str_replace('`', '``', $field) . "`=" . $default_allow;
+        }
+
+        $q = "INSERT INTO " . PRFX . "ACL
+              SET page=" . $db->qstr($page);
+
+        if (!empty($sets)) {
+            $q .= ", " . implode(',', $sets);
+        }
+
+        $db->execute($q);
+    }
+
+    $q = 'SELECT `' . $gid . '` as ACL
+          FROM ' . PRFX . 'ACL
+          WHERE page=' . $db->qstr($page);
+
+    if (!$rs = $db->execute($q)) {
+        force_page('core', 'error&error_msg=Could not get Page ACL');
+        exit;
+    } else {
+
+        $acl = $rs->fields['ACL'];
+
+        if ($acl != 1) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
 
 
-function encrypt ($strString, $strKey) {
+/**
+ * Encrypt string
+ * Compatible with PHP 5.6+
+ */
+function encrypt($data, $key)
+{
+    if ($data == "") {
+        return $data;
+    }
 
-	if ($strString=="") {
-		return $strString;
-	}
-	$iv = mcrypt_create_iv (mcrypt_get_iv_size (MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND);
-	$enString=mcrypt_ecb(MCRYPT_BLOWFISH, $strKey, $strString, MCRYPT_ENCRYPT, $iv);
-	$enString=bin2hex($enString);
+    $cipher = 'AES-256-CBC';
 
-	return ($enString);
-	
+    // Create secure key
+    $key = hash('sha256', $key, true);
+
+    // IV length
+    $ivLength = openssl_cipher_iv_length($cipher);
+
+    // Generate IV
+    if (function_exists('openssl_random_pseudo_bytes')) {
+        $iv = openssl_random_pseudo_bytes($ivLength);
+    } else {
+        $iv = substr(md5(mt_rand(), true), 0, $ivLength);
+    }
+
+    // Encrypt
+    $encrypted = openssl_encrypt(
+        $data,
+        $cipher,
+        $key,
+        OPENSSL_RAW_DATA,
+        $iv
+    );
+
+    // Encode result
+    return base64_encode($iv . $encrypted);
 }
 
-function decrypt ($strString, $strKey) {
-	
-	if ($strString=="") {
-		return $strString;
-	}
-	$iv = mcrypt_create_iv (mcrypt_get_iv_size (MCRYPT_BLOWFISH, MCRYPT_MODE_ECB), MCRYPT_RAND);
-	$strString=hex2bin($strString);
-	$deString=mcrypt_ecb(MCRYPT_BLOWFISH, $strKey, $strString, MCRYPT_DECRYPT, $iv);
 
-	return ($deString);
+/**
+ * Decrypt string
+ * Compatible with PHP 5.6+
+ */
+function decrypt($data, $key)
+{
+    if ($data == "") {
+        return $data;
+    }
 
+    $cipher = 'AES-256-CBC';
+
+    // Create secure key
+    $key = hash('sha256', $key, true);
+
+    // Decode data
+    $data = base64_decode($data);
+
+    // IV length
+    $ivLength = openssl_cipher_iv_length($cipher);
+
+    // Extract IV
+    $iv = substr($data, 0, $ivLength);
+
+    // Extract encrypted text
+    $encrypted = substr($data, $ivLength);
+
+    // Decrypt
+    $decrypted = openssl_decrypt(
+        $encrypted,
+        $cipher,
+        $key,
+        OPENSSL_RAW_DATA,
+        $iv
+    );
+
+    return trim($decrypted);
 }
+
 ?>

@@ -24,10 +24,10 @@
 
 	<!-- Paid Invoices Card -->
 	<div class="card shadow-sm">
-		<div class="card-header d-flex justify-content-between align-items-center">
-			<h5 class="mb-0">{$translate_incvoice_view_paid}</h5>
-			<img src="images/icons/16x16/help.gif" alt="Help">
-		</div>
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h5 class="mb-0">{$translate_incvoice_view_paid}</h5>
+		<i class="bi bi-question-circle-fill fs-5 text-secondary" aria-hidden="true"></i>
+	</div>
 		<div class="card-body">
 
 			<!-- Pagination Controls -->
@@ -101,9 +101,10 @@
 							<td>{$invoice[q].INVOICE_DATE|date_format:"%m-%d-%Y"}</td>
 							<td>{$invoice[q].INVOICE_DUE|date_format:"%m-%d-%Y"}</td>
 							<td>
-								<img src="images/icons/16x16/view+.gif"
-									 onMouseOver="ddrivetip('<b>{$translate_invoice_phone} </b>{$invoice[q].CUSTOMER_PHONE}<br><b>Work: </b>{$invoice[q].CUSTOMER_WORK_PHONE}<br><b>Mobile: </b>{$invoice[q].CUSTOMER_MOBILE_PHONE}<br><br>{$invoice[q].CUSTOMER_ADDRESS}<br>{$invoice[q].CUSTOMER_CITY}, {$invoice[q].CUSTOMER_STATE}<br>{$invoice[q].CUSTOMER_ZIP}')"
-									 onMouseOut="hideddrivetip()">
+								<i class="bi bi-info-circle-fill text-primary fs-5"
+								   aria-hidden="true"
+								   onMouseOver="ddrivetip('<b>{$translate_invoice_phone} </b>{$invoice[q].CUSTOMER_PHONE}<br><b>Work: </b>{$invoice[q].CUSTOMER_WORK_PHONE}<br><b>Mobile: </b>{$invoice[q].CUSTOMER_MOBILE_PHONE}<br><br>{$invoice[q].CUSTOMER_ADDRESS}<br>{$invoice[q].CUSTOMER_CITY}, {$invoice[q].CUSTOMER_STATE}<br>{$invoice[q].CUSTOMER_ZIP}')"
+								   onMouseOut="hideddrivetip()"></i>
 								<a href="{$invoice[q].CUSTOMER_ID}">{$invoice[q].CUSTOMER_DISPLAY_NAME}</a>
 							</td>
 							<td>
@@ -112,9 +113,10 @@
 								</a>
 							</td>
 							<td>
-								<img src="images/icons/16x16/view+.gif"
-									 onMouseOver="ddrivetip('<b>Work: </b>{$invoice[q].EMPLOYEE_WORK_PHONE}<br><b>Mobile: </b>{$invoice[q].EMPLOYEE_MOBILE_PHONE}<br><b>Home: </b>{$invoice[q].EMPLOYEE_HOME_PHONE}')"
-									 onMouseOut="hideddrivetip()">
+								<i class="bi bi-info-circle-fill text-primary fs-5"
+								   aria-hidden="true"
+								   onMouseOver="ddrivetip('<b>Work: </b>{$invoice[q].EMPLOYEE_WORK_PHONE}<br><b>Mobile: </b>{$invoice[q].EMPLOYEE_MOBILE_PHONE}<br><b>Home: </b>{$invoice[q].EMPLOYEE_HOME_PHONE}')"
+								   onMouseOut="hideddrivetip()"></i>
 								<a href="?page=employees:employee_details&employee_id={$invoice[q].EMPLOYEE_ID}&page_title={$invoice[q].EMPLOYEE_DISPLAY_NAME}">
 									{$invoice[q].EMPLOYEE_DISPLAY_NAME}
 								</a>

@@ -16,7 +16,7 @@ if(!xml2php("billing")) {
 }
 		
 $customer_id 	= $VAR['customer_id'];
-$customer_name	= $VAR['customer_name']? $VAR['customer_name']:'';
+$customer_name	= isset($VAR['customer_name']) ? $VAR['customer_name'] : '';
 
 $smarty->assign('customer_name', $customer_name);
 $smarty->assign('customer_id',$customer_id);
@@ -46,13 +46,38 @@ if(isset($VAR['submit'])) {
 
 	/* add */
 	if($VAR['action'] == 'add') {
-		/* generate a random string for the gift certificate id and assign it*/
-		$acceptedChars = 'AZERTYUIOPQSDFGHJKLMWXCVBN0123456789';
-		$max = strlen($acceptedChars)-1;
+		/*
+		 * Generate a 13-digit numeric gift certificate code.
+		 * Keep regenerating until we find a unique code.
+		 */
+		$rand_int = function ($min, $max) {
+			if (function_exists('random_int')) {
+				return random_int($min, $max);
+			}
+			return mt_rand($min, $max);
+		};
+
 		$gift_code = null;
-	
-		for($i=0; $i < 16; $i++) {
-			$gift_code .= $acceptedChars{mt_rand(0, $max)};
+		$found_unique = false;
+		for ($attempt = 0; $attempt < 25; $attempt++) {
+			$gift_code = (string) $rand_int(1, 9);
+			for ($i = 1; $i < 13; $i++) {
+				$gift_code .= (string) $rand_int(0, 9);
+			}
+
+			$q = "SELECT GIFT_ID FROM " . PRFX . "GIFT_CERT WHERE GIFT_CODE=" . $db->qstr($gift_code) . " LIMIT 1";
+			if (!$rs = $db->execute($q)) {
+				force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
+				exit;
+			}
+			if ($rs->EOF) {
+				$found_unique = true;
+				break;
+			}
+		}
+		if (!$found_unique) {
+			force_page('core', 'error&error_msg=Unable to generate a unique gift certificate code. Please try again.&menu=1&type=error');
+			exit;
 		}
 	
 	

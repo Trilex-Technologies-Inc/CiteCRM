@@ -112,18 +112,33 @@
                         <input type="text" name="city" value="{$company_city}" class="form-control">
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span> <b>{$translate_customer_state}</b>
                         </label>
                         <input type="text" name="state" value="{$company_state}" class="form-control">
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">
+                            <b>{$translate_customer_country}</b>
+                        </label>
+                        <select name="country" class="form-select">
+                            <option value="">Select country</option>
+                            {section name=c loop=$country}
+                                <option value="{$country[c].code}"
+                                    {if $selected_country == $country[c].code}selected{/if}>
+                                    {$country[c].name}
+                                </option>
+                            {/section}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span> <b>{$translate_customer_zip}</b>
                         </label>
-                        <input type="text" name="zip" value="{$company_zip}" class="form-control">
+                        <input type="text" name="zip" value="{$company_zip}" maxlength="20" class="form-control">
                     </div>
                 </div>
 
@@ -161,6 +176,17 @@
                     </label>
                     <input type="text" name="discount" value="0.00" class="form-control">
                 </div>
+
+                {if $has_brand_new_column}
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="brand_new" name="brand_new" value="1" {if $VAR.brand_new}checked{/if}>
+                        <label class="form-check-label" for="brand_new">Brand new</label>
+                    </div>
+                {else}
+                    <div class="alert alert-warning mb-3">
+                        Your database is missing the optional <code>CUSTOMER_BRAND_NEW</code> column. Run the upgrade SQL to enable the “Brand new” customer flag.
+                    </div>
+                {/if}
 
                 <input type="hidden" name="page" value="customer:new">
 

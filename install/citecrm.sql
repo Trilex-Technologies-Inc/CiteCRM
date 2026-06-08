@@ -54,6 +54,7 @@ CREATE TABLE `TABLE_CUSTOMER` (
   `CUSTOMER_ADDRESS` varchar(30) default NULL,
   `CUSTOMER_CITY` varchar(20) default NULL,
   `CUSTOMER_STATE` varchar(20) default NULL,
+  `CUSTOMER_COUNTRY` varchar(3) default NULL,
   `CUSTOMER_ZIP` varchar(8) default NULL,
   `CUSTOMER_PHONE` varchar(13) default NULL,
   `CUSTOMER_WORK_PHONE` varchar(13) NOT NULL default '',
@@ -215,5 +216,54 @@ CREATE TABLE `TABLE_WORK_ORDER_STATUS` (
   `WORK_ORDER_STATUS_ENTER_BY` varchar(32) NOT NULL default '',
   PRIMARY KEY  (`WORK_ORDER_STATUS_ID`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
-?>
 
+
+CREATE TABLE `TABLE_MANUFACTURER` (
+  `MANUFACTURER_ID` int(11) NOT NULL auto_increment,
+  `MANUFACTURER_NAME` varchar(120) NOT NULL default '',
+  `MANUFACTURER_WEBSITE` varchar(255) NOT NULL default '',
+  `MANUFACTURER_ACTIVE` tinyint(1) NOT NULL default '1',
+  PRIMARY KEY  (`MANUFACTURER_ID`),
+  UNIQUE KEY `MANUFACTURER_NAME` (`MANUFACTURER_NAME`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+
+
+CREATE TABLE `TABLE_WAREHOUSE` (
+  `WAREHOUSE_ID` int(11) NOT NULL auto_increment,
+  `WAREHOUSE_NAME` varchar(120) NOT NULL default '',
+  `WAREHOUSE_CODE` varchar(40) NOT NULL default '',
+  `WAREHOUSE_ADDRESS` varchar(255) NOT NULL default '',
+  `WAREHOUSE_CITY` varchar(80) NOT NULL default '',
+  `WAREHOUSE_STATE` varchar(80) NOT NULL default '',
+  `WAREHOUSE_ZIP` varchar(20) NOT NULL default '',
+  `WAREHOUSE_COUNTRY` varchar(80) NOT NULL default '',
+  `WAREHOUSE_ACTIVE` tinyint(1) NOT NULL default '1',
+  PRIMARY KEY  (`WAREHOUSE_ID`),
+  UNIQUE KEY `WAREHOUSE_NAME` (`WAREHOUSE_NAME`),
+  KEY `WAREHOUSE_CODE` (`WAREHOUSE_CODE`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+
+
+CREATE TABLE `TABLE_PRODUCT` (
+  `PRODUCT_ID` int(11) NOT NULL auto_increment,
+  `MANUFACTURER_ID` int(11) NOT NULL default '0',
+  `WAREHOUSE_ID` int(11) NOT NULL default '0',
+  `CAT_ID` varchar(10) NOT NULL default '',
+  `SUBCAT_ID` int(20) NOT NULL default '0',
+  `PRODUCT_SKU` varchar(60) NOT NULL default '',
+  `PRODUCT_NAME` varchar(120) NOT NULL default '',
+  `PRODUCT_DESCRIPTION` text,
+  `PRODUCT_PRICE` decimal(10,2) NOT NULL default '0.00',
+  `PRODUCT_WEIGHT` decimal(10,2) NOT NULL default '0.00',
+  `PRODUCT_LENGTH` decimal(10,2) NOT NULL default '0.00',
+  `PRODUCT_WIDTH` decimal(10,2) NOT NULL default '0.00',
+  `PRODUCT_HEIGHT` decimal(10,2) NOT NULL default '0.00',
+  `PRODUCT_ACTIVE` tinyint(1) NOT NULL default '1',
+  PRIMARY KEY  (`PRODUCT_ID`),
+  KEY `MANUFACTURER_ID` (`MANUFACTURER_ID`),
+  KEY `WAREHOUSE_ID` (`WAREHOUSE_ID`),
+  KEY `CAT_ID` (`CAT_ID`),
+  KEY `SUBCAT_ID` (`SUBCAT_ID`),
+  KEY `PRODUCT_SKU` (`PRODUCT_SKU`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+?>

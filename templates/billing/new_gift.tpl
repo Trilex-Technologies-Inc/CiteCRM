@@ -48,12 +48,8 @@
 
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <table class="table-borderless m-0">
-            <tr>
-                {include file="core/tool_bar.tpl"}
-            </tr>
-        </table>
+    <div class="mb-3">
+        {include file="core/tool_bar.tpl"}
     </div>
 
     {if $error_msg != ""}
