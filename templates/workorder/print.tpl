@@ -6,7 +6,7 @@
 			{if $company_logo_url|default:'' != ''}
 				<img src="{$company_logo_url}">
 			{else}
-				<img src="images/logo.jpg">
+				<img src="images/logo.png">
 			{/if}
 		</td>
 		<!-- middle column -->
