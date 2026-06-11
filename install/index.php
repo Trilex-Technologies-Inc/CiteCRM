@@ -208,7 +208,7 @@ switch ($mode) {
                                 EMPLOYEE_ADDRESS            =" . $db->qstr($_POST['address']) . ",
                                 EMPLOYEE_CITY               =" . $db->qstr($_POST['city']) . ",
                                 EMPLOYEE_STATE              =" . $db->qstr($_POST['state']) . ",
-                                EMPLOYEE_COUNTRY            =" . $db->qstr($_POST['country']) . ",
+                                EMPLOYEE_COUNTRY            =" . $db->qstr(isset($_POST['country']) ? $_POST['country'] : '') . ",
                                 EMPLOYEE_ZIP                =" . $db->qstr($_POST['zip']) . ",
                                 EMPLOYEE_TYPE               =" . $db->qstr(4) . ",
                                 EMPLOYEE_WORK_PHONE         =" . $db->qstr($_POST['work_phone']) . ",
