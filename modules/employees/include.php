@@ -157,6 +157,12 @@ function insert_new_employee($db,$VAR){
 
 	$password = encryptValue($VAR["password"]);
 	$login    = strtolower($VAR["firstName"]{0}).strtolower($VAR["lastName"]);
+
+	// sanitize country (store 3-char code uppercase)
+	$country = isset($VAR["country"]) ? strtoupper(trim((string)$VAR["country"])) : '';
+	if ($country !== '') {
+		$country = substr($country, 0, 3);
+	}
 	
 	$q = "INSERT INTO ".PRFX."TABLE_EMPLOYEE SET
 		  EMPLOYEE_PASSWD			= ". $db->qstr( $password           ).",
@@ -164,7 +170,7 @@ function insert_new_employee($db,$VAR){
 		  EMPLOYEE_ADDRESS			= ". $db->qstr( $VAR["address"]     ).", 
 		  EMPLOYEE_CITY				= ". $db->qstr( $VAR["city"]        ).", 
 		  EMPLOYEE_STATE			= ". $db->qstr( $VAR["state"]       ).", 
-		  EMPLOYEE_COUNTRY		= ". $db->qstr( $VAR["country"]     ).", 
+		  EMPLOYEE_COUNTRY		= ". $db->qstr( $country     ).", 
 		  EMPLOYEE_ZIP				= ". $db->qstr( $VAR["zip"]         ).",
 		  EMPLOYEE_HOME_PHONE		= ". $db->qstr( $VAR["homePhone"]   ).",
 		  EMPLOYEE_WORK_PHONE		= ". $db->qstr( $VAR["workPhone"]   ).",

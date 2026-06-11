@@ -160,9 +160,15 @@
                         <label class="form-label">
                             {$translate_employee_country}
                         </label>
-                        <input type="text" name="country"
-                               value="{$employee_details[a].EMPLOYEE_COUNTRY}"
-                               class="form-control">
+                        <select name="country" class="form-select">
+                            <option value="">{$translate_select_country|default:'Select country'}</option>
+                            {section name=c loop=$country}
+                                <option value="{$country[c].code}"
+                                    {if $selected_country == $country[c].code}selected{/if}>
+                                    {$country[c].name}
+                                </option>
+                            {/section}
+                        </select>
                     </div>
 
                     <div class="col-md-3 mb-3">

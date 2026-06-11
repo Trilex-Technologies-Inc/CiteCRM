@@ -34,6 +34,21 @@ if(isset($VAR['submit'])) {
 } else {
 
 	$smarty->assign('employee_type', employee_type($db));
+
+	// Populate country select like customers
+	$q = "SELECT * FROM " . PRFX . "COUNTRY";
+	if ($rs = $db->Execute($q)) {
+		$country = $rs->GetArray();
+		$smarty->assign('country', $country);
+	}
+	$selected_country = '';
+	if (isset($VAR['country']) && trim((string)$VAR['country']) !== '') {
+		$selected_country = strtoupper(trim((string)$VAR['country']));
+	} else if (isset($company_country) && trim((string)$company_country) !== '') {
+		$selected_country = strtoupper(trim((string)$company_country));
+	}
+	$smarty->assign('selected_country', $selected_country);
+
 	$smarty->display('employees'.SEP.'new.tpl');
 
 }

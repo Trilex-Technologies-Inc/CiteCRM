@@ -21,6 +21,12 @@ if (isset($VAR['submit'])) {
 		force_page('core', 'error&error_msg=No Employee ID');
 	}
 
+	/* sanitize country */
+	$country = isset($VAR['country']) ? strtoupper(trim((string)$VAR['country'])) : '';
+	if ($country !== '') {
+		$country = substr($country, 0, 3);
+	}
+
 	/* if we are changing password update */
 	if ($VAR['password'] != '') {
 		$update = "SET EMPLOYEE_PASSWD  		=" . $db->qstr(md5($VAR['password'])) . ",
@@ -31,7 +37,7 @@ if (isset($VAR['submit'])) {
 								EMPLOYEE_ADDRESS		=" . $db->qstr($VAR['address']) . ",
 								EMPLOYEE_CITY			=" . $db->qstr($VAR['city']) . ",
 								EMPLOYEE_STATE			=" . $db->qstr($VAR['state']) . ", 
-								EMPLOYEE_COUNTRY		=" . $db->qstr($VAR['country']) . ", 
+								EMPLOYEE_COUNTRY		=" . $db->qstr($country) . ", 
 								EMPLOYEE_ZIP 			=" . $db->qstr($VAR['zip']) . ",
 								EMPLOYEE_TYPE			=" . $db->qstr($VAR['type']) . ", 
 								EMPLOYEE_WORK_PHONE	=" . $db->qstr($VAR['workPhone']) . ",
@@ -47,7 +53,7 @@ if (isset($VAR['submit'])) {
 								EMPLOYEE_ADDRESS		=" . $db->qstr($VAR['address']) . ",
 								EMPLOYEE_CITY			=" . $db->qstr($VAR['city']) . ",
 								EMPLOYEE_STATE			=" . $db->qstr($VAR['state']) . ", 
-								EMPLOYEE_COUNTRY		=" . $db->qstr($VAR['country']) . ", 
+								EMPLOYEE_COUNTRY		=" . $db->qstr($country) . ", 
 								EMPLOYEE_ZIP 			=" . $db->qstr($VAR['zip']) . ",
 								EMPLOYEE_TYPE			=" . $db->qstr($VAR['type']) . ", 
 								EMPLOYEE_WORK_PHONE	=" . $db->qstr($VAR['workPhone']) . ",
@@ -66,6 +72,24 @@ if (isset($VAR['submit'])) {
 	force_page('employees', 'employee_details&employee_id=' . $VAR['employee_id'] . '&page_title=Employees');
 } else {
 	$smarty->assign('employee_type', employee_type($db));
-	$smarty->assign('employee_details', display_employee_info($db, $VAR['employee_id']));
+	// assign country list for select
+	$q = "SELECT * FROM " . PRFX . "COUNTRY";
+	if ($rs = $db->Execute($q)) {
+		$country = $rs->GetArray();
+		$smarty->assign('country', $country);
+	}
+
+	$employee_details = display_employee_info($db, $VAR['employee_id']);
+	$smarty->assign('employee_details', $employee_details);
+
+	// set selected country to employee value or company default
+	$selected_country = '';
+	if (!empty($employee_details[0]['EMPLOYEE_COUNTRY'])) {
+		$selected_country = strtoupper(trim((string)$employee_details[0]['EMPLOYEE_COUNTRY']));
+	} else if (isset($company_country) && trim((string)$company_country) !== '') {
+		$selected_country = strtoupper(trim((string)$company_country));
+	}
+	$smarty->assign('selected_country', $selected_country);
+
 	$smarty->display('employees' . SEP . 'edit.tpl');
 }
