@@ -24,7 +24,7 @@ $smarty->assign('page_title', 'Login');
 // Company name/logo for the standalone login page.
 $company_name = 'Cite CRM';
 if (isset($db) && defined('PRFX')) {
-	$rs_company = @$db->Execute("SELECT COMPANY_NAME FROM ".PRFX."TABLE_COMPANY");
+	$rs_company = @$db->Execute("SELECT COMPANY_NAME FROM " . PRFX . "TABLE_COMPANY");
 	if ($rs_company && !$rs_company->EOF && !empty($rs_company->fields['COMPANY_NAME'])) {
 		$company_name = (string)$rs_company->fields['COMPANY_NAME'];
 	}
@@ -55,7 +55,7 @@ $captcha_enabled = 0;
 $captcha_provider = 'turnstile';
 $captcha_site_key = '';
 if (isset($db) && defined('PRFX')) {
-	$rs = @$db->Execute("SELECT PROVIDER, ENABLED, SITE_KEY FROM ".PRFX."TABLE_CAPTCHA_SETTINGS WHERE SETTINGS_ID=1");
+	$rs = @$db->Execute("SELECT PROVIDER, ENABLED, SITE_KEY FROM " . PRFX . "TABLE_CAPTCHA_SETTINGS WHERE SETTINGS_ID=1");
 	if ($rs && !$rs->EOF) {
 		$captcha_enabled = (int)$rs->fields['ENABLED'];
 		$captcha_provider = (string)$rs->fields['PROVIDER'];
@@ -70,8 +70,7 @@ $smarty->assign('captcha_site_key', $captcha_site_key);
 #	Display Any Errors				#
 ##################################### 
 
-if(isset($_GET["error_msg"]))
-{
+if (isset($_GET["error_msg"])) {
 	$smarty->assign('error_msg', $_GET["error_msg"]);
 }
 
@@ -80,6 +79,4 @@ if(isset($_GET["error_msg"]))
 #	Display the pages				#
 #####################################
 
-$smarty->display('core'.SEP.'login.tpl');
-
-?>
+$smarty->display('core' . SEP . 'login.tpl');
