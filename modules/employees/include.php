@@ -164,6 +164,7 @@ function insert_new_employee($db,$VAR){
 		  EMPLOYEE_ADDRESS			= ". $db->qstr( $VAR["address"]     ).", 
 		  EMPLOYEE_CITY				= ". $db->qstr( $VAR["city"]        ).", 
 		  EMPLOYEE_STATE			= ". $db->qstr( $VAR["state"]       ).", 
+		  EMPLOYEE_COUNTRY		= ". $db->qstr( $VAR["country"]     ).", 
 		  EMPLOYEE_ZIP				= ". $db->qstr( $VAR["zip"]         ).",
 		  EMPLOYEE_HOME_PHONE		= ". $db->qstr( $VAR["homePhone"]   ).",
 		  EMPLOYEE_WORK_PHONE		= ". $db->qstr( $VAR["workPhone"]   ).",

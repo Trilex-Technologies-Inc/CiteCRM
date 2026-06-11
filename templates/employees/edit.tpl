@@ -136,7 +136,7 @@
                                class="form-control">
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span>
                             {$translate_employee_city}
@@ -146,7 +146,7 @@
                                class="form-control">
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span>
                             {$translate_employee_state}
@@ -156,7 +156,16 @@
                                class="form-control">
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">
+                            {$translate_employee_country}
+                        </label>
+                        <input type="text" name="country"
+                               value="{$employee_details[a].EMPLOYEE_COUNTRY}"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span>
                             {$translate_employee_zip}

@@ -80,6 +80,7 @@ CREATE TABLE `TABLE_EMPLOYEE` (
   `EMPLOYEE_ADDRESS` varchar(40) NOT NULL default '',
   `EMPLOYEE_CITY` varchar(40) NOT NULL default '',
   `EMPLOYEE_STATE` char(40) NOT NULL default '',
+  `EMPLOYEE_COUNTRY` varchar(3) NOT NULL default '',
   `EMPLOYEE_ZIP` int(11) NOT NULL default '0',
   `EMPLOYEE_TYPE` varchar(60) NOT NULL default '',
   `EMPLOYEE_WORK_PHONE` varchar(13) NOT NULL default '',

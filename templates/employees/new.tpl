@@ -113,7 +113,7 @@
                     <input type="text" name="address" class="form-control">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">
                         <span class="text-danger">*</span>
                         {$translate_employee_city}
@@ -121,7 +121,7 @@
                     <input type="text" name="city" class="form-control" value="{$company_city}">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">
                         <span class="text-danger">*</span>
                         {$translate_employee_state}
@@ -129,7 +129,14 @@
                     <input type="text" name="state" class="form-control" value="{$company_state}">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">
+                        {$translate_employee_country}
+                    </label>
+                    <input type="text" name="country" class="form-control" value="">
+                </div>
+
+                <div class="col-md-3 mb-3">
                     <label class="form-label">
                         <span class="text-danger">*</span>
                         {$translate_employee_zip}
