@@ -10,27 +10,25 @@
 #														#
 #########################################################
 require_once("include.php");
-if(!xml2php("employees")) {
-	$smarty->assign('error_msg',"Error in language file");
+if (!xml2php("employees")) {
+	$smarty->assign('error_msg', "Error in language file");
 }
 $VAR['page_title'] = "Add New Employee";
- 
-if(isset($VAR['submit'])) {
+
+if (isset($VAR['submit'])) {
 	$smarty->assign('VAR', $VAR);
 	$smarty->assign('employee_type', employee_type($db));
-	
-	if (!check_employee_ex($db,$VAR)) {
-			$smarty->assign('error_msg', 'The employees Display Name, '.$VAR["displayName"].',  already exists! Please use a differnt name.');
-			$smarty->display('employees'.SEP.'new.tpl');
-		} else {
-			if (!$employee_id = insert_new_employee($db,$VAR)){
-				$smarty->assign('error_msg', 'Falied to insert Employee');
-			} else {
-				force_page('employees', 'employee_details&employee_id='.$employee_id.'&page_title=Employees');	
-			}
-			
-		}
 
+	if (!check_employee_ex($db, $VAR)) {
+		$smarty->assign('error_msg', 'The employees Display Name, ' . $VAR["displayName"] . ',  already exists! Please use a differnt name.');
+		$smarty->display('employees' . SEP . 'new.tpl');
+	} else {
+		if (!$employee_id = insert_new_employee($db, $VAR)) {
+			$smarty->assign('error_msg', 'Falied to insert Employee');
+		} else {
+			force_page('employees', 'employee_details&employee_id=' . $employee_id . '&page_title=Employees');
+		}
+	}
 } else {
 
 	$smarty->assign('employee_type', employee_type($db));
@@ -49,9 +47,5 @@ if(isset($VAR['submit'])) {
 	}
 	$smarty->assign('selected_country', $selected_country);
 
-	$smarty->display('employees'.SEP.'new.tpl');
-
+	$smarty->display('employees' . SEP . 'new.tpl');
 }
-
-
-?>
