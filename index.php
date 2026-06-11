@@ -62,6 +62,18 @@ if (!$public_access) {
 require(INCLUDE_URL . SEP . 'acl.php');
 
 require('modules/core/translate.php');
+// If a topbar search query is provided, route it to the customer search page.
+// This allows the main search box to look up customers by name.
+if (isset($VAR['q']) && trim($VAR['q']) !== '' && (!isset($VAR['page']) || trim($VAR['page']) === '')) {
+	$search_query = trim($VAR['q']);
+	$_GET['page'] = 'customer:view';
+	$_GET['name'] = $search_query;
+	$_GET['page_title'] = 'Customer Search';
+	$VAR['page'] = 'customer:view';
+	$VAR['name'] = $search_query;
+	$VAR['page_title'] = 'Customer Search';
+	$requested_page = 'customer:view';
+}
 ############################
 #		Debuging					#
 ############################
