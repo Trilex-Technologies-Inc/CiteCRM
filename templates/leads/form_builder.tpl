@@ -38,6 +38,13 @@
                               class="form-control font-monospace">{$form.FORM_MAPPING|escape}</textarea>
                 </div>
 
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" value="1" checked id="regen_html" name="regen_html">
+                    <label class="form-check-label" for="regen_html">
+                        Regenerate embed snippet on save
+                    </label>
+                </div>
+
                 <hr>
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -135,10 +142,14 @@
                 Copy this HTML snippet to embed the form on your website.
             </p>
 
-            <pre class="bg-light border rounded p-3"><code id="embed-snippet">&lt;form action="{$CONF.SITE_URL}/modules/leads/forms_submit.php" method="post"&gt;
-  &lt;input type="hidden" name="form_token" value="{$form.PUBLIC_TOKEN}" /&gt;
-  &lt;!-- Add fields here --&gt;
-&lt;/form&gt;</code></pre>
+                        <pre class="bg-light border rounded p-3"><code id="embed-snippet">{if $form.FORM_HTML}
+{$form.FORM_HTML|escape}
+{else}
+&lt;form action="{$CONF.SITE_URL}/modules/leads/forms_submit.php" method="post"&gt;
+    &lt;input type="hidden" name="form_token" value="{$form.PUBLIC_TOKEN}" /&gt;
+    &lt;!-- Add fields here --&gt;
+&lt;/form&gt;
+{/if}</code></pre>
 
         </div>
     </div>

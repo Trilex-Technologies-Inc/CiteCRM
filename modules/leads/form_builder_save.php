@@ -27,32 +27,44 @@ if (is_array($fields)) {
 
 // Auto-generate a simple FORM_HTML from the saved fields so embed snippet isn't empty
 $rows = $db->GetArray("SELECT FIELD_NAME,FIELD_KEY,FIELD_TYPE FROM " . PRFX . "LEAD_FORM_FIELDS WHERE FORM_ID = ? ORDER BY POSITION", array($form_id));
-$tokenRow = $db->GetRow("SELECT PUBLIC_TOKEN FROM " . PRFX . "LEAD_FORMS WHERE FORM_ID = ?", array($form_id));
-$token = $tokenRow ? $tokenRow['PUBLIC_TOKEN'] : '';
 
-$html = "<form action=\"index.php?page=leads:forms_submit\" method=\"post\">\n";
-if ($token) {
-    $html .= '  <input type="hidden" name="form_token" value="' . htmlspecialchars($token, ENT_QUOTES) . '" />\n';
-} else {
-    $html .= '  <input type="hidden" name="form_id" value="' . intval($form_id) . '" />\n';
-}
+// Preserve any custom HTML the admin may have set via the full form editor.
+// Only auto-generate FORM_HTML when the stored value is empty.
+$existingRow = $db->GetRow("SELECT FORM_HTML, PUBLIC_TOKEN FROM " . PRFX . "LEAD_FORMS WHERE FORM_ID = ?", array($form_id));
+$existingHtml = $existingRow ? $existingRow['FORM_HTML'] : '';
+$token = $existingRow ? $existingRow['PUBLIC_TOKEN'] : '';
 
-foreach ($rows as $r) {
-    $k = htmlspecialchars($r['FIELD_KEY'], ENT_QUOTES);
-    $label = htmlspecialchars($r['FIELD_NAME'], ENT_QUOTES);
-    $type = isset($r['FIELD_TYPE']) ? $r['FIELD_TYPE'] : 'text';
-    if ($type === 'textarea') {
-        $html .= "  <label>{$label}: <textarea name=\"{$k}\"></textarea></label>\n";
+$regen = isset($_POST['regen_html']) && $_POST['regen_html'] ? true : false;
+
+// Regenerate when requested or when there is no existing custom HTML.
+if ($regen || empty($existingHtml)) {
+    // Debug: record regen attempt
+    $dbg = "[" . date('c') . "] regen=" . ($regen ? '1' : '0') . " form_id=" . intval($form_id) . " existing_len=" . strlen($existingHtml) . "\n";
+    @file_put_contents(__DIR__ . '/../../log/form_builder_save_debug.log', $dbg, FILE_APPEND);
+    $html = "<form action=\"index.php?page=leads:forms_submit\" method=\"post\">\n";
+    if ($token) {
+        $html .= '  <input type="hidden" name="form_token" value="' . htmlspecialchars($token, ENT_QUOTES) . '" />\n';
     } else {
-        $inputType = ($type === 'email') ? 'email' : 'text';
-        $html .= "  <label>{$label}: <input type=\"{$inputType}\" name=\"{$k}\"></label>\n";
+        $html .= '  <input type="hidden" name="form_id" value="' . intval($form_id) . '" />\n';
     }
+
+    foreach ($rows as $r) {
+        $k = htmlspecialchars($r['FIELD_KEY'], ENT_QUOTES);
+        $label = htmlspecialchars($r['FIELD_NAME'], ENT_QUOTES);
+        $type = isset($r['FIELD_TYPE']) ? $r['FIELD_TYPE'] : 'text';
+        if ($type === 'textarea') {
+            $html .= "  <label>{$label}: <textarea name=\"{$k}\"></textarea></label>\n";
+        } else {
+            $inputType = ($type === 'email') ? 'email' : 'text';
+            $html .= "  <label>{$label}: <input type=\"{$inputType}\" name=\"{$k}\"></label>\n";
+        }
+    }
+
+    $html .= "  <button type=\"submit\">Submit</button>\n";
+    $html .= "</form>\n";
+
+    $db->Execute("UPDATE " . PRFX . "LEAD_FORMS SET FORM_HTML = ? WHERE FORM_ID = ?", array($html, $form_id));
 }
-
-$html .= "  <button type=\"submit\">Submit</button>\n";
-$html .= "</form>\n";
-
-$db->Execute("UPDATE " . PRFX . "LEAD_FORMS SET FORM_HTML = ? WHERE FORM_ID = ?", array($html, $form_id));
 
 force_page('leads', 'form_builder&form_id=' . $form_id);
 exit;
