@@ -41,10 +41,23 @@
                                 </td>
 
                                 <td>
-                                    <a href="index.php?page=leads:forms_edit&form_id={$form.FORM_ID}"
-                                       class="btn btn-sm btn-warning">
-                                        Edit
-                                    </a>
+                                    <div class="d-flex align-items-center gap-2 text-nowrap">
+                                        <a href="index.php?page=leads:forms_edit&form_id={$form.FORM_ID}"
+                                           class="btn btn-sm btn-warning">
+                                            Edit
+                                        </a>
+
+                                        <a href="index.php?page=leads:forms_submissions&form_id={$form.FORM_ID}"
+                                           class="btn btn-sm btn-outline-primary d-flex align-items-center"
+                                           title="View submissions for this form">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8z" />
+                                                <path d="M8 5.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z" />
+                                            </svg>
+                                            <span class="d-none d-md-inline ms-2">Submissions</span>
+                                            <span class="badge bg-primary ms-2">{$form.sub_count|default:0}</span>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         {/foreach}
