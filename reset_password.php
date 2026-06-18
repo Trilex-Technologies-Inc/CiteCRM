@@ -37,21 +37,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$new_password = isset($_POST['new_password']) ? (string)$_POST['new_password'] : '';
 		$confirm_password = isset($_POST['confirm_password']) ? (string)$_POST['confirm_password'] : '';
 
-		if (strlen($new_password) < 8) {
+			// Password policy: minimum length 8 and must contain at least one letter and one number
+			if (strlen($new_password) < 8) {
 			$error_msg = 'Password must be at least 8 characters.';
+			} else if (!preg_match('/[A-Za-z]/', $new_password) || !preg_match('/[0-9]/', $new_password)) {
+				$error_msg = 'Password must contain at least one letter and one number.';
 		} else if ($new_password !== $confirm_password) {
 			$error_msg = 'Passwords do not match.';
 		} else {
 			$employee_id = (int)$reset_row['EMPLOYEE_ID'];
-			$hashed = md5($new_password);
-
-			$q = "UPDATE ".PRFX."TABLE_EMPLOYEE SET EMPLOYEE_PASSWD=".$db->qstr($hashed)."
-				  WHERE EMPLOYEE_ID=".$db->qstr($employee_id);
-			$ok = $db->Execute($q);
+				// Use password_hash() for secure storage (PASSWORD_DEFAULT)
+				if (!function_exists('password_hash')) {
+					$error_msg = 'Server does not support secure password hashing.';
+				} else {
+					$hashed = password_hash($new_password, PASSWORD_DEFAULT);
+					$q = "UPDATE ".PRFX."TABLE_EMPLOYEE SET EMPLOYEE_PASSWD=".$db->qstr($hashed)."
+					  WHERE EMPLOYEE_ID=".$db->qstr($employee_id);
+					$ok = $db->Execute($q);
+				}
 			if ($ok) {
-				$q = "UPDATE ".PRFX."TABLE_PASSWORD_RESET SET USED_AT=".$db->qstr(time())."
-					  WHERE RESET_ID=".$db->qstr((int)$reset_row['RESET_ID']);
-				$db->Execute($q);
+					// Mark this token used and clear other outstanding tokens for this user
+					$nowt = time();
+					$q = "UPDATE ".PRFX."TABLE_PASSWORD_RESET SET USED_AT=".$db->qstr($nowt)." WHERE RESET_ID=".$db->qstr((int)$reset_row['RESET_ID']);
+					$db->Execute($q);
+					$db->Execute("UPDATE ".PRFX."TABLE_PASSWORD_RESET SET USED_AT=".$db->qstr($nowt)." WHERE EMPLOYEE_ID=".$db->qstr($employee_id)." AND USED_AT=0 AND RESET_ID<>".$db->qstr((int)$reset_row['RESET_ID']));
 
 				$msg = 'Password updated. You can now log in.';
 			} else {

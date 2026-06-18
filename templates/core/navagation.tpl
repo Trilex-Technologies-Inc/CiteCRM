@@ -83,7 +83,26 @@
 	                    </div>
 	                </details>
 
-	                <details class="app-nav-group" {if $current_module == 'workorder'}open{/if}>
+					<details class="app-nav-group" {if $current_module == 'leads'}open{/if}>
+						<summary class="app-nav-item {if $current_module == 'leads'}active{/if}">
+							<span class="app-nav-icon" aria-hidden="true">
+								<i class="bi bi-flag-fill"></i>
+							</span>
+							<span class="app-nav-label">{$translate_menu_leads|default:"Leads"}</span>
+						</summary>
+						<div class="app-nav-sub">
+							<a class="app-nav-subitem {if $current_module == 'leads' && $current_page == 'list'}active{/if}"
+							   href="?page=leads:list&page_title={$translate_menu_leads|default:'Leads'}">
+								{$translate_menu_search|default:"List"}
+							</a>
+							<a class="app-nav-subitem {if $current_module == 'leads' && $current_page == 'edit'}active{/if}"
+							   href="?page=leads:edit&page_title={$translate_menu_add_new_lead|default:'New Lead'}">
+								{$translate_menu_new|default:"New"}
+							</a>
+						</div>
+					</details>
+
+					<details class="app-nav-group" {if $current_module == 'workorder'}open{/if}>
 	                    <summary class="app-nav-item {if $current_module == 'workorder'}active{/if}">
 	                        <span class="app-nav-icon" aria-hidden="true">
 	                            <i class="bi bi-clipboard-check-fill"></i>

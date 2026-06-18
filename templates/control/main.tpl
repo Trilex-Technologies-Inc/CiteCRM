@@ -24,6 +24,7 @@
 
     <div class="row g-4">
         
+        {if $employee_type == 'Admin'}
         <div class="col-sm-6 col-lg-4">
             <a href="?page=control:main&page_title={$translate_core_control|default:"Control Center"}" class="text-decoration-none">
                 <div class="card h-100 shadow-sm border-light" style="transition: all 0.2s ease-in-out; border-width: 1px; border-style: solid; cursor: pointer; border-radius: 0.75rem;">
@@ -40,6 +41,7 @@
                 </div>
             </a>
         </div>
+        {/if}
 
         <div class="col-sm-6 col-lg-4">
             <a href="?page=control:company_edit&page_title=Company" class="text-decoration-none">
@@ -136,6 +138,25 @@
 	                    </div>
 	                </a>
 	            </div>
+
+                    <div class="col-sm-6 col-lg-4">
+                        <a href="?page=auth:sso_settings&page_title=SSO%20Settings" class="text-decoration-none">
+                            <div class="card h-100 shadow-sm {if $current_module == 'auth' && $current_page == 'sso_settings'}border-primary bg-light-subtle{else}border-light{/if}" style="transition: all 0.2s ease-in-out; border-width: 1px; border-style: solid; cursor: pointer; border-radius: 0.75rem;">
+                                <div class="card-body d-flex align-items-center gap-3">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-shield-lock fs-2 text-warning"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title mb-1">SSO Settings</h5>
+                                        <small class="text-secondary-emphasis">Configure Google / Microsoft OAuth</small>
+                                    </div>
+                                    {if $current_module == 'auth' && $current_page == 'sso_settings'}
+                                        <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+                                    {/if}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
 
             <div class="col-sm-6 col-lg-4">
                 <a href="?page=control:hours_edit&page_title=Office%20Hours" class="text-decoration-none">

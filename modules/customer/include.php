@@ -284,6 +284,7 @@ function insert_new_customer($db, $VAR)
 		$country = substr($country, 0, 3);
 	}
 	$brand_new = (!empty($VAR['brand_new']) || (!empty($VAR['customer_brand_new']))) ? 1 : 0;
+	$is_subscribed = (!empty($VAR['is_subscribed']) || (!empty($VAR['customer_is_subscribed']))) ? 1 : 0;
 
 	$sql = "INSERT INTO " . PRFX . "TABLE_CUSTOMER SET
 				CUSTOMER_DISPLAY_NAME	= " . $db->qstr($VAR["displayName"]) . ",
@@ -296,6 +297,7 @@ function insert_new_customer($db, $VAR)
 			CUSTOMER_WORK_PHONE	= " . $db->qstr($VAR["workPhone"]) . ",
 			CUSTOMER_MOBILE_PHONE	= " . $db->qstr($VAR["mobilePhone"]) . ",
 			CUSTOMER_EMAIL			= " . $db->qstr($VAR["email"]) . ", 
+			CUSTOMER_IS_SUBSCRIBED    = " . $db->qstr($is_subscribed) . ", 
 			CUSTOMER_TYPE			= " . $db->qstr($VAR["customerType"]) . ", 
 			CREATE_DATE				= " . $db->qstr(time()) . ",
 			LAST_ACTIVE				= " . $db->qstr(time()) . ",
@@ -307,6 +309,13 @@ function insert_new_customer($db, $VAR)
 		$sql .= ",
 			CUSTOMER_BRAND_NEW		= " . $db->qstr($brand_new);
 	}
+
+
+    
+
+    
+
+
 
 	if (!$result = $db->Execute($sql)) {
 		force_page('core', 'error&error_msg=MySQL Error: ' . $db->ErrorMsg() . '&menu=1&type=database');
@@ -367,6 +376,11 @@ function update_customer($db, $VAR)
 		$sql .= ",
 			CUSTOMER_BRAND_NEW		= " . $db->qstr($brand_new);
 	}
+
+	// subscription flag
+	$is_subscribed = (!empty($VAR['is_subscribed']) || (!empty($VAR['customer_is_subscribed']))) ? 1 : 0;
+	$sql .= ",
+		CUSTOMER_IS_SUBSCRIBED	= " . $db->qstr($is_subscribed);
 
 	$sql .= "
 			WHERE CUSTOMER_ID		= " . $db->qstr($VAR['customer_id']);

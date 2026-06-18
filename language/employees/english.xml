@@ -13,7 +13,6 @@
     <employee_address>Address</employee_address>
     <employee_city>City</employee_city>
     <employee_state>State</employee_state>
-    <employee_country>Country</employee_country>
     <employee_zip>Zip</employee_zip>
     <employee_type>Employee Type</employee_type>
     <employee_manager>Manager</employee_manager>

@@ -158,6 +158,13 @@
                     </div>
 
                     <div class="col-md-6 mb-3">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="is_subscribed" name="is_subscribed" value="1" {if $VAR.is_subscribed}checked{/if}>
+                            <label class="form-check-label" for="is_subscribed">Subscribed</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span> <b>{$translate_customer_type}</b>
                         </label>

@@ -10,86 +10,69 @@
 #																						#
 ####################################
 require_once("include.php");
-if (!xml2php("employees")) {
-	$smarty->assign('error_msg', "Error in language file");
+if(!xml2php("employees")) {
+	$smarty->assign('error_msg',"Error in language file");
 }
 
 
-if (isset($VAR['submit'])) {
+if(isset($VAR['submit']) ) {
 	/* check if we have an ID */
-	if (!isset($VAR['employee_id'])) {
-		force_page('core', 'error&error_msg=No Employee ID');
-	}
-
-	/* sanitize country */
-	$country = isset($VAR['country']) ? strtoupper(trim((string)$VAR['country'])) : '';
-	if ($country !== '') {
-		$country = substr($country, 0, 3);
+	if(!isset($VAR['employee_id'])) {
+		force_page('core', 'error&error_msg=No Employee ID');	
 	}
 
 	/* if we are changing password update */
-	if ($VAR['password'] != '') {
-		$update = "SET EMPLOYEE_PASSWD  		=" . $db->qstr(md5($VAR['password'])) . ",
-								EMPLOYEE_EMAIL			=" . $db->qstr($VAR['email']) . ", 
-								EMPLOYEE_FIRST_NAME		=" . $db->qstr($VAR['firstName']) . ",
-								EMPLOYEE_LAST_NAME		=" . $db->qstr($VAR['lastName']) . ",
-								EMPLOYEE_DISPLAY_NAME =" . $db->qstr($VAR['displayName']) . ",
-								EMPLOYEE_ADDRESS		=" . $db->qstr($VAR['address']) . ",
-								EMPLOYEE_CITY			=" . $db->qstr($VAR['city']) . ",
-								EMPLOYEE_STATE			=" . $db->qstr($VAR['state']) . ", 
-								EMPLOYEE_COUNTRY		=" . $db->qstr($country) . ", 
-								EMPLOYEE_ZIP 			=" . $db->qstr($VAR['zip']) . ",
-								EMPLOYEE_TYPE			=" . $db->qstr($VAR['type']) . ", 
-								EMPLOYEE_WORK_PHONE	=" . $db->qstr($VAR['workPhone']) . ",
-								EMPLOYEE_HOME_PHONE 	=" . $db->qstr($VAR['homePhone']) . ",
-								EMPLOYEE_MOBILE_PHONE	=" . $db->qstr($VAR['mobilePhone']) . ",
-								EMPLOYEE_STATUS			=" . $db->qstr($VAR['active']);
-	} else {
-		$update = "		SET
-								EMPLOYEE_EMAIL			=" . $db->qstr($VAR['email']) . ",
-								EMPLOYEE_FIRST_NAME		=" . $db->qstr($VAR['firstName']) . ",
-								EMPLOYEE_LAST_NAME		=" . $db->qstr($VAR['lastName']) . ",
-								EMPLOYEE_DISPLAY_NAME =" . $db->qstr($VAR['displayName']) . ",
-								EMPLOYEE_ADDRESS		=" . $db->qstr($VAR['address']) . ",
-								EMPLOYEE_CITY			=" . $db->qstr($VAR['city']) . ",
-								EMPLOYEE_STATE			=" . $db->qstr($VAR['state']) . ", 
-								EMPLOYEE_COUNTRY		=" . $db->qstr($country) . ", 
-								EMPLOYEE_ZIP 			=" . $db->qstr($VAR['zip']) . ",
-								EMPLOYEE_TYPE			=" . $db->qstr($VAR['type']) . ", 
-								EMPLOYEE_WORK_PHONE	=" . $db->qstr($VAR['workPhone']) . ",
-								EMPLOYEE_HOME_PHONE 	=" . $db->qstr($VAR['homePhone']) . ",
-								EMPLOYEE_MOBILE_PHONE	=" . $db->qstr($VAR['mobilePhone']) . ",
-								EMPLOYEE_STATUS			=" . $db->qstr($VAR['active']);
+	if($VAR['password'] != '') {
+			// Hash password securely
+			if (function_exists('password_hash')) {
+				$pw_hash = password_hash($VAR['password'], PASSWORD_DEFAULT);
+			} else {
+				$pw_hash = md5($VAR['password']);
+			}
+
+			$update = "SET EMPLOYEE_PASSWD = " . $db->qstr($pw_hash) . ",
+						EMPLOYEE_EMAIL = " . $db->qstr($VAR['email']) . ",
+						EMPLOYEE_FIRST_NAME = " . $db->qstr($VAR['firstName']) . ",
+						EMPLOYEE_LAST_NAME = " . $db->qstr($VAR['lastName']) . ",
+						EMPLOYEE_DISPLAY_NAME = " . $db->qstr($VAR['displayName']) . ",
+						EMPLOYEE_ADDRESS = " . $db->qstr($VAR['address']) . ",
+						EMPLOYEE_CITY = " . $db->qstr($VAR['city']) . ",
+						EMPLOYEE_STATE = " . $db->qstr($VAR['state']) . ",
+						EMPLOYEE_ZIP = " . $db->qstr($VAR['zip']) . ",
+						EMPLOYEE_TYPE = " . $db->qstr($VAR['type']) . ",
+						EMPLOYEE_WORK_PHONE = " . $db->qstr($VAR['workPhone']) . ",
+						EMPLOYEE_HOME_PHONE = " . $db->qstr($VAR['homePhone']) . ",
+						EMPLOYEE_MOBILE_PHONE = " . $db->qstr($VAR['mobilePhone']) . ",
+						EMPLOYEE_STATUS = " . $db->qstr($VAR['active']);
+		} else {
+			$update ="		SET
+								EMPLOYEE_EMAIL			=". $db->qstr( $VAR['email']         ).",
+								EMPLOYEE_FIRST_NAME		=". $db->qstr( $VAR['firstName']     ).",
+								EMPLOYEE_LAST_NAME		=". $db->qstr( $VAR['lastName']      ).",
+								EMPLOYEE_DISPLAY_NAME =". $db->qstr( $VAR['displayName']   ).",
+								EMPLOYEE_ADDRESS		=". $db->qstr( $VAR['address']       ).",
+								EMPLOYEE_CITY			=". $db->qstr( $VAR['city']          ).",
+								EMPLOYEE_STATE			=". $db->qstr( $VAR['state']         ).", 
+								EMPLOYEE_ZIP 			=". $db->qstr( $VAR['zip']           ).",
+								EMPLOYEE_TYPE			=". $db->qstr( $VAR['type']          ).", 
+								EMPLOYEE_WORK_PHONE	=". $db->qstr( $VAR['workPhone']     ).",
+								EMPLOYEE_HOME_PHONE 	=". $db->qstr( $VAR['homePhone']     ).",
+								EMPLOYEE_MOBILE_PHONE	=". $db->qstr( $VAR['mobilePhone']   ).",
+								EMPLOYEE_STATUS			=". $db->qstr( $VAR['active']        ); 
+		}
+
+	$q = "UPDATE ".PRFX."TABLE_EMPLOYEE ". $update ."
+			WHERE  EMPLOYEE_ID= ".$db->qstr($VAR['employee_id']);
+
+	if(!$rs = $db->execute($q)) {
+		force_page('core', 'error&error_msg=Error updateing Employee Information');	
 	}
 
-	$q = "UPDATE " . PRFX . "TABLE_EMPLOYEE " . $update . "
-			WHERE  EMPLOYEE_ID= " . $db->qstr($VAR['employee_id']);
+	force_page('employees', 'employee_details&employee_id='.$VAR['employee_id'].'&page_title=Employees');	
 
-	if (!$rs = $db->execute($q)) {
-		force_page('core', 'error&error_msg=Error updateing Employee Information');
-	}
-
-	force_page('employees', 'employee_details&employee_id=' . $VAR['employee_id'] . '&page_title=Employees');
 } else {
 	$smarty->assign('employee_type', employee_type($db));
-	// assign country list for select
-	$q = "SELECT * FROM " . PRFX . "COUNTRY";
-	if ($rs = $db->Execute($q)) {
-		$country = $rs->GetArray();
-		$smarty->assign('country', $country);
-	}
-
-	$employee_details = display_employee_info($db, $VAR['employee_id']);
-	$smarty->assign('employee_details', $employee_details);
-
-	// set selected country to employee value or company default
-	$selected_country = '';
-	if (!empty($employee_details[0]['EMPLOYEE_COUNTRY'])) {
-		$selected_country = strtoupper(trim((string)$employee_details[0]['EMPLOYEE_COUNTRY']));
-	} else if (isset($company_country) && trim((string)$company_country) !== '') {
-		$selected_country = strtoupper(trim((string)$company_country));
-	}
-	$smarty->assign('selected_country', $selected_country);
-
-	$smarty->display('employees' . SEP . 'edit.tpl');
+	$smarty->assign('employee_details', display_employee_info($db, $VAR['employee_id']));
+	$smarty->display('employees'.SEP.'edit.tpl');
 }
+?>

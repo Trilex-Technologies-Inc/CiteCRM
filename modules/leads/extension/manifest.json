@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "CiteCRM Leads Capture",
+  "version": "0.1",
+  "description": "Send selected page data to CiteCRM lead capture endpoint.",
+  "permissions": ["activeTab","storage","scripting"],
+  "action": {
+    "default_title": "Send to CiteCRM"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html"
+}

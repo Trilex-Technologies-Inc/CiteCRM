@@ -118,6 +118,13 @@
                                 </a>
                             </li>
                             <li>
+                                <a class="dropdown-item {if $current_module == 'core' && $current_page == 'smtp_settings'}active{/if}"
+                                   href="?page=core:smtp_settings&page_title=SMTP%20Settings">
+                                    <i class="bi bi-envelope me-2" aria-hidden="true"></i>
+                                    SMTP Settings
+                                </a>
+                            </li>
+                            <li>
                                 <a class="dropdown-item {if $current_module == 'control' && $current_page == 'acl'}active{/if}"
                                    href="?page=control:acl&page_title=Permissions">
                                     <i class="bi bi-shield-lock me-2" aria-hidden="true"></i>
@@ -141,6 +148,20 @@
                                         Payment Methods
                                     </a>
                                 </li>
+                                    <li>
+                                        <a class="dropdown-item {if $current_module == 'control' && $current_page == 'modules'}active{/if}"
+                                           href="?page=control:modules&page_title=Modules">
+                                            <i class="bi bi-box-seam me-2" aria-hidden="true"></i>
+                                            Modules
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item {if $current_module == 'messaging'}active{/if}"
+                                           href="?page=messaging:list&page_title=Messaging">
+                                            <i class="bi bi-chat-dots me-2" aria-hidden="true"></i>
+                                            Messaging
+                                        </a>
+                                    </li>
                                 <li>
                                     <a class="dropdown-item {if $current_module == 'control' && $current_page == 'edit_rate'}active{/if}"
                                        href="?page=control:edit_rate&page_title=Billing%20Rates">

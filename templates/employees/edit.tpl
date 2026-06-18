@@ -136,7 +136,7 @@
                                class="form-control">
                     </div>
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span>
                             {$translate_employee_city}
@@ -146,7 +146,7 @@
                                class="form-control">
                     </div>
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span>
                             {$translate_employee_state}
@@ -156,22 +156,7 @@
                                class="form-control">
                     </div>
 
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label">
-                            {$translate_employee_country}
-                        </label>
-                        <select name="country" class="form-select">
-                            <option value="">{$translate_select_country|default:'Select country'}</option>
-                            {section name=c loop=$country}
-                                <option value="{$country[c].code}"
-                                    {if $selected_country == $country[c].code}selected{/if}>
-                                    {$country[c].name}
-                                </option>
-                            {/section}
-                        </select>
-                    </div>
-
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span>
                             {$translate_employee_zip}

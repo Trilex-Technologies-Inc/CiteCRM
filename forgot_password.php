@@ -1,68 +1,37 @@
 <?php
-require("conf.php");
+require 'conf.php';
 
 $smarty->assign('page_title', 'Forgot Password');
 
 $msg = '';
 $error_msg = '';
 
-function crm_secure_random_bytes($length) {
-	$length = (int)$length;
-	if ($length <= 0) {
-		return '';
-	}
-
-	if (function_exists('random_bytes')) {
-		return random_bytes($length);
-	}
-
+function cr_forgot_random_bytes($len) {
+	$len = (int)$len;
+	if ($len <= 0) return false;
+	if (function_exists('random_bytes')) return random_bytes($len);
 	if (function_exists('openssl_random_pseudo_bytes')) {
 		$strong = false;
-		$bytes = openssl_random_pseudo_bytes($length, $strong);
-		if ($bytes !== false && $strong === true) {
-			return $bytes;
-		}
+		$b = openssl_random_pseudo_bytes($len, $strong);
+		if ($b !== false && $strong === true) return $b;
 	}
-
 	$fp = @fopen('/dev/urandom', 'rb');
 	if ($fp) {
-		$bytes = @fread($fp, $length);
+		$b = @fread($fp, $len);
 		@fclose($fp);
-		if ($bytes !== false && strlen($bytes) === $length) {
-			return $bytes;
-		}
+		if ($b !== false && strlen($b) === $len) return $b;
 	}
-
 	return false;
 }
 
 function crm_build_base_url() {
 	$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 	$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
-	if ($host === '') {
-		return '';
-	}
-
-	$forwarded_prefix = '';
-	if (isset($_SERVER['HTTP_X_FORWARDED_PREFIX'])) {
-		$forwarded_prefix = rtrim((string)$_SERVER['HTTP_X_FORWARDED_PREFIX'], '/');
-	}
-
-	$path = '';
-	if (isset($_SERVER['REQUEST_URI'])) {
-		$path = (string)parse_url((string)$_SERVER['REQUEST_URI'], PHP_URL_PATH);
-	}
-	if ($path === '' && isset($_SERVER['SCRIPT_NAME'])) {
-		$path = (string)$_SERVER['SCRIPT_NAME'];
-	}
-
-	$dir = $path !== '' ? dirname(str_replace('\\', '/', $path)) : '';
-	$dir = rtrim($dir, '/');
-	if ($dir === '.' || $dir === '/') {
-		$dir = '';
-	}
-
-	return $scheme.'://'.$host.$forwarded_prefix.$dir;
+	if ($host === '') return '';
+	$path = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : (isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '');
+	$dir = $path ? rtrim(dirname(str_replace('\\', '/', $path)), '/') : '';
+	if ($dir === '.' || $dir === '/') $dir = '';
+	return $scheme . '://' . $host . $dir;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -70,95 +39,132 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	if ($login_or_email === '') {
 		$error_msg = 'Please enter your login or email.';
 	} else {
-		$employee_id = 0;
-		$employee_email = '';
-		$employee_login = '';
+		$msg = 'If an account matches, a reset link has been sent.'; // generic
 
-		// Allow lookup by login OR email.
-		$q = "SELECT EMPLOYEE_ID, EMPLOYEE_EMAIL, EMPLOYEE_LOGIN
-			  FROM ".PRFX."TABLE_EMPLOYEE
-			  WHERE EMPLOYEE_LOGIN=".$db->qstr($login_or_email)."
-				 OR EMPLOYEE_EMAIL=".$db->qstr($login_or_email)."
-			  LIMIT 1";
-		$rs = $db->Execute($q);
-		if ($rs) {
+		$sql = "SELECT EMPLOYEE_ID, EMPLOYEE_EMAIL, EMPLOYEE_LOGIN FROM " . PRFX . "TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN=" . $db->qstr($login_or_email) . " OR EMPLOYEE_EMAIL=" . $db->qstr($login_or_email) . " LIMIT 1";
+		$rs = $db->Execute($sql);
+		if ($rs && !$rs->EOF) {
 			$employee_id = (int)$rs->fields['EMPLOYEE_ID'];
 			$employee_email = trim((string)$rs->fields['EMPLOYEE_EMAIL']);
 			$employee_login = (string)$rs->fields['EMPLOYEE_LOGIN'];
-		}
-
-			// Always show a generic message to avoid account enumeration.
-			$msg = 'If an account matches, a reset link has been sent.';
 
 			if ($employee_id > 0 && $employee_email !== '' && filter_var($employee_email, FILTER_VALIDATE_EMAIL)) {
-				$bytes = crm_secure_random_bytes(32);
-				if ($bytes === false) {
-					$error_msg = 'Password reset is temporarily unavailable (missing a secure random source).';
-				} else {
-					$token = bin2hex($bytes);
-					$token_hash = hash('sha256', $token);
-					$now = time();
-					$expires_at = $now + (60 * 60); // 1 hour
-					$request_ip = isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : '';
+				$ip = isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : '';
+				$one_hour = time() - 3600;
+				$cnt_account = (int)$db->GetOne("SELECT COUNT(*) FROM " . PRFX . "TABLE_PASSWORD_RESET WHERE EMPLOYEE_ID=" . $db->qstr($employee_id) . " AND CREATED_AT>=" . $db->qstr($one_hour));
+				$cnt_ip = (int)$db->GetOne("SELECT COUNT(*) FROM " . PRFX . "TABLE_PASSWORD_RESET WHERE REQUEST_IP=" . $db->qstr($ip) . " AND CREATED_AT>=" . $db->qstr($one_hour));
+				if ($cnt_account < 3 && $cnt_ip < 20) {
+					$captcha_ok = true;
+					$captcha = crm_get_captcha_settings($db);
+					if (!empty($captcha['ENABLED']) && (int)$captcha['ENABLED'] === 1) {
+						$provider = isset($captcha['PROVIDER']) ? (string)$captcha['PROVIDER'] : 'turnstile';
+						$secret = isset($captcha['SECRET_KEY']) ? trim((string)$captcha['SECRET_KEY']) : '';
+						$remoteip = isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : '';
+						if ($provider === 'turnstile') {
+							$resp = isset($_POST['cf-turnstile-response']) ? trim((string)$_POST['cf-turnstile-response']) : '';
+							$captcha_ok = ($secret !== '' && $resp !== '' && crm_verify_turnstile($secret, $resp, $remoteip));
+						} else {
+							$resp = isset($_POST['g-recaptcha-response']) ? trim((string)$_POST['g-recaptcha-response']) : '';
+							$captcha_ok = ($secret !== '' && $resp !== '' && crm_verify_recaptcha($secret, $resp, $remoteip));
+						}
+					}
 
-					$q = "INSERT INTO ".PRFX."TABLE_PASSWORD_RESET SET
-							EMPLOYEE_ID=".$db->qstr($employee_id).",
-							TOKEN_HASH=".$db->qstr($token_hash).",
-							EXPIRES_AT=".$db->qstr($expires_at).",
-							USED_AT='0',
-							CREATED_AT=".$db->qstr($now).",
-							REQUEST_IP=".$db->qstr($request_ip);
-					$db->Execute($q);
+					if ($captcha_ok) {
+						$bytes = cr_forgot_random_bytes(48);
+						if ($bytes !== false) {
+							$token = bin2hex($bytes);
+							$token_hash = hash('sha256', $token);
+							$now = time();
+							$expires = $now + 7200;
+							$request_ip = $ip;
+							$ins = "INSERT INTO " . PRFX . "TABLE_PASSWORD_RESET (EMPLOYEE_ID,TOKEN_HASH,EXPIRES_AT,USED_AT,CREATED_AT,REQUEST_IP) VALUES (" .
+								$db->qstr($employee_id) . "," .
+								$db->qstr($token_hash) . "," .
+								$db->qstr($expires) . ",0," .
+								$db->qstr($now) . "," .
+								$db->qstr($request_ip) . ")";
+							$db->Execute($ins);
 
-			$company_email = '';
-			$company_name = 'CiteCRM';
-			$q = "SELECT COMPANY_EMAIL, COMPANY_NAME FROM ".PRFX."TABLE_COMPANY";
-			$rs = $db->Execute($q);
-			if ($rs) {
-				$company_email = (string)$rs->fields['COMPANY_EMAIL'];
-				if (trim((string)$rs->fields['COMPANY_NAME']) !== '') {
-					$company_name = (string)$rs->fields['COMPANY_NAME'];
-				}
-			}
+							// load company info
+							$company_email = '';
+							$company_name = 'CiteCRM';
+							$rco = $db->Execute("SELECT COMPANY_EMAIL, COMPANY_NAME FROM " . PRFX . "TABLE_COMPANY");
+							if ($rco && !$rco->EOF) {
+								$company_email = (string)$rco->fields['COMPANY_EMAIL'];
+								if (trim((string)$rco->fields['COMPANY_NAME']) !== '') $company_name = (string)$rco->fields['COMPANY_NAME'];
+							}
 
-				$base_url = crm_build_base_url();
-				$reset_link = ($base_url !== '')
-					? ($base_url . "/reset_password.php?token=" . urlencode($token))
-					: ("reset_password.php?token=" . urlencode($token));
+							$base = crm_build_base_url();
+							$reset_link = $base ? ($base . '/reset_password.php?token=' . urlencode($token)) : ('reset_password.php?token=' . urlencode($token));
 
-			$subject = $company_name.' - Password Reset';
-			$lines = array();
-			$lines[] = 'A password reset was requested for your account: '.$employee_login;
-			$lines[] = '';
-			$lines[] = 'Reset link (valid for 1 hour):';
-			$lines[] = $reset_link;
-			$lines[] = '';
-			$lines[] = 'If you did not request this, you can ignore this email.';
-			$message = implode("\r\n", $lines);
+							$subject = $company_name . ' - Password Reset';
+							$body = "A password reset was requested for your account: " . $employee_login . "\r\n\r\n" .
+								"Reset link (valid for 2 hours):\r\n" . $reset_link . "\r\n\r\nIf you did not request this, you can ignore this email.";
 
-			$headers = array();
-			$headers[] = 'MIME-Version: 1.0';
-			$headers[] = 'Content-Type: text/plain; charset=UTF-8';
-			if ($company_email !== '' && filter_var(trim($company_email), FILTER_VALIDATE_EMAIL)) {
-				$headers[] = 'From: '.$company_name.' <'.trim($company_email).'>';
-				$headers[] = 'Reply-To: '.trim($company_email);
-			}
+							$sent = false;
+							if (is_file('vendor/autoload.php')) require_once 'vendor/autoload.php';
+							if (is_file('include/smtp_crypt.php')) require_once 'include/smtp_crypt.php';
 
-			$sendmail_path = (string)ini_get('sendmail_path');
-			$sendmail_bin = trim(strtok($sendmail_path, " \t"));
-			$has_sendmail = ($sendmail_bin !== '' && @file_exists($sendmail_bin));
-					if ($has_sendmail) {
-						@mail($employee_email, $subject, $message, implode("\r\n", $headers));
-					} else {
-						@error_log('['.date('c').'] Password reset email NOT sent (sendmail missing): '.$employee_email."\n", 3, 'log/mail.log');
+							// attempt to load SMTP settings
+							$smtp = array();
+							$cfg = @$db->Execute("SHOW COLUMNS FROM " . PRFX . "SETUP LIKE 'SMTP_HOST'");
+							if ($cfg && !$cfg->EOF) {
+								$rsetup = $db->Execute("SELECT * FROM " . PRFX . "SETUP LIMIT 1");
+								if ($rsetup && !$rsetup->EOF) {
+									$smtp['host'] = isset($rsetup->fields['SMTP_HOST']) ? $rsetup->fields['SMTP_HOST'] : '';
+									$smtp['port'] = isset($rsetup->fields['SMTP_PORT']) ? $rsetup->fields['SMTP_PORT'] : 25;
+									$smtp['user'] = isset($rsetup->fields['SMTP_USER']) ? $rsetup->fields['SMTP_USER'] : '';
+									$smtp['pass'] = isset($rsetup->fields['SMTP_PASS']) ? $rsetup->fields['SMTP_PASS'] : '';
+									$smtp['secure'] = isset($rsetup->fields['SMTP_SECURE']) ? $rsetup->fields['SMTP_SECURE'] : '';
+									$smtp['auth'] = isset($rsetup->fields['SMTP_AUTH']) ? $rsetup->fields['SMTP_AUTH'] : 0;
+								}
+							}
+							if (!empty($smtp['pass']) && function_exists('citecrm_decrypt_smtp_pass')) {
+								$dec = citecrm_decrypt_smtp_pass($smtp['pass']);
+								if ($dec !== null) $smtp['pass'] = $dec;
+							}
+
+							if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+								try {
+									$mail = new PHPMailer\PHPMailer\PHPMailer(true);
+									if (!empty($smtp['host'])) {
+										$mail->isSMTP();
+										$mail->Host = $smtp['host'];
+										$mail->Port = (int)$smtp['port'];
+										if (!empty($smtp['secure'])) $mail->SMTPSecure = $smtp['secure'];
+										if (!empty($smtp['auth']) && $smtp['auth']) {
+											$mail->SMTPAuth = true;
+											$mail->Username = $smtp['user'];
+											$mail->Password = $smtp['pass'];
+										}
+									}
+									if ($company_email !== '' && filter_var($company_email, FILTER_VALIDATE_EMAIL)) $mail->setFrom($company_email, $company_name);
+									$mail->addAddress($employee_email);
+									$mail->Subject = $subject;
+									$mail->Body = $body;
+									$sent = $mail->send();
+								} catch (Exception $e) {
+									$sent = false;
+								}
+							}
+
+							if (!$sent) {
+								$headers = "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n";
+								if ($company_email !== '' && filter_var(trim($company_email), FILTER_VALIDATE_EMAIL)) {
+									$headers .= 'From: ' . $company_name . ' <' . trim($company_email) . "\r\n";
+								}
+								@mail($employee_email, $subject, $body, $headers);
+							}
+						}
 					}
 				}
 			}
 		}
 	}
+}
 
 $smarty->assign('msg', $msg);
 $smarty->assign('error_msg', $error_msg);
-$smarty->display('core'.SEP.'forgot_password.tpl');
+$smarty->display('core' . SEP . 'forgot_password.tpl');
 
 ?>

@@ -815,7 +815,6 @@ function create_table_employee($db)
 		`EMPLOYEE_ADDRESS` varchar(40) NOT NULL default '',
 		`EMPLOYEE_CITY` varchar(40) NOT NULL default '',
 		`EMPLOYEE_STATE` char(40) NOT NULL default '',
-		`EMPLOYEE_COUNTRY` varchar(3) NOT NULL default '',
 		`EMPLOYEE_ZIP` varchar(11) NOT NULL ,
 		`EMPLOYEE_TYPE` varchar(60) NOT NULL default '',
 		`EMPLOYEE_WORK_PHONE` varchar(13) NOT NULL default '',

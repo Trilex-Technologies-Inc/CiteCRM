@@ -62,18 +62,6 @@ if (!$public_access) {
 require(INCLUDE_URL . SEP . 'acl.php');
 
 require('modules/core/translate.php');
-// If a topbar search query is provided, route it to the customer search page.
-// This allows the main search box to look up customers by name.
-if (isset($VAR['q']) && trim($VAR['q']) !== '' && (!isset($VAR['page']) || trim($VAR['page']) === '')) {
-	$search_query = trim($VAR['q']);
-	$_GET['page'] = 'customer:view';
-	$_GET['name'] = $search_query;
-	$_GET['page_title'] = 'Customer Search';
-	$VAR['page'] = 'customer:view';
-	$VAR['name'] = $search_query;
-	$VAR['page_title'] = 'Customer Search';
-	$requested_page = 'customer:view';
-}
 ############################
 #		Debuging					#
 ############################
@@ -121,7 +109,6 @@ $logo_candidates = array(
 	'images/company_logo.jpeg',
 	'images/company_logo.gif',
 	'images/company_logo.webp',
-	'images/logo.png',
 );
 foreach ($logo_candidates as $candidate) {
 	if (is_file($candidate)) {
@@ -142,7 +129,24 @@ $page = 'main';
 $the_page = 'modules' . SEP . 'core' . SEP . 'main.php';
 
 if (!isset($_POST['page'])) {
-	if (isset($_GET['page']) && !empty($_GET['page'])) { // FIXED: Check if set
+	// Support legacy module/action query format (index.php?module=...&action=...)
+	if (isset($_GET['module']) && !empty($_GET['module']) && isset($_GET['action']) && !empty($_GET['action'])) {
+		$module = $_GET['module'];
+		$page = $_GET['action'];
+		$the_page = 'modules' . SEP . $module . SEP . $page . '.php';
+
+		unset($_GET['module'], $_GET['action']);
+
+		foreach ($_GET as $key => $val) {
+			@define($key, $val);
+		}
+
+		if (!file_exists($the_page)) {
+			$the_page = 'modules' . SEP . 'core' . SEP . '404.php';
+			$module = 'core';
+			$page = '404';
+		}
+	} elseif (isset($_GET['page']) && !empty($_GET['page'])) { // FIXED: Check if set
 		// Explode the url so we can get the module and page
 		list($module, $page) = explode(":", $_GET['page']);
 		$the_page = 'modules' . SEP . $module . SEP . $page . '.php';
@@ -170,7 +174,23 @@ if (!isset($_POST['page'])) {
 		$page = 'main';
 	}
 } else {
-	if (isset($_POST['page']) && !empty($_POST['page'])) { // FIXED: Check if set
+	if (isset($_POST['module']) && !empty($_POST['module']) && isset($_POST['action']) && !empty($_POST['action'])) {
+		$module = $_POST['module'];
+		$page = $_POST['action'];
+		$the_page = 'modules' . SEP . $module . SEP . $page . '.php';
+
+		unset($_POST['module'], $_POST['action']);
+
+		foreach ($_POST as $key => $val) {
+			@define($key, $val);
+		}
+
+		if (!file_exists($the_page)) {
+			$the_page = 'modules' . SEP . 'core' . SEP . '404.php';
+			$module = 'core';
+			$page = '404';
+		}
+	} elseif (isset($_POST['page']) && !empty($_POST['page'])) { // FIXED: Check if set
 		// Explode the url so we can get the module and page
 		list($module, $page) = explode(":", $_POST['page']);
 		$the_page = 'modules' . SEP . $module . SEP . $page . '.php';

@@ -88,7 +88,7 @@
                     
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            {$employee_details[i].EMPLOYEE_CITY}, {$employee_details[i].EMPLOYEE_STATE} {$employee_details[i].EMPLOYEE_ZIP} {$employee_details[i].EMPLOYEE_COUNTRY}
+                            {$employee_details[i].EMPLOYEE_CITY}, {$employee_details[i].EMPLOYEE_STATE} {$employee_details[i].EMPLOYEE_ZIP}
                         </div>
                         <div class="col-md-3">
                             <strong>{$translate_employee_mobile}</strong>
