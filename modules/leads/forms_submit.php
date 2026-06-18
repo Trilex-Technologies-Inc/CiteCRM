@@ -4,7 +4,18 @@
 chdir(__DIR__ . '/..');
 // Allow public submissions without requiring a logged-in session
 if (!defined('SKIP_AUTH')) define('SKIP_AUTH', true);
-require_once 'conf.php';
+
+// Prefer an absolute path to conf.php so this endpoint works regardless of cwd
+$confPath = __DIR__ . '/../../conf.php';
+if (file_exists($confPath)) {
+    require_once $confPath;
+} else if (file_exists(__DIR__ . '/../conf.php')) {
+    require_once __DIR__ . '/../conf.php';
+} else {
+    header('HTTP/1.1 500 Internal Server Error');
+    echo "Server misconfigured: conf.php not found";
+    exit;
+}
 // allow submission without authentication; validate token or API key
 $form_id = isset($_POST['form_id']) ? intval($_POST['form_id']) : 0;
 $token = isset($_POST['form_token']) ? $_POST['form_token'] : null;

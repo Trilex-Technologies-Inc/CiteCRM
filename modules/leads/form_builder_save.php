@@ -59,9 +59,9 @@ if ($regen || empty($existingHtml)) {
     // Build a full action URL using site config when available
     $actionUrl = 'index.php?page=leads:forms_submit';
     if (isset($CONF) && !empty($CONF['SITE_URL'])) {
-        $actionUrl = rtrim($CONF['SITE_URL'], '/') . '/index.php?page=leads:forms_submit';
+        $actionUrl = rtrim($CONF['SITE_URL'], '/') . '/modules/leads/forms_submit.php';
     } else if (defined('WWW_ROOT') && !empty(WWW_ROOT)) {
-        $actionUrl = rtrim(WWW_ROOT, '/') . '/index.php?page=leads:forms_submit';
+        $actionUrl = rtrim(WWW_ROOT, '/') . '/modules/leads/forms_submit.php';
     }
 
     $html = "<form action=\"" . $actionUrl . "\" method=\"post\">\n";

@@ -145,7 +145,7 @@
                         <pre class="bg-light border rounded p-3"><code id="embed-snippet">{if $form.FORM_HTML}
 {$form.FORM_HTML|escape}
 {else}
-&lt;form action="{if $CONF.SITE_URL}{$CONF.SITE_URL}{elseif $smarty.const.WWW_ROOT}{$smarty.const.WWW_ROOT}{else}#{/if}/index.php?page=leads:forms_submit" method="post"&gt;
+&lt;form action="{if $CONF.SITE_URL}{$CONF.SITE_URL}{elseif $smarty.const.WWW_ROOT}{$smarty.const.WWW_ROOT}{else}#{/if}/modules/leads/forms_submit.php" method="post"&gt;
     &lt;input type="hidden" name="form_token" value="{$form.PUBLIC_TOKEN}" /&gt;
     &lt;!-- Add fields here --&gt;
 &lt;/form&gt;
