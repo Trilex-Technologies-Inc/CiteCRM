@@ -3,6 +3,7 @@
 // Usage: php scripts/run_migrations.php
 
 chdir(__DIR__ . "/..");
+if (!defined('SKIP_AUTH')) define('SKIP_AUTH', true);
 require_once __DIR__ . "/../conf.php";
 
 if (!isset($db)) {

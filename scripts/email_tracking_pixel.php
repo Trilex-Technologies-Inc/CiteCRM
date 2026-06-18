@@ -2,10 +2,11 @@
 // Records an 'open' event and returns a 1x1 transparent GIF.
 // Usage: /scripts/email_tracking_pixel.php?t=TRACK_TOKEN&eid=EMAIL_ID
 
+if (!defined('SKIP_AUTH')) define('SKIP_AUTH', true);
 require_once __DIR__ . "/../conf.php";
 
-$t = isset($_GET['t']) ? substr($_GET['t'],0,255) : '';
-$email_id = isset($_GET['eid']) ? substr($_GET['eid'],0,255) : '';
+$t = isset($_GET['t']) ? substr($_GET['t'], 0, 255) : '';
+$email_id = isset($_GET['eid']) ? substr($_GET['eid'], 0, 255) : '';
 
 // Basic input capture
 $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
@@ -15,7 +16,7 @@ $ref = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 if (!empty($t)) {
     $meta = '';
     if (function_exists('getallheaders')) {
-        $meta = json_encode(array('headers'=>getallheaders()));
+        $meta = json_encode(array('headers' => getallheaders()));
     }
     $q = "INSERT INTO `" . PRFX . "EMAIL_TRACKING` (`ACCOUNT_ID`, `EMAIL_ID`, `RECIPIENT`, `EVENT`, `IP`, `USER_AGENT`, `REFERRER`, `META`) VALUES (0, " . $db->qstr($email_id) . ", " . $db->qstr($t) . ", 'open', " . $db->qstr($ip) . ", " . $db->qstr($ua) . ", " . $db->qstr($ref) . ", " . $db->qstr($meta) . ")";
     @$db->Execute($q);

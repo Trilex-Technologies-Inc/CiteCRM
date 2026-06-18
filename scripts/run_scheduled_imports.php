@@ -1,10 +1,15 @@
 <?php
 // Simple runner for scheduled imports: load schedules and run import using preset mapping
 chdir(__DIR__ . '/..');
+if (!defined('SKIP_AUTH')) define('SKIP_AUTH', true);
 require_once 'conf.php';
-if (!defined('PRFX')) { echo "conf.php load failed\n"; exit(1); }
+if (!defined('PRFX')) {
+    echo "conf.php load failed\n";
+    exit(1);
+}
 
-function fetch_remote_to_temp($url) {
+function fetch_remote_to_temp($url)
+{
     $tmp = tempnam(sys_get_temp_dir(), 'leadimp_');
     $ch = curl_init($url);
     $fp = fopen($tmp, 'w');
@@ -16,7 +21,10 @@ function fetch_remote_to_temp($url) {
     $err = curl_error($ch);
     curl_close($ch);
     fclose($fp);
-    if ($res === false) { unlink($tmp); throw new Exception('Fetch failed: ' . $err); }
+    if ($res === false) {
+        unlink($tmp);
+        throw new Exception('Fetch failed: ' . $err);
+    }
     return $tmp;
 }
 
@@ -31,10 +39,16 @@ foreach ($schedules as $s) {
             $localPath = fetch_remote_to_temp($path);
             $tempCreated = true;
         }
-        if (!file_exists($localPath)) { throw new Exception("Source not found: $path"); }
+        if (!file_exists($localPath)) {
+            throw new Exception("Source not found: $path");
+        }
         $mapping = json_decode($s['MAPPING'], true);
-        if (!is_array($mapping)) { throw new Exception("Invalid mapping for preset {$s['PRESET_ID']}"); }
-        if (($fh = fopen($localPath,'r')) === false) { throw new Exception("Cannot open $localPath"); }
+        if (!is_array($mapping)) {
+            throw new Exception("Invalid mapping for preset {$s['PRESET_ID']}");
+        }
+        if (($fh = fopen($localPath, 'r')) === false) {
+            throw new Exception("Cannot open $localPath");
+        }
     } catch (Exception $e) {
         // notify admin
         $err = $e->getMessage();
@@ -59,12 +73,10 @@ foreach ($schedules as $s) {
         $titleVal = isset($lead['title']) ? $lead['title'] : 'Imported Lead';
         $descVal = isset($lead['description']) ? $lead['description'] : '';
         $statusVal = isset($lead['status']) ? $lead['status'] : 'New';
-        $db->Execute("INSERT INTO " . PRFX . "LEADS (LEAD_TITLE,LEAD_DESCRIPTION,LEAD_STATUS) VALUES (?,?,?)", array(substr($titleVal,0,255), $descVal, $statusVal));
+        $db->Execute("INSERT INTO " . PRFX . "LEADS (LEAD_TITLE,LEAD_DESCRIPTION,LEAD_STATUS) VALUES (?,?,?)", array(substr($titleVal, 0, 255), $descVal, $statusVal));
     }
     fclose($fh);
     $db->Execute("UPDATE " . PRFX . "LEAD_IMPORT_SCHEDULES SET LAST_RUN = NOW() WHERE SCHEDULE_ID = ?", array($s['SCHEDULE_ID']));
     echo "Ran schedule {$s['SCHEDULE_ID']} on $path\n";
     if ($tempCreated && file_exists($localPath)) @unlink($localPath);
 }
-
-?>

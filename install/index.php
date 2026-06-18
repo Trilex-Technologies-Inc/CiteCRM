@@ -869,8 +869,11 @@ include('version.php');
 @define('INCITCRM', \"http://dev.incitecrm.com/index.php\");
 
 /* Load required Includes */
-require(INCLUDE_URL.SEP.'session.php');
-require(INCLUDE_URL.SEP.'auth.php');
+// Allow public endpoints to skip session/auth by defining SKIP_AUTH before including conf.php
+if (!defined('SKIP_AUTH')) {
+    require(INCLUDE_URL.SEP.'session.php');
+    require(INCLUDE_URL.SEP.'auth.php');
+}
 
 /* Set Path for SMARTY in the php include path */
 set_include_path(get_include_path() . PATH_SEPARATOR . INCLUDE_URL.'SMARTY'.SEP);

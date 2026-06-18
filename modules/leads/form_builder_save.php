@@ -41,7 +41,30 @@ if ($regen || empty($existingHtml)) {
     // Debug: record regen attempt
     $dbg = "[" . date('c') . "] regen=" . ($regen ? '1' : '0') . " form_id=" . intval($form_id) . " existing_len=" . strlen($existingHtml) . "\n";
     @file_put_contents(__DIR__ . '/../../log/form_builder_save_debug.log', $dbg, FILE_APPEND);
-    $html = "<form action=\"index.php?page=leads:forms_submit\" method=\"post\">\n";
+    // Ensure config is loaded so we can generate a full action URL.
+    if ((!isset($CONF) || empty($CONF['SITE_URL'])) && !defined('CONF_LOADED_FOR_FORM_BUILDER')) {
+        $confPath = __DIR__ . '/../../conf.php';
+        if (file_exists($confPath)) {
+            if (!defined('SKIP_AUTH')) define('SKIP_AUTH', true);
+            define('CONF_LOADED_FOR_FORM_BUILDER', true);
+            @include_once $confPath;
+            $dbg2 = "[" . date('c') . "] loaded conf.php for form builder\n";
+            @file_put_contents(__DIR__ . '/../../log/form_builder_save_debug.log', $dbg2, FILE_APPEND);
+        } else {
+            $dbg3 = "[" . date('c') . "] conf.php not found at " . $confPath . "\n";
+            @file_put_contents(__DIR__ . '/../../log/form_builder_save_debug.log', $dbg3, FILE_APPEND);
+        }
+    }
+
+    // Build a full action URL using site config when available
+    $actionUrl = 'index.php?page=leads:forms_submit';
+    if (isset($CONF) && !empty($CONF['SITE_URL'])) {
+        $actionUrl = rtrim($CONF['SITE_URL'], '/') . '/index.php?page=leads:forms_submit';
+    } else if (defined('WWW_ROOT') && !empty(WWW_ROOT)) {
+        $actionUrl = rtrim(WWW_ROOT, '/') . '/index.php?page=leads:forms_submit';
+    }
+
+    $html = "<form action=\"" . $actionUrl . "\" method=\"post\">\n";
     if ($token) {
         $html .= '  <input type="hidden" name="form_token" value="' . htmlspecialchars($token, ENT_QUOTES) . '" />\n';
     } else {
