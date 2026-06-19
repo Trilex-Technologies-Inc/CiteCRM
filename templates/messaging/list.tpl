@@ -8,6 +8,7 @@
                 <a href="index.php?page=messaging:compose" class="btn btn-sm btn-primary me-2">Compose</a>
                 <a href="index.php?page=messaging:compose&mass=subscribed" class="btn btn-sm btn-success me-2">Email Subscribed Customers</a>
                 <a href="index.php?page=messaging:logs" class="btn btn-sm btn-outline-secondary">Logs</a>
+                <a href="index.php?page=messaging:templates" class="btn btn-sm btn-outline-primary ms-2">Templates</a>
             </div>
         </div>
 

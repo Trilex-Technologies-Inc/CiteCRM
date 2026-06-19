@@ -12,8 +12,13 @@ $message = isset($_POST['message']) ? trim($_POST['message']) : '';
 $is_html = isset($_POST['is_html']) && $_POST['is_html'] == '1';
 $customer_id = isset($_POST['customer_id']) ? (int)$_POST['customer_id'] : 0;
 
-// optional: template name (was used to prefill body on compose)
-$template_name = isset($_POST['template_name']) ? trim($_POST['template_name']) : '';
+// optional: template name (from compose select)
+$template_name = '';
+if (isset($_POST['template_name'])) {
+    $template_name = trim($_POST['template_name']);
+} elseif (isset($_POST['template'])) {
+    $template_name = trim($_POST['template']);
+}
 
 // get company details for From/Reply-To
 $company_email = '';
@@ -112,10 +117,39 @@ if ($to_raw === '') {
         }
 
         if ($template_name !== '') {
-            $tpl_path = 'templates' . SEP . 'messaging' . SEP . 'email_templates' . SEP . basename($template_name);
-            if (is_file($tpl_path)) {
-                $tpl_content = file_get_contents($tpl_path);
-                $personal_message = str_replace('{CUSTOMER_NAME}', $personal_name, $tpl_content);
+            // try JSON template first: templates/messaging/<slug>.json
+            $json_path = 'templates' . SEP . 'messaging' . SEP . basename($template_name) . '.json';
+            if (is_file($json_path)) {
+                $tpl = json_decode(file_get_contents($json_path), true);
+                if ($tpl && isset($tpl['content'])) {
+                    $personal_message = $tpl['content'];
+                    // if subject empty, use template subject
+                    if ($subject === '' && isset($tpl['subject'])) $subject = $tpl['subject'];
+                }
+            } else {
+                // fallback to legacy plain file templates (email_templates folder)
+                $tpl_path = 'templates' . SEP . 'messaging' . SEP . 'email_templates' . SEP . basename($template_name);
+                if (is_file($tpl_path)) {
+                    $tpl_content = file_get_contents($tpl_path);
+                    $personal_message = $tpl_content;
+                }
+            }
+
+            // standardize placeholder replacements for JSON or legacy templates
+            $replacements = array(
+                '{{name}}' => $personal_name,
+                '{{email}}' => $to,
+                '{{date}}' => date('Y-m-d'),
+                '{{company}}' => $company_name,
+                '{CUSTOMER_NAME}' => $personal_name,
+                '{{customer_name}}' => $personal_name,
+                '{{CUSTOMER_NAME}}' => $personal_name
+            );
+            $personal_message = str_replace(array_keys($replacements), array_values($replacements), $personal_message);
+
+            // auto-detect HTML in template and enable HTML sending if template contains tags
+            if (!$is_html && preg_match('/<[^>]+>/', $personal_message)) {
+                $is_html = true;
             }
         }
 
@@ -195,26 +229,56 @@ if ($to_raw === '') {
             }
         } else {
             // fallback to mail()
+            // prepare headers and body for mail() fallback
             $headers = array();
             $headers[] = 'MIME-Version: 1.0';
-            $headers[] = 'Content-Type: ' . ($is_html ? 'text/html' : 'text/plain') . '; charset=UTF-8';
-            if ($company_email !== '' && filter_var(trim($company_email), FILTER_VALIDATE_EMAIL)) {
-                $headers[] = 'From: ' . $company_name . ' <' . trim($company_email) . '>';
-                $headers[] = 'Reply-To: ' . trim($company_email);
-            }
+
+            // prepare valid BCC list
+            $valid_bcc = array();
             if (!empty($bccs)) {
-                $valid_bcc = array();
                 foreach ($bccs as $b) {
                     $bcc_email = parse_email_address($b);
                     if ($bcc_email !== false) $valid_bcc[] = $bcc_email;
                 }
-                if (!empty($valid_bcc)) $headers[] = 'Bcc: ' . implode(',', $valid_bcc);
             }
-            $sendmail_path = (string)ini_get('sendmail_path');
-            $sendmail_bin = trim(strtok($sendmail_path, " \t"));
-            $has_sendmail = ($sendmail_bin !== '' && @file_exists($sendmail_bin));
 
-            $sent = @mail($to, $subject, $personal_message, implode("\r\n", $headers));
+            if ($is_html) {
+                $boundary = '=_'.md5(uniqid((string)time(), true));
+                $headers[] = 'Content-Type: multipart/alternative; boundary="' . $boundary . '"';
+            } else {
+                $headers[] = 'Content-Type: text/plain; charset=UTF-8';
+            }
+
+            if ($company_email !== '' && filter_var(trim($company_email), FILTER_VALIDATE_EMAIL)) {
+                $headers[] = 'From: ' . $company_name . ' <' . trim($company_email) . '>';
+                $headers[] = 'Reply-To: ' . trim($company_email);
+            }
+
+            if (!empty($valid_bcc)) {
+                $headers[] = 'Bcc: ' . implode(',', $valid_bcc);
+            }
+
+            // build body: multipart/alternative when HTML, otherwise plain
+            if ($is_html) {
+                $textPart = trim(strip_tags(html_entity_decode($personal_message)));
+                $htmlPart = $personal_message;
+
+                $body = "--" . $boundary . "\r\n";
+                $body .= "Content-Type: text/plain; charset=UTF-8\r\n";
+                $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+                $body .= $textPart . "\r\n\r\n";
+
+                $body .= "--" . $boundary . "\r\n";
+                $body .= "Content-Type: text/html; charset=UTF-8\r\n";
+                $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+                $body .= $htmlPart . "\r\n\r\n";
+
+                $body .= "--" . $boundary . "--";
+            } else {
+                $body = $personal_message;
+            }
+
+            $sent = @mail($to, $subject, $body, implode("\r\n", $headers));
             if (!$sent) {
                 $send_error = 'PHP mail() failed';
             }

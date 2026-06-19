@@ -31,26 +31,34 @@ if (isset($_GET['mass']) && $_GET['mass'] === 'subscribed') {
     }
 }
 
-// load available email templates from templates/messaging/email_templates
-$templates_dir = 'templates' . SEP . 'messaging' . SEP . 'email_templates';
+// load available templates from templates/messaging/*.json
+$templates_dir = 'templates' . SEP . 'messaging';
 $templates = array();
 $selected_template = '';
 $template_body = '';
+$template_subject = '';
 if (is_dir($templates_dir)) {
     $files = scandir($templates_dir);
     foreach ($files as $f) {
         if ($f === '.' || $f === '..') continue;
-        if (is_file($templates_dir . SEP . $f)) {
-            $templates[] = $f;
+        if (is_file($templates_dir . SEP . $f) && preg_match('/\.json$/i', $f)) {
+            $data = json_decode(file_get_contents($templates_dir . SEP . $f), true);
+            if ($data) {
+                $templates[] = array('slug' => basename($f, '.json'), 'title' => (isset($data['title']) ? $data['title'] : basename($f, '.json')));
+            }
         }
     }
 }
 
 if (isset($_GET['template']) && $_GET['template'] !== '') {
     $selected_template = basename($_GET['template']);
-    $path = $templates_dir . SEP . $selected_template;
+    $path = $templates_dir . SEP . $selected_template . '.json';
     if (is_file($path)) {
-        $template_body = file_get_contents($path);
+        $data = json_decode(file_get_contents($path), true);
+        if ($data) {
+            $template_body = isset($data['content']) ? $data['content'] : '';
+            $template_subject = isset($data['subject']) ? $data['subject'] : '';
+        }
     }
 }
 
@@ -60,5 +68,6 @@ $smarty->assign('customer_id', isset($cid) ? (int)$cid : 0);
 $smarty->assign('templates', $templates);
 $smarty->assign('selected_template', $selected_template);
 $smarty->assign('template_body', $template_body);
+$smarty->assign('template_subject', isset($template_subject) ? $template_subject : '');
 
 $smarty->display('messaging' . SEP . 'compose.tpl');
