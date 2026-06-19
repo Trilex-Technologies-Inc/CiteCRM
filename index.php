@@ -283,6 +283,18 @@ if ($menu == 1) {
 } else {
 
 	/* check acl for page request */
+	// Prevent navigation to modules that are installed but disabled
+	if ($module !== 'core') {
+		$q = "SELECT ENABLED FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($module) . " LIMIT 1";
+		$r = @$db->Execute($q);
+		if ($r && !$r->EOF) {
+			if ((int)$r->fields['ENABLED'] === 0) {
+				$msg = rawurlencode("Module '$module' is disabled");
+				force_page('core', 'error&error_msg=' . $msg . '&menu=1');
+				exit;
+			}
+		}
+	}
 	if ($public_access) {
 		require($the_page);
 	} else if (!check_acl($db, $module, $page)) {
