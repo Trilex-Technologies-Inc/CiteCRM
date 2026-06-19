@@ -243,7 +243,7 @@ if ($to_raw === '') {
             }
 
             if ($is_html) {
-                $boundary = '=_'.md5(uniqid((string)time(), true));
+                $boundary = '=_' . md5(uniqid((string)time(), true));
                 $headers[] = 'Content-Type: multipart/alternative; boundary="' . $boundary . '"';
             } else {
                 $headers[] = 'Content-Type: text/plain; charset=UTF-8';
@@ -286,7 +286,7 @@ if ($to_raw === '') {
 
         // Log the outbound email attempt
         if (function_exists('crm_log_email_activity')) {
-          
+
             $log_params = array(
                 'message_id' => $email_id,
                 'direction' => 'out',
