@@ -87,9 +87,17 @@
             </a>
 
             <form class="app-topbar-search d-none d-sm-flex ms-2 me-auto" action="index.php" method="GET" role="search">
+                <input type="hidden" name="page" value="customer:view">
+                <input type="hidden" name="page_title" value="Customers">
                 <div class="input-group input-group-sm">
-                    <input class="form-control border-0 bg-light" type="search" name="q" placeholder="Search..." aria-label="Search">
-                    <button class="btn btn-primary" type="submit" aria-label="Search">
+                    <input class="form-control border-0 bg-light"
+                           type="search"
+                           name="name"
+                           value="{$smarty.get.name|default:''|escape:'html'}"
+                           maxlength="50"
+                           placeholder="Search customers..."
+                           aria-label="Search customers">
+                    <button class="btn btn-primary" type="submit" name="submit" value="Search" aria-label="Search customers">
                         <i class="bi bi-search" aria-hidden="true"></i>
                     </button>
                 </div>
