@@ -284,7 +284,7 @@ if ($menu == 1) {
 
 	/* check acl for page request */
 	// Optional modules must be installed and enabled before any of their routes run.
-	if (in_array($module, array('leads', 'messaging'), true)) {
+	if (in_array($module, array('leads', 'messaging', 'tasks'), true)) {
 		$q = "SELECT INSTALLED, ENABLED FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($module) . " LIMIT 1";
 		$r = @$db->Execute($q);
 		if (!$r || $r->EOF || (int)$r->fields['INSTALLED'] !== 1) {

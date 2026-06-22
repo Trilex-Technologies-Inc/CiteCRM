@@ -81,7 +81,7 @@
                                         <button type="submit" name="action" value="install" class="btn btn-sm btn-primary">
                                             Install
                                         </button>
-                                    {else}
+                                    {elseif $m.dir == 'leads' || $m.dir == 'messaging' || $m.dir == 'tasks'}
                                         <input type="hidden" name="confirm_uninstall" value="yes">
                                         <button type="submit"
                                                 name="action"

@@ -1,6 +1,10 @@
 # CiteCRM
 CiteCRM Software
 
+## Developer Documentation
+
+- [Creating a CiteCRM Module](MODULE_DEVELOPMENT.md)
+
 ## Leads Module Setup
 
 If you get a "Table 'CRM_LEADS' doesn't exist" error when using the leads module, you need to install the leads module tables.

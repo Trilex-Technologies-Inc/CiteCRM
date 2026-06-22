@@ -258,6 +258,25 @@
 	                    <span class="app-nav-label">{$translate_core_schedule|default:"Schedule"}</span>
 	                </a>
 
+	                <details class="app-nav-group" {if $current_module == 'tasks'}open{/if}>
+	                    <summary class="app-nav-item {if $current_module == 'tasks'}active{/if}">
+	                        <span class="app-nav-icon" aria-hidden="true">
+	                            <i class="bi bi-check2-square"></i>
+	                        </span>
+	                        <span class="app-nav-label">Tasks</span>
+	                    </summary>
+	                    <div class="app-nav-sub">
+	                        <a class="app-nav-subitem {if $current_module == 'tasks' && $current_page == 'main'}active{/if}"
+	                           href="?page=tasks:main&page_title=Tasks">
+	                            Task List
+	                        </a>
+	                        <a class="app-nav-subitem {if $current_module == 'tasks' && $current_page == 'new'}active{/if}"
+	                           href="?page=tasks:new&page_title=New%20Task">
+	                            New Task
+	                        </a>
+	                    </div>
+	                </details>
+
 	                <details class="app-nav-group">
 	                    <summary class="app-nav-item">
 	                        <span class="app-nav-icon" aria-hidden="true">
