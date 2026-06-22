@@ -81,8 +81,31 @@ function parse_sql_statements($sql)
     return $statements;
 }
 
+function run_module_php_script($path, &$exec_log, $db)
+{
+    if (!is_file($path)) {
+        return true;
+    }
+
+    $exec_log[] = "Running PHP script: $path";
+    ob_start();
+    try {
+        include $path;
+        $out = ob_get_clean();
+        if (trim($out) !== '') {
+            $exec_log[] = "PHP script output: " . substr(trim($out), 0, 1000);
+        }
+        return true;
+    } catch (Throwable $e) {
+        ob_end_clean();
+        $exec_log[] = 'PHP script failed: ' . $e->getMessage();
+        return false;
+    }
+}
+
 // handle actions
 $msg = '';
+$msg_type = 'success';
 // execution log for SQL/install/uninstall scripts
 $exec_log = array();
 if (isset($_POST['action'])) {
@@ -109,8 +132,11 @@ if (isset($_POST['action'])) {
             }
         }
     } elseif (isset($_POST['module_dir'])) {
-        $mdir = $_POST['module_dir'];
-        if ($action === 'register') {
+        $mdir = preg_replace('/[^a-z0-9_\-]/i', '', $_POST['module_dir']);
+        if ($mdir === '' || !is_dir($modules_dir . SEP . $mdir)) {
+            $msg = 'Invalid module directory.';
+            $msg_type = 'danger';
+        } elseif ($action === 'register') {
             $m = read_manifest($mdir);
             $q = "SELECT COUNT(*) AS c FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($mdir);
             $r = $db->Execute($q);
@@ -180,25 +206,16 @@ if (isset($_POST['action'])) {
                     }
 
                     if (empty($sql_error)) {
-                        // try to run module install.php if present; capture output and exceptions
+                        // Run a module-specific PHP installer after any SQL files.
                         $install_php = 'modules' . SEP . $mdir . SEP . 'install.php';
-                        if (is_file($install_php)) {
-                            $exec_log[] = "Running install.php: $install_php";
-                            try {
-                                ob_start();
-                                include $install_php;
-                                $out = ob_get_clean();
-                                if (trim($out) !== '') $exec_log[] = "install.php output: " . substr(trim($out), 0, 1000);
-                            } catch (Throwable $e) {
-                                ob_end_clean();
-                                $exec_log[] = 'install.php threw exception: ' . $e->getMessage();
-                                $sql_error = implode("\n", $exec_log);
-                            }
+                        if (!run_module_php_script($install_php, $exec_log, $db)) {
+                            $sql_error = implode("\n", $exec_log);
                         }
                     }
 
                     if ($sql_error !== '') {
                         $msg = 'Module SQL/install failed. See log below.';
+                        $msg_type = 'danger';
                     } else {
                         $ins = "INSERT INTO " . PRFX . "MODULES (MODULE_NAME,MODULE_DIR,MODULE_VERSION,MODULE_AUTHOR,MODULE_DESC,INSTALLED,ENABLED) VALUES (" . $db->qstr($m['name']) . "," . $db->qstr($m['dir']) . "," . $db->qstr($m['version']) . "," . $db->qstr($m['author']) . "," . $db->qstr($m['description']) . ",1,1)";
                         $db->Execute($ins);
@@ -208,10 +225,10 @@ if (isset($_POST['action'])) {
                 $msg = 'Module already installed';
             }
         } elseif ($action === 'uninstall') {
-                // require explicit confirmation to run uninstall SQL
+                // Destructive action: require an explicit confirmation value.
                 if (empty($_POST['confirm_uninstall']) || $_POST['confirm_uninstall'] !== 'yes') {
-                    $msg = 'Please confirm uninstall by checking the confirmation box.';
-                    $smarty->assign('confirm_uninstall_needed', 1);
+                    $msg = 'Uninstall was not confirmed.';
+                    $msg_type = 'warning';
                 } else {
                     // look for uninstall.sql files
                     $un_sql_files = array();
@@ -259,11 +276,19 @@ if (isset($_POST['action'])) {
                         }
                     }
 
+                    if (!$failed) {
+                        $uninstall_php = 'modules' . SEP . $mdir . SEP . 'uninstall.php';
+                        if (!run_module_php_script($uninstall_php, $exec_log, $db)) {
+                            $failed = true;
+                        }
+                    }
+
                     if ($failed) {
                         $msg = 'Module uninstall failed; see log below.';
+                        $msg_type = 'danger';
                     } else {
                         $db->Execute("DELETE FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($mdir));
-                        $msg = 'Module record removed (files not deleted): ' . $mdir . ($un_sql_files ? ' (uninstall SQL executed)' : '');
+                        $msg = 'Module uninstalled and its data tables removed: ' . $mdir . '. Source files were kept for reinstalling.';
                     }
                 }
         } elseif ($action === 'enable' || $action === 'disable') {
@@ -318,26 +343,11 @@ foreach ($dirs as $d) {
     $available[] = $m;
 }
 
-// Auto-register messaging module if present but not yet registered (bootstrap)
-foreach ($available as $mod) {
-    if ($mod['dir'] === 'messaging' && empty($mod['installed'])) {
-        $m = read_manifest('messaging');
-        $ins = "INSERT INTO " . PRFX . "MODULES (MODULE_NAME,MODULE_DIR,MODULE_VERSION,MODULE_AUTHOR,MODULE_DESC,INSTALLED,ENABLED) VALUES (" . $db->qstr($m['name']) . "," . $db->qstr($m['dir']) . "," . $db->qstr($m['version']) . "," . $db->qstr($m['author']) . "," . $db->qstr($m['description']) . ",1,1)";
-        @$db->Execute($ins);
-        $msg = 'Messaging module auto-registered and enabled.';
-        // refresh available list flag
-        foreach ($available as &$am) {
-            if ($am['dir'] === 'messaging') { $am['installed'] = 1; $am['enabled'] = 1; }
-        }
-        break;
-    }
-}
-
 $smarty->assign('modules', $available);
 $smarty->assign('msg', $msg);
+$smarty->assign('msg_type', $msg_type);
 // pass execution log (if any) to template
 $smarty->assign('exec_log', $exec_log);
-if (isset($confirm_uninstall_needed) && $confirm_uninstall_needed) $smarty->assign('confirm_uninstall_needed', 1);
 $smarty->display('control' . SEP . 'modules.tpl');
 
 

@@ -9,7 +9,7 @@
         <div class="card-body">
 
             {if $msg}
-                <div class="alert alert-success">
+                <div class="alert alert-{$msg_type|default:'success'|escape}">
                     {$msg|escape}
                 </div>
             {/if}
@@ -72,35 +72,24 @@
                                     <input type="hidden" name="module_dir" value="{$m.dir|escape}">
 
                                     {if !$m.installed}
-                                        <button type="submit" name="action" value="register" class="btn btn-sm btn-outline-primary">
-                                            Register
-                                        </button>
+                                        {if $m.dir != 'leads' && $m.dir != 'messaging'}
+                                            <button type="submit" name="action" value="register" class="btn btn-sm btn-outline-primary">
+                                                Register
+                                            </button>
+                                        {/if}
 
                                         <button type="submit" name="action" value="install" class="btn btn-sm btn-primary">
                                             Install
                                         </button>
                                     {else}
-
-                                        {if $confirm_uninstall_needed}
-                                            <div class="form-check me-2">
-                                                <input class="form-check-input" type="checkbox" name="confirm_uninstall" value="yes" id="u{$m.dir}">
-                                                <label class="form-check-label small" for="u{$m.dir}">
-                                                    Confirm
-                                                </label>
-                                            </div>
-
-                                            <button type="submit" name="action" value="uninstall" class="btn btn-sm btn-danger">
-                                                Uninstall
-                                            </button>
-                                        {else}
-                                            <button type="submit"
-                                                    name="action"
-                                                    value="uninstall"
-                                                    class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Remove module record? Files not deleted.');">
-                                                Uninstall
-                                            </button>
-                                        {/if}
+                                        <input type="hidden" name="confirm_uninstall" value="yes">
+                                        <button type="submit"
+                                                name="action"
+                                                value="uninstall"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Uninstall this module? This permanently deletes all data tables owned by it.');">
+                                            Uninstall
+                                        </button>
 
                                     {/if}
 

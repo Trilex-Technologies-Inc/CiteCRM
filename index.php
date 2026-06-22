@@ -283,16 +283,19 @@ if ($menu == 1) {
 } else {
 
 	/* check acl for page request */
-	// Prevent navigation to modules that are installed but disabled
-	if ($module !== 'core') {
-		$q = "SELECT ENABLED FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($module) . " LIMIT 1";
+	// Optional modules must be installed and enabled before any of their routes run.
+	if (in_array($module, array('leads', 'messaging'), true)) {
+		$q = "SELECT INSTALLED, ENABLED FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($module) . " LIMIT 1";
 		$r = @$db->Execute($q);
-		if ($r && !$r->EOF) {
-			if ((int)$r->fields['ENABLED'] === 0) {
-				$msg = rawurlencode("Module '$module' is disabled");
-				force_page('core', 'error&error_msg=' . $msg . '&menu=1');
-				exit;
-			}
+		if (!$r || $r->EOF || (int)$r->fields['INSTALLED'] !== 1) {
+			$msg = rawurlencode("The " . ucfirst($module) . " module is not installed. Install it from Control > Modules.");
+			force_page('core', 'error&error_msg=' . $msg . '&menu=1');
+			exit;
+		}
+		if ((int)$r->fields['ENABLED'] === 0) {
+			$msg = rawurlencode("The " . ucfirst($module) . " module is disabled. Enable it from Control > Modules.");
+			force_page('core', 'error&error_msg=' . $msg . '&menu=1');
+			exit;
 		}
 	}
 	if ($public_access) {

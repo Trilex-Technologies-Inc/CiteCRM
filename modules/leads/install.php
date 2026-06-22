@@ -109,7 +109,7 @@ foreach ($sqls as $s) {
 }
 
 if (!empty($errors)) {
-    echo "Leads install errors:\n" . implode("\n", $errors);
+    throw new RuntimeException("Leads install errors:\n" . implode("\n", $errors));
 } else {
     echo "Leads module tables created successfully.";
 }
