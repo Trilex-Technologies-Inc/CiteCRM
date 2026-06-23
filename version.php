@@ -1,3 +1,3 @@
 <?php
-@define('CITE_CRM_VERSION', '0.6.0');
+@define('CITE_CRM_VERSION', '0.7.0');
 ?>
