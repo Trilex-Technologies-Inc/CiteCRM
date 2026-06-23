@@ -9,18 +9,16 @@
 #  Version 0.0.1	Fri Sep 30 09:30:10 PDT 2005		#
 #														#
 #########################################################
-/* check if lock file exists if not we need to install */
+/* Check install state before loading generated configuration. */
+if (!is_file('lock') || !is_file('conf.php')) {
+	header('Location: install/');
+	exit;
+}
+
 session_start();
 require('conf.php');
 
-if (!is_file('lock')) {
-	echo ("
-		<script type=\"text/javascript\">
-			<!--
-			window.location = \"install\"
-			//-->
-		</script>");
-} else if (is_dir('install')) {
+if (is_dir('install')) {
 	echo ("<font color=\"red\">The install Directory Exists!! Please Rename or remove the install directory.</font>");
 	die;
 }
