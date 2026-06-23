@@ -411,7 +411,7 @@ switch ($mode) {
                                             <?php
                                             if (!check_write('../conf.php')) {
                                                 echo '<span class="badge bg-danger">Not Writable</span>';
-                                                $errors[] = array('../conf.php' => 'Not Writable');
+                                                $errors[] = array('../conf.php' => 'Not Writable or parent directory cannot create it');
                                             } else {
                                                 echo '<span class="badge bg-success">OK</span>';
                                             }
@@ -826,7 +826,12 @@ function file_exists_incpath($file)
 
 function check_write($file)
 {
-    return is_writable($file);
+    if (file_exists($file)) {
+        return is_writable($file);
+    }
+
+    $dir = dirname($file);
+    return is_dir($dir) && is_writable($dir);
 }
 
 function set_path($post_data)
@@ -899,7 +904,7 @@ global \$smarty;
 \$db->Connect(DB_HOST,DB_USER,DB_PASS,DB_NAME);
 \n";
 
-    if (is_writable($filename)) {
+    if (check_write($filename)) {
         if (!$handle = fopen($filename, 'w')) {
             error_check("Cannot open file: $filename");
         }
