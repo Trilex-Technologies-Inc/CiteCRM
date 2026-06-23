@@ -163,6 +163,7 @@
                                             Modules
                                         </a>
                                     </li>
+                                    {if $optional_modules.messaging|default:false}
                                     <li>
                                         <a class="dropdown-item {if $current_module == 'messaging'}active{/if}"
                                            href="?page=messaging:list&page_title=Messaging">
@@ -170,6 +171,7 @@
                                             Messaging
                                         </a>
                                     </li>
+                                    {/if}
                                 <li>
                                     <a class="dropdown-item {if $current_module == 'control' && $current_page == 'edit_rate'}active{/if}"
                                        href="?page=control:edit_rate&page_title=Billing%20Rates">

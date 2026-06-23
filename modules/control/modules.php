@@ -9,6 +9,7 @@
 if (function_exists('xml2php')) @xml2php('control');
 
 $modules_dir = 'modules';
+$optional_module_dirs = array('leads', 'messaging', 'tasks');
 
 // Ensure modules table exists
 $create_sql = "CREATE TABLE IF NOT EXISTS " . PRFX . "MODULES (
@@ -136,14 +137,17 @@ if (isset($_POST['action'])) {
         if ($mdir === '' || !is_dir($modules_dir . SEP . $mdir)) {
             $msg = 'Invalid module directory.';
             $msg_type = 'danger';
+        } elseif (!in_array($mdir, $optional_module_dirs, true)) {
+            $msg = 'System modules are always installed and cannot be installed, disabled, or uninstalled.';
+            $msg_type = 'info';
         } elseif ($action === 'register') {
             $m = read_manifest($mdir);
             $q = "SELECT COUNT(*) AS c FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($mdir);
             $r = $db->Execute($q);
             if ($r && $r->fields['c'] == 0) {
-                $ins = "INSERT INTO " . PRFX . "MODULES (MODULE_NAME,MODULE_DIR,MODULE_VERSION,MODULE_AUTHOR,MODULE_DESC,INSTALLED,ENABLED) VALUES (" . $db->qstr($m['name']) . "," . $db->qstr($m['dir']) . "," . $db->qstr($m['version']) . "," . $db->qstr($m['author']) . "," . $db->qstr($m['description']) . ",1,1)";
+                $ins = "INSERT INTO " . PRFX . "MODULES (MODULE_NAME,MODULE_DIR,MODULE_VERSION,MODULE_AUTHOR,MODULE_DESC,INSTALLED,ENABLED) VALUES (" . $db->qstr($m['name']) . "," . $db->qstr($m['dir']) . "," . $db->qstr($m['version']) . "," . $db->qstr($m['author']) . "," . $db->qstr($m['description']) . ",0,0)";
                 $db->Execute($ins);
-                $msg = 'Module registered and enabled: ' . $mdir;
+                $msg = 'Module registered: ' . $mdir . '. Click Install to create its tables and enable it.';
             } else {
                 $msg = 'Module already registered';
             }
@@ -222,7 +226,23 @@ if (isset($_POST['action'])) {
                         $msg = 'Module installed and enabled: ' . $mdir . ($sql_files ? ' (SQL executed)' : '');
                     }
             } else {
-                $msg = 'Module already installed';
+                $m = read_manifest($mdir);
+                $install_php = 'modules' . SEP . $mdir . SEP . 'install.php';
+                if (!run_module_php_script($install_php, $exec_log, $db)) {
+                    $msg = 'Module install failed. See log below.';
+                    $msg_type = 'danger';
+                } else {
+                    $upd = "UPDATE " . PRFX . "MODULES SET
+                            MODULE_NAME=" . $db->qstr($m['name']) . ",
+                            MODULE_VERSION=" . $db->qstr($m['version']) . ",
+                            MODULE_AUTHOR=" . $db->qstr($m['author']) . ",
+                            MODULE_DESC=" . $db->qstr($m['description']) . ",
+                            INSTALLED=1,
+                            ENABLED=1
+                            WHERE MODULE_DIR=" . $db->qstr($mdir);
+                    $db->Execute($upd);
+                    $msg = 'Module installed and enabled: ' . $mdir;
+                }
             }
         } elseif ($action === 'uninstall') {
                 // Destructive action: require an explicit confirmation value.
@@ -302,13 +322,14 @@ if (isset($_POST['action'])) {
         $added = 0;
         foreach (scandir($modules_dir) as $d) {
             if ($d === '.' || $d === '..') continue;
+            if (!in_array($d, $optional_module_dirs, true)) continue;
             $path = $modules_dir . SEP . $d;
             if (!is_dir($path)) continue;
             $m = read_manifest($d);
             $q = "SELECT COUNT(*) AS c FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($d);
             $r = $db->Execute($q);
             if ($r && $r->fields['c'] == 0) {
-                $ins = "INSERT INTO " . PRFX . "MODULES (MODULE_NAME,MODULE_DIR,MODULE_VERSION,MODULE_AUTHOR,MODULE_DESC,INSTALLED,ENABLED) VALUES (" . $db->qstr($m['name']) . "," . $db->qstr($m['dir']) . "," . $db->qstr($m['version']) . "," . $db->qstr($m['author']) . "," . $db->qstr($m['description']) . ",1,1)";
+                $ins = "INSERT INTO " . PRFX . "MODULES (MODULE_NAME,MODULE_DIR,MODULE_VERSION,MODULE_AUTHOR,MODULE_DESC,INSTALLED,ENABLED) VALUES (" . $db->qstr($m['name']) . "," . $db->qstr($m['dir']) . "," . $db->qstr($m['version']) . "," . $db->qstr($m['author']) . "," . $db->qstr($m['description']) . ",0,0)";
                 $db->Execute($ins);
                 $added++;
             }
@@ -329,16 +350,24 @@ foreach (scandir($modules_dir) as $d) {
 $available = array();
 foreach ($dirs as $d) {
     $m = read_manifest($d);
-    // check installed status
-    $r = $db->Execute("SELECT * FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($d) . " LIMIT 1");
-    if ($r && !$r->EOF) {
-        $m['installed'] = (int)$r->fields['INSTALLED'];
-        $m['enabled'] = (int)$r->fields['ENABLED'];
-        $m['db_id'] = $r->fields['MODULE_ID'];
-    } else {
-        $m['installed'] = 0;
-        $m['enabled'] = 0;
+    $m['is_system'] = !in_array($d, $optional_module_dirs, true);
+
+    if ($m['is_system']) {
+        $m['installed'] = 1;
+        $m['enabled'] = 1;
         $m['db_id'] = 0;
+    } else {
+        // check installed status
+        $r = $db->Execute("SELECT * FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($d) . " LIMIT 1");
+        if ($r && !$r->EOF) {
+            $m['installed'] = (int)$r->fields['INSTALLED'];
+            $m['enabled'] = (int)$r->fields['ENABLED'];
+            $m['db_id'] = $r->fields['MODULE_ID'];
+        } else {
+            $m['installed'] = 0;
+            $m['enabled'] = 0;
+            $m['db_id'] = 0;
+        }
     }
     $available[] = $m;
 }

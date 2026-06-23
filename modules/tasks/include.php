@@ -33,6 +33,32 @@ function tasks_get_employees($db)
     return $employees;
 }
 
+function tasks_table_exists($db)
+{
+    $sql = "SHOW TABLES LIKE " . $db->qstr(PRFX . 'TASKS');
+    $result = $db->Execute($sql);
+
+    return ($result && !$result->EOF);
+}
+
+function tasks_install_table($db)
+{
+    $install_file = 'modules' . SEP . 'tasks' . SEP . 'install.php';
+    if (!is_file($install_file)) {
+        return false;
+    }
+
+    ob_start();
+    try {
+        include $install_file;
+        ob_end_clean();
+        return true;
+    } catch (Exception $e) {
+        ob_end_clean();
+        return false;
+    }
+}
+
 function tasks_employee_exists($db, $employee_id)
 {
     if ($employee_id === '') {

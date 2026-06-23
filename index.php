@@ -218,6 +218,23 @@ $tracker_page = "$module:$page";
 $smarty->assign('current_module', $module);
 $smarty->assign('current_page', $page);
 
+$optional_modules = array(
+	'leads' => false,
+	'messaging' => false,
+	'tasks' => false,
+);
+$q = "SELECT MODULE_DIR, INSTALLED, ENABLED FROM " . PRFX . "MODULES WHERE MODULE_DIR IN ('leads','messaging','tasks')";
+if ($r = @$db->Execute($q)) {
+	while (!$r->EOF) {
+		$module_dir = isset($r->fields['MODULE_DIR']) ? $r->fields['MODULE_DIR'] : '';
+		if (isset($optional_modules[$module_dir])) {
+			$optional_modules[$module_dir] = ((int)$r->fields['INSTALLED'] === 1 && (int)$r->fields['ENABLED'] === 1);
+		}
+		$r->MoveNext();
+	}
+}
+$smarty->assign('optional_modules', $optional_modules);
+
 // Employee type (used to show/hide admin menu sections)
 $employee_type = '';
 $show_admin_menu = false;

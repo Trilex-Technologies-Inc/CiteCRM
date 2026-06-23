@@ -78,17 +78,13 @@
 
                                     <input type="hidden" name="module_dir" value="{$m.dir|escape}">
 
-                                    {if !$m.installed}
-                                        {if $m.dir != 'leads' && $m.dir != 'messaging'}
-                                            <button type="submit" name="action" value="register" class="btn btn-sm btn-outline-primary">
-                                                Register
-                                            </button>
-                                        {/if}
-
+                                    {if $m.is_system|default:false}
+                                        <span class="badge bg-info text-dark">System Module</span>
+                                    {elseif !$m.installed}
                                         <button type="submit" name="action" value="install" class="btn btn-sm btn-primary">
                                             Install
                                         </button>
-                                    {elseif $m.dir == 'leads' || $m.dir == 'messaging' || $m.dir == 'tasks'}
+                                    {else}
                                         <input type="hidden" name="confirm_uninstall" value="yes">
                                         <button type="submit"
                                                 name="action"
@@ -100,7 +96,7 @@
 
                                     {/if}
 
-                                    {if $m.installed}
+                                    {if !$m.is_system|default:false && $m.installed}
                                         {if $m.enabled}
                                             <button type="submit" name="action" value="disable" class="btn btn-sm btn-outline-secondary">
                                                 Disable

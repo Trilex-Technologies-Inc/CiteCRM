@@ -83,6 +83,7 @@
 	                    </div>
 	                </details>
 
+					{if $optional_modules.leads|default:false}
 					<details class="app-nav-group" {if $current_module == 'leads'}open{/if}>
 						<summary class="app-nav-item {if $current_module == 'leads'}active{/if}">
 							<span class="app-nav-icon" aria-hidden="true">
@@ -101,6 +102,7 @@
 							</a>
 						</div>
 					</details>
+					{/if}
 
 					<details class="app-nav-group" {if $current_module == 'workorder'}open{/if}>
 	                    <summary class="app-nav-item {if $current_module == 'workorder'}active{/if}">
@@ -258,6 +260,7 @@
 	                    <span class="app-nav-label">{$translate_core_schedule|default:"Schedule"}</span>
 	                </a>
 
+	                {if $optional_modules.tasks|default:false}
 	                <details class="app-nav-group" {if $current_module == 'tasks'}open{/if}>
 	                    <summary class="app-nav-item {if $current_module == 'tasks'}active{/if}">
 	                        <span class="app-nav-icon" aria-hidden="true">
@@ -276,6 +279,7 @@
 	                        </a>
 	                    </div>
 	                </details>
+	                {/if}
 
 	                <details class="app-nav-group">
 	                    <summary class="app-nav-item">
