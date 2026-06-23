@@ -17,15 +17,22 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="mb-0">Available Modules</h3>
 
-                <form method="post" class="m-0">
-                    <button type="submit"
-                            name="action"
-                            value="register_all"
-                            class="btn btn-warning btn-sm"
-                            onclick="return confirm('Register all modules and enable them?');">
-                        Register All Modules
-                    </button>
-                </form>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-outline-secondary btn-sm"
+                       href="index.php?page=control:module_development&page_title=Module%20Development">
+                        Module Development Guide
+                    </a>
+
+                    <form method="post" class="m-0">
+                        <button type="submit"
+                                name="action"
+                                value="register_all"
+                                class="btn btn-warning btn-sm"
+                                onclick="return confirm('Register all modules and enable them?');">
+                            Register All Modules
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <div class="table-responsive">
