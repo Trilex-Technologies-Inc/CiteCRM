@@ -60,6 +60,7 @@ if (isset($VAR['submit'])) {
             'images/company_logo.jpeg',
             'images/company_logo.gif',
             'images/company_logo.webp',
+            'images/logo.png',
         );
         foreach ($logo_candidates as $candidate) {
             if (is_file($candidate)) {

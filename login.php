@@ -38,6 +38,7 @@ $logo_candidates = array(
 	'images/company_logo.jpeg',
 	'images/company_logo.gif',
 	'images/company_logo.webp',
+	'images/logo.png',
 	'images/logo.jpg',
 );
 foreach ($logo_candidates as $candidate) {
