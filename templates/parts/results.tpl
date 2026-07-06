@@ -30,11 +30,7 @@
 				<div class="col-12 col-lg-7">
 					<div class="p-3 border rounded bg-body-tertiary">
 						<div class="h5 mb-2">Cite CRM</div>
-						<div class="text-muted small">
-							<div>323 SE Riverside AV</div>
-							<div>Grants Pass, Oregon 97526</div>
-							<div>1-866-471-1343</div>
-						</div>
+						
 					</div>
 				</div>
 				<div class="col-12 col-lg-5">

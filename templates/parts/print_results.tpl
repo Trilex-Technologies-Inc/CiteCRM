@@ -29,9 +29,7 @@
 			<div class="card border-dark h-100">
 				<div class="card-body p-3">
 					<div class="fs-4 fw-bold">Cite CRM</div>
-					<div>323 SE Riverside AV</div>
-					<div>Grants Pass, Oregon 97526</div>
-					<div>1-866-471-1343</div>
+					
 				</div>
 			</div>
 		</div>

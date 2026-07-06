@@ -76,58 +76,54 @@ class Auth {
 		}
 
     // Use the database abstraction layer to safely quote values
-    $login_raw     = isset($_POST[USER_LOGIN_VAR]) ? $_POST[USER_LOGIN_VAR] : '';
-    $password_raw  = $password;
+    $login_raw = isset($_POST[USER_LOGIN_VAR]) ? $_POST[USER_LOGIN_VAR] : '';
+    $raw_password = isset($_POST[USER_PASSW_VAR]) ? $_POST[USER_PASSW_VAR] : '';
 
-    // qstr() returns a safely quoted and escaped string suitable for SQL
-    $login_q    = $this->db->qstr($login_raw);
-    $password_q = $this->db->qstr($password_raw);
-  
-    // Query to count number of users with this combination
-    $sql = "SELECT COUNT(*) AS num_users FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN=".$login_q." AND EMPLOYEE_PASSWD=".$password_q;
-    
+    // Fetch stored password for this login and verify in PHP to support modern hashes
+    $login_q = $this->db->qstr($login_raw);
+    $sql = "SELECT EMPLOYEE_ID, EMPLOYEE_PASSWD FROM " . PRFX . "TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN=" . $login_q . " LIMIT 1";
     $result = $this->db->Execute($sql);
-    
-    // Check if query was successful
     if (!$result) {
-        // Log the database error
-        error_log("Database query failed: " . $this->db->ErrorMsg());
-        $this->writeLog('Database Error', $login);
-        $this->force_page('login.php?error_msg=System Error. Please try again.');
-        exit;
+      error_log("Database query failed: " . $this->db->ErrorMsg());
+      $this->writeLog('Database Error', $login_raw);
+      $this->force_page('login.php?error_msg=System Error. Please try again.');
+      exit;
     }
-    
     $row = $result->FetchRow();
-
-    // If there isn't is exactly one entry, redirect
-    if ($row['num_users'] != 1) {    
-      $this->writeLog('Failed Login',$login_raw);
+    if (!$row || !isset($row['EMPLOYEE_ID'])) {
+      $this->writeLog('Failed Login', $login_raw);
       $this->force_page('login.php?error_msg=Login Failed');
-    // Else is a valid user; set the session variables
-    } else {
-        /* grab their login ID for tracking purposes */
-        $sql = "SELECT EMPLOYEE_ID FROM ".PRFX."TABLE_EMPLOYEE WHERE EMPLOYEE_LOGIN=".$login_q;
-        $result = $this->db->Execute($sql);
-        
-        // Check if second query was successful
-        if (!$result) {
-            error_log("Second database query failed: " . $this->db->ErrorMsg());
-            $this->writeLog('Database Error on ID fetch', $login);
-            $this->force_page('login.php?error_msg=System Error. Please try again.');
-            exit;
-        }
-        
-        $row = $result->FetchRow();
-        
-        if (!isset($row['EMPLOYEE_ID'])) { /* We did not get a login ID */
-            $this->writeLog('Failed Login ID For ',$login);
-            $this->force_page('login.php?error_msg=Login Failed');
-        } else {
-            $login_id = $row['EMPLOYEE_ID'];
-        }
-    
-      $this->storeAuth($login_raw, $password_raw, $login_id);
+      return;
     }
+
+    $stored = isset($row['EMPLOYEE_PASSWD']) ? $row['EMPLOYEE_PASSWD'] : '';
+    $login_id = (int)$row['EMPLOYEE_ID'];
+
+    $authenticated = false;
+    // Prefer password_verify for modern hashed passwords
+    if (function_exists('password_verify') && strlen($stored) > 0) {
+      if (@password_verify($raw_password, $stored)) {
+        $authenticated = true;
+      }
+    }
+    // Fallback: legacy MD5 check if configured
+    if (!$authenticated) {
+      if ($this->md5) {
+        if (md5($raw_password) === $stored) $authenticated = true;
+      } else {
+        if ($raw_password === $stored) $authenticated = true;
+      }
+    }
+
+    if (!$authenticated) {
+      $this->writeLog('Failed Login', $login_raw);
+      $this->force_page('login.php?error_msg=Login Failed');
+      return;
+    }
+
+    // For session consistency keep stored session password same format as before
+    $password_to_store = $this->md5 ? md5($raw_password) : $raw_password;
+    $this->storeAuth($login_raw, $password_to_store, $login_id);
   }
   
 

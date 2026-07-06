@@ -411,7 +411,7 @@ switch ($mode) {
                                             <?php
                                             if (!check_write('../conf.php')) {
                                                 echo '<span class="badge bg-danger">Not Writable</span>';
-                                                $errors[] = array('../conf.php' => 'Not Writable');
+                                                $errors[] = array('../conf.php' => 'Not Writable or parent directory cannot create it');
                                             } else {
                                                 echo '<span class="badge bg-success">OK</span>';
                                             }
@@ -826,7 +826,12 @@ function file_exists_incpath($file)
 
 function check_write($file)
 {
-    return is_writable($file);
+    if (file_exists($file)) {
+        return is_writable($file);
+    }
+
+    $dir = dirname($file);
+    return is_dir($dir) && is_writable($dir);
 }
 
 function set_path($post_data)
@@ -869,8 +874,11 @@ include('version.php');
 @define('INCITCRM', \"http://dev.incitecrm.com/index.php\");
 
 /* Load required Includes */
-require(INCLUDE_URL.SEP.'session.php');
-require(INCLUDE_URL.SEP.'auth.php');
+// Allow public endpoints to skip session/auth by defining SKIP_AUTH before including conf.php
+if (!defined('SKIP_AUTH')) {
+    require(INCLUDE_URL.SEP.'session.php');
+    require(INCLUDE_URL.SEP.'auth.php');
+}
 
 /* Set Path for SMARTY in the php include path */
 set_include_path(get_include_path() . PATH_SEPARATOR . INCLUDE_URL.'SMARTY'.SEP);
@@ -896,7 +904,7 @@ global \$smarty;
 \$db->Connect(DB_HOST,DB_USER,DB_PASS,DB_NAME);
 \n";
 
-    if (is_writable($filename)) {
+    if (check_write($filename)) {
         if (!$handle = fopen($filename, 'w')) {
             error_check("Cannot open file: $filename");
         }

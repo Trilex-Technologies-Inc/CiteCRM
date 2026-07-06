@@ -764,6 +764,7 @@ function create_table_customer($db)
 		`CUSTOMER_WORK_PHONE` varchar(13) NOT NULL default '',
 		`CUSTOMER_MOBILE_PHONE` varchar(13) NOT NULL default '',
 		`CUSTOMER_EMAIL` varchar(30) default NULL,
+		`CUSTOMER_IS_SUBSCRIBED` tinyint(1) NOT NULL default '0',
 		`CUSTOMER_TYPE` varchar(20) default NULL,
 		`CUSTOMER_FIRST_NAME` varchar(20) default NULL,
 		`CUSTOMER_LAST_NAME` varchar(20) default NULL,
@@ -806,7 +807,7 @@ function create_table_employee($db)
 	$q = "CREATE TABLE `" . PRFX . "TABLE_EMPLOYEE` (
 		`EMPLOYEE_ID` int(11) NOT NULL auto_increment,
 		`EMPLOYEE_LOGIN` varchar(50) NOT NULL default '',
-		`EMPLOYEE_PASSWD` varchar(50) NOT NULL default '',
+		`EMPLOYEE_PASSWD` varchar(255) NOT NULL default '',
 		`EMPLOYEE_EMAIL` varchar(50) NOT NULL default '',
 		`EMPLOYEE_FIRST_NAME` varchar(40) NOT NULL default '',
 		`EMPLOYEE_LAST_NAME` varchar(40) NOT NULL default '',

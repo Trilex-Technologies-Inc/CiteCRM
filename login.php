@@ -38,6 +38,7 @@ $logo_candidates = array(
 	'images/company_logo.jpeg',
 	'images/company_logo.gif',
 	'images/company_logo.webp',
+	'images/logo.png',
 	'images/logo.jpg',
 );
 foreach ($logo_candidates as $candidate) {
@@ -64,6 +65,19 @@ if (isset($db) && defined('PRFX')) {
 $smarty->assign('captcha_enabled', $captcha_enabled);
 $smarty->assign('captcha_provider', $captcha_provider);
 $smarty->assign('captcha_site_key', $captcha_site_key);
+
+// SSO availability: read OAUTH client IDs from SETUP and expose to template
+$sso_google = 0;
+$sso_ms = 0;
+if (isset($db) && defined('PRFX')) {
+	$cfg = @$db->GetRow("SELECT * FROM " . PRFX . "SETUP LIMIT 1");
+	if ($cfg) {
+		$sso_google = !empty($cfg['OAUTH_GOOGLE_CLIENT_ID']) && (!empty($cfg['OAUTH_GOOGLE_ENABLED']) && $cfg['OAUTH_GOOGLE_ENABLED'] == 1);
+		$sso_ms = !empty($cfg['OAUTH_MS_CLIENT_ID']) && (!empty($cfg['OAUTH_MS_ENABLED']) && $cfg['OAUTH_MS_ENABLED'] == 1);
+	}
+}
+$smarty->assign('sso_google_enabled', $sso_google);
+$smarty->assign('sso_ms_enabled', $sso_ms);
 
 #####################################
 #	Display Any Errors				#

@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>CiteCRM Options</title></head>
+<body>
+  <h2>CiteCRM Extension Settings</h2>
+  <label>Endpoint URL:<br/><input id="endpoint" type="text" size="60" /></label><br/>
+  <label>API Key:<br/><input id="api_key" type="text" size="40" /></label><br/>
+  <button id="save">Save</button>
+  <script>
+    document.getElementById('save').addEventListener('click', function(){
+      chrome.storage.sync.set({endpoint: document.getElementById('endpoint').value, api_key: document.getElementById('api_key').value}, function(){ alert('Saved'); });
+    });
+    chrome.storage.sync.get(['endpoint','api_key'], function(items){ if(items.endpoint) document.getElementById('endpoint').value = items.endpoint; if(items.api_key) document.getElementById('api_key').value = items.api_key; });
+  </script>
+</body>
+</html>

@@ -9,18 +9,16 @@
 #  Version 0.0.1	Fri Sep 30 09:30:10 PDT 2005		#
 #														#
 #########################################################
-/* check if lock file exists if not we need to install */
+/* Check install state before loading generated configuration. */
+if (!is_file('lock') || !is_file('conf.php')) {
+	header('Location: install/');
+	exit;
+}
+
 session_start();
 require('conf.php');
 
-if (!is_file('lock')) {
-	echo ("
-		<script type=\"text/javascript\">
-			<!--
-			window.location = \"install\"
-			//-->
-		</script>");
-} else if (is_dir('install')) {
+if (is_dir('install')) {
 	echo ("<font color=\"red\">The install Directory Exists!! Please Rename or remove the install directory.</font>");
 	die;
 }
@@ -109,6 +107,7 @@ $logo_candidates = array(
 	'images/company_logo.jpeg',
 	'images/company_logo.gif',
 	'images/company_logo.webp',
+	'images/logo.png',
 );
 foreach ($logo_candidates as $candidate) {
 	if (is_file($candidate)) {
@@ -129,7 +128,24 @@ $page = 'main';
 $the_page = 'modules' . SEP . 'core' . SEP . 'main.php';
 
 if (!isset($_POST['page'])) {
-	if (isset($_GET['page']) && !empty($_GET['page'])) { // FIXED: Check if set
+	// Support legacy module/action query format (index.php?module=...&action=...)
+	if (isset($_GET['module']) && !empty($_GET['module']) && isset($_GET['action']) && !empty($_GET['action'])) {
+		$module = $_GET['module'];
+		$page = $_GET['action'];
+		$the_page = 'modules' . SEP . $module . SEP . $page . '.php';
+
+		unset($_GET['module'], $_GET['action']);
+
+		foreach ($_GET as $key => $val) {
+			@define($key, $val);
+		}
+
+		if (!file_exists($the_page)) {
+			$the_page = 'modules' . SEP . 'core' . SEP . '404.php';
+			$module = 'core';
+			$page = '404';
+		}
+	} elseif (isset($_GET['page']) && !empty($_GET['page'])) { // FIXED: Check if set
 		// Explode the url so we can get the module and page
 		list($module, $page) = explode(":", $_GET['page']);
 		$the_page = 'modules' . SEP . $module . SEP . $page . '.php';
@@ -157,7 +173,23 @@ if (!isset($_POST['page'])) {
 		$page = 'main';
 	}
 } else {
-	if (isset($_POST['page']) && !empty($_POST['page'])) { // FIXED: Check if set
+	if (isset($_POST['module']) && !empty($_POST['module']) && isset($_POST['action']) && !empty($_POST['action'])) {
+		$module = $_POST['module'];
+		$page = $_POST['action'];
+		$the_page = 'modules' . SEP . $module . SEP . $page . '.php';
+
+		unset($_POST['module'], $_POST['action']);
+
+		foreach ($_POST as $key => $val) {
+			@define($key, $val);
+		}
+
+		if (!file_exists($the_page)) {
+			$the_page = 'modules' . SEP . 'core' . SEP . '404.php';
+			$module = 'core';
+			$page = '404';
+		}
+	} elseif (isset($_POST['page']) && !empty($_POST['page'])) { // FIXED: Check if set
 		// Explode the url so we can get the module and page
 		list($module, $page) = explode(":", $_POST['page']);
 		$the_page = 'modules' . SEP . $module . SEP . $page . '.php';
@@ -185,6 +217,23 @@ if (!isset($_POST['page'])) {
 $tracker_page = "$module:$page";
 $smarty->assign('current_module', $module);
 $smarty->assign('current_page', $page);
+
+$optional_modules = array(
+	'leads' => false,
+	'messaging' => false,
+	'tasks' => false,
+);
+$q = "SELECT MODULE_DIR, INSTALLED, ENABLED FROM " . PRFX . "MODULES WHERE MODULE_DIR IN ('leads','messaging','tasks')";
+if ($r = @$db->Execute($q)) {
+	while (!$r->EOF) {
+		$module_dir = isset($r->fields['MODULE_DIR']) ? $r->fields['MODULE_DIR'] : '';
+		if (isset($optional_modules[$module_dir])) {
+			$optional_modules[$module_dir] = ((int)$r->fields['INSTALLED'] === 1 && (int)$r->fields['ENABLED'] === 1);
+		}
+		$r->MoveNext();
+	}
+}
+$smarty->assign('optional_modules', $optional_modules);
 
 // Employee type (used to show/hide admin menu sections)
 $employee_type = '';
@@ -250,6 +299,21 @@ if ($menu == 1) {
 } else {
 
 	/* check acl for page request */
+	// Optional modules must be installed and enabled before any of their routes run.
+	if (in_array($module, array('leads', 'messaging', 'tasks'), true)) {
+		$q = "SELECT INSTALLED, ENABLED FROM " . PRFX . "MODULES WHERE MODULE_DIR=" . $db->qstr($module) . " LIMIT 1";
+		$r = @$db->Execute($q);
+		if (!$r || $r->EOF || (int)$r->fields['INSTALLED'] !== 1) {
+			$msg = rawurlencode("The " . ucfirst($module) . " module is not installed. Install it from Control > Modules.");
+			force_page('core', 'error&error_msg=' . $msg . '&menu=1');
+			exit;
+		}
+		if ((int)$r->fields['ENABLED'] === 0) {
+			$msg = rawurlencode("The " . ucfirst($module) . " module is disabled. Enable it from Control > Modules.");
+			force_page('core', 'error&error_msg=' . $msg . '&menu=1');
+			exit;
+		}
+	}
 	if ($public_access) {
 		require($the_page);
 	} else if (!check_acl($db, $module, $page)) {

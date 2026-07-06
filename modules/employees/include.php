@@ -146,7 +146,12 @@ function check_employee_ex($db,$VAR){
 
     // A function to encrypt the password
     function encryptValue($value) {
-        return md5($value);
+		// Use password_hash for secure password storage
+		if (function_exists('password_hash')) {
+			return password_hash($value, PASSWORD_DEFAULT);
+		}
+		// Fallback to MD5 if password_hash not available (not recommended)
+		return md5($value);
     }
 
 #####################################
@@ -154,8 +159,12 @@ function check_employee_ex($db,$VAR){
 #####################################
 
 function insert_new_employee($db,$VAR){
-
-	$password = encryptValue($VAR["password"]);
+	// Hash password securely
+	if (function_exists('password_hash')) {
+		$password = password_hash($VAR["password"], PASSWORD_DEFAULT);
+	} else {
+		$password = md5($VAR["password"]);
+	}
 	$login    = strtolower($VAR["firstName"]{0}).strtolower($VAR["lastName"]);
 	
 	$q = "INSERT INTO ".PRFX."TABLE_EMPLOYEE SET

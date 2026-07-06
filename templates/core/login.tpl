@@ -494,6 +494,25 @@
 
           </div>
 
+            <!-- SSO OPTIONS -->
+            {if $sso_google_enabled || $sso_ms_enabled}
+              <div class="text-center mt-3">
+                <div class="small mb-2 text-muted">Or sign in with</div>
+                {if $sso_google_enabled}
+                  <a href="modules/auth/google_login.php" class="btn btn-outline-danger btn-sm me-2">
+                    <i class="bi bi-google"></i>
+                    Google
+                  </a>
+                {/if}
+                {if $sso_ms_enabled}
+                  <a href="modules/auth/microsoft_login.php" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-microsoft"></i>
+                    Microsoft
+                  </a>
+                {/if}
+              </div>
+            {/if}
+
         </form>
 
       </div>

@@ -25,8 +25,6 @@ $smarty->assign('country', $country);
 $selected_country = '';
 if (isset($VAR['country']) && trim((string)$VAR['country']) !== '') {
 	$selected_country = strtoupper(trim((string)$VAR['country']));
-} else if (isset($company_country) && trim((string)$company_country) !== '') {
-	$selected_country = strtoupper(trim((string)$company_country));
 }
 $smarty->assign('selected_country', $selected_country);
 

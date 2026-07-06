@@ -109,14 +109,14 @@
                         <label class="form-label">
                             <span class="text-danger">*</span> <b>{$translate_customer_city}</b>
                         </label>
-                        <input type="text" name="city" value="{$company_city}" class="form-control">
+                        <input type="text" name="city" value="" class="form-control">
                     </div>
 
                     <div class="col-md-3 mb-3">
                         <label class="form-label">
                             <span class="text-danger">*</span> <b>{$translate_customer_state}</b>
                         </label>
-                        <input type="text" name="state" value="{$company_state}" class="form-control">
+                        <input type="text" name="state" value="" class="form-control">
                     </div>
 
                     <div class="col-md-3 mb-3">
@@ -138,7 +138,7 @@
                         <label class="form-label">
                             <span class="text-danger">*</span> <b>{$translate_customer_zip}</b>
                         </label>
-                        <input type="text" name="zip" value="{$company_zip}" maxlength="20" class="form-control">
+                        <input type="text" name="zip" value="" maxlength="20" class="form-control">
                     </div>
                 </div>
 
@@ -155,6 +155,13 @@
                             <b>{$translate_email}</b>
                         </label>
                         <input type="email" name="email" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="is_subscribed" name="is_subscribed" value="1" {if $VAR.is_subscribed}checked{/if}>
+                            <label class="form-check-label" for="is_subscribed">Subscribed</label>
+                        </div>
                     </div>
 
                     <div class="col-md-6 mb-3">
